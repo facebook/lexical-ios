@@ -1,0 +1,358 @@
+// (c) Meta Platforms, Inc. and affiliates. Confidential and proprietary.
+
+import Foundation
+import UIKit
+
+enum MergeAction {
+  case historyMerge
+  case historyPush
+  case discardHistoryCandidate
+}
+
+enum ChangeType {
+  case other
+  case composingCharacter
+  case insertCharacterAfterSelection
+  case insertCharacterBeforeSelection
+  case deleteCharacterBeforeSelection
+  case deleteCharacterAfterSelection
+}
+
+public class EditorHistory {
+  var editor: Editor
+  var externalHistoryState: HistoryState?
+  var delay: Int
+  var prevChangeTime: Double
+  var prevChangeType: ChangeType
+
+  public init(editor: Editor, externalHistoryState: HistoryState, delay: Int = 5) {
+    self.editor = editor
+    self.externalHistoryState = externalHistoryState
+    self.delay = delay
+    self.prevChangeTime = 0
+    self.prevChangeType = .other
+  }
+
+  public func applyChange(
+    editorState: EditorState,
+    prevEditorState: EditorState,
+    dirtyNodes: DirtyNodeMap) {
+    let historyState: HistoryState = externalHistoryState ?? createEmptyHistoryState()
+    let currentEditorState = historyState.current == nil ? nil : historyState.current?.editorState
+
+    if historyState.current != nil && editorState == currentEditorState {
+      return
+    }
+
+    if historyState.current == nil {
+      historyState.current = HistoryStateEntry(
+        editor: editor,
+        editorState: prevEditorState,
+        undoSelection: prevEditorState.selection?.clone() as? RangeSelection)
+    }
+
+    do {
+      let mergeAction = try getMergeAction(
+        prevEditorState: prevEditorState,
+        nextEditorState: editorState,
+        currentHistoryEntry: historyState.current,
+        dirtyNodes: dirtyNodes)
+
+      if mergeAction == .historyPush {
+        if !historyState.redoStack.isEmpty {
+          historyState.redoStack = []
+          editor.dispatchCommand(type: .canRedo, payload: false)
+        }
+
+        if let current = historyState.current, let editor = current.editor {
+          historyState.undoStack.append(
+            HistoryStateEntry(
+              editor: editor,
+              editorState: current.editorState,
+              undoSelection: prevEditorState.selection?.clone() as? RangeSelection))
+        }
+
+        editor.dispatchCommand(type: .canUndo, payload: true)
+      } else if mergeAction == .discardHistoryCandidate {
+        return
+      }
+
+      historyState.current = HistoryStateEntry(
+        editor: editor,
+        editorState: editorState,
+        undoSelection: editorState.selection?.clone() as? RangeSelection)
+
+      externalHistoryState = historyState
+    } catch {
+      print("Failed to get mergeAction: \(error.localizedDescription)")
+    }
+  }
+
+  func undo() {
+    guard let externalHistoryState = externalHistoryState,
+          externalHistoryState.undoStack.count != 0
+    else { return }
+
+    var historyStateEntry = externalHistoryState.undoStack.removeLast()
+    if let current = externalHistoryState.current {
+      externalHistoryState.redoStack.append(current)
+      editor.dispatchCommand(type: .canRedo, payload: true)
+    }
+
+    if externalHistoryState.undoStack.count == 0 {
+      editor.dispatchCommand(type: .canUndo, payload: false)
+    }
+
+    externalHistoryState.current = historyStateEntry
+    do {
+      if let editor = historyStateEntry.editor,
+         let undoSelection = historyStateEntry.undoSelection {
+        try editor.setEditorState(historyStateEntry.editorState.clone(selection: undoSelection))
+        historyStateEntry.editor = editor
+        editor.frontend?.showPlaceholderText()
+      }
+    } catch {
+      editor.log(.other, .warning, "undo: Failed to setEditorState: \(error.localizedDescription)")
+    }
+
+    self.externalHistoryState = externalHistoryState
+  }
+
+  func redo() {
+    guard let externalHistoryState = externalHistoryState,
+          externalHistoryState.redoStack.count != 0
+    else { return }
+
+    if let current = externalHistoryState.current {
+      externalHistoryState.undoStack.append(current)
+      editor.dispatchCommand(type: .canUndo, payload: true)
+    }
+
+    let historyStateEntry = externalHistoryState.redoStack.removeLast()
+    if externalHistoryState.redoStack.count == 0 {
+      editor.dispatchCommand(type: .canRedo, payload: false)
+    }
+
+    externalHistoryState.current = historyStateEntry
+
+    do {
+      try editor.setEditorState(historyStateEntry.editorState.clone(selection: historyStateEntry.undoSelection))
+      editor.frontend?.showPlaceholderText()
+    } catch {
+      editor.log(.other, .warning, "redo: Failed to setEditorState: \(error.localizedDescription)")
+    }
+
+    self.externalHistoryState = externalHistoryState
+  }
+
+  public func applyCommand(type: CommandType) {
+    if type == .redo {
+      redo()
+    } else if type == .undo {
+      undo()
+    } else if type == .clearEditor {
+      guard let externalHistoryState = externalHistoryState else { return }
+
+      clearHistory(historyState: externalHistoryState)
+    }
+  }
+
+  func getMergeAction(
+    prevEditorState: EditorState?,
+    nextEditorState: EditorState,
+    currentHistoryEntry: HistoryStateEntry?,
+    dirtyNodes: DirtyNodeMap
+  ) throws -> MergeAction {
+    let changeTime = Date().timeIntervalSince1970
+
+    if prevChangeTime == 0 {
+      prevChangeTime = Date().timeIntervalSince1970
+    }
+
+    let changeType = try getChangeType(
+      prevEditorState: prevEditorState,
+      nextEditorState: nextEditorState,
+      dirtyLeavesSet: dirtyNodes,
+      isComposing: editor.isComposing())
+
+    defer {
+      prevChangeTime = changeTime
+      prevChangeType = changeType
+    }
+
+    let selection = nextEditorState.selection
+    let prevSelection = prevEditorState?.selection
+    let hasDirtyNodes = dirtyNodes.count > 0
+    if !hasDirtyNodes {
+      if prevSelection == nil && selection != nil {
+        return .historyMerge
+      }
+      return .discardHistoryCandidate
+    }
+
+    let isSameEditor = currentHistoryEntry == nil || currentHistoryEntry?.editor == self.editor
+
+    if changeType != .other &&
+        changeType == prevChangeType &&
+        changeTime < prevChangeTime + Double(self.delay) &&
+        isSameEditor {
+      return .historyMerge
+    }
+
+    return .historyPush
+  }
+}
+
+public struct HistoryStateEntry {
+  var editor: Editor?
+  var editorState: EditorState
+  var undoSelection: RangeSelection?
+
+  public init(editor: Editor, editorState: EditorState, undoSelection: RangeSelection?) {
+    self.editor = editor
+    self.editorState = editorState
+    self.undoSelection = undoSelection
+  }
+}
+
+public class HistoryState {
+  var current: HistoryStateEntry?
+  var redoStack: [HistoryStateEntry] = []
+  var undoStack: [HistoryStateEntry] = []
+
+  public init(current: HistoryStateEntry?, redoStack: [HistoryStateEntry], undoStack: [HistoryStateEntry]) {
+    self.current = current
+    self.redoStack = redoStack
+    self.undoStack = undoStack
+  }
+}
+
+func getDirtyNodes(
+  editorState: EditorState,
+  dirtyLeavesSet: DirtyNodeMap) -> [Node] {
+  let dirtyLeaves = dirtyLeavesSet
+  let nodeMap = editorState.nodeMap
+  var nodes: [Node] = []
+
+  for (dirtyLeafKey, cause) in dirtyLeaves {
+    if cause == .editorInitiated {
+      continue
+    }
+
+    if let dirtyLeaf = nodeMap[dirtyLeafKey] {
+      if dirtyLeaf is TextNode {
+        nodes.append(dirtyLeaf)
+      }
+    }
+
+    if let dirtyElement = nodeMap[dirtyLeafKey] {
+      if dirtyElement is ElementNode && !isRootNode(node: dirtyElement) {
+        nodes.append(dirtyElement)
+      }
+    }
+  }
+  return nodes
+}
+
+func getChangeType(
+  prevEditorState: EditorState?,
+  nextEditorState: EditorState,
+  dirtyLeavesSet: DirtyNodeMap,
+  isComposing: Bool) throws -> ChangeType {
+  if prevEditorState == nil || dirtyLeavesSet.count == 0 {
+    return .other
+  }
+
+  guard let prevEditorState = prevEditorState else { return .other }
+
+  if isComposing {
+    return .composingCharacter
+  }
+
+  guard let nextSelection = nextEditorState.selection,
+        let prevSelection = prevEditorState.selection
+  else {
+    throw LexicalError.internal("Failed to find selection")
+  }
+
+  if !prevSelection.isCollapsed() || !nextSelection.isCollapsed() {
+    return .other
+  }
+
+  let dirtyNodes = getDirtyNodes(editorState: nextEditorState, dirtyLeavesSet: dirtyLeavesSet)
+  if dirtyNodes.count == 0 {
+    return .other
+  }
+
+  // Catching the case when inserting new text node into an element (e.g. first char in paragraph/list),
+  // or after existing node.
+  if dirtyNodes.count > 1 {
+    let nextNodeMap = nextEditorState.nodeMap
+
+    let prevAnchorNode = nextNodeMap[prevSelection.anchor.key]
+
+    if let nextAnchorNode = nextNodeMap[nextSelection.anchor.key] as? TextNode,
+       (prevAnchorNode != nil),
+       !prevEditorState.nodeMap.keys.contains(nextAnchorNode.key),
+       nextAnchorNode.getTextPartSize() == 1,
+       nextSelection.anchor.offset == 1 {
+      return .insertCharacterAfterSelection
+    }
+    return .other
+  }
+
+  let nextDirtyNode = dirtyNodes[0]
+  let prevDirtyNode = prevEditorState.nodeMap[nextDirtyNode.key]
+
+  if !isTextNode(prevDirtyNode) || !isTextNode(nextDirtyNode) {
+    return .other
+  }
+
+  guard
+    let prevDirtyNode = prevDirtyNode as? TextNode,
+    let nextDirtyNode = nextDirtyNode as? TextNode
+  else {
+    throw LexicalError.internal("prev/nextDirtyNode is not TextNode")
+  }
+
+  if prevDirtyNode.mode != nextDirtyNode.mode {
+    return .other
+  }
+
+  // we don't want the text from latest node
+  let prevText = prevDirtyNode.getText_dangerousPropertyAccess()
+  let nextText = nextDirtyNode.getText_dangerousPropertyAccess()
+  if prevText == nextText {
+    return .other
+  }
+
+  let nextAnchor = nextSelection.anchor
+  let prevAnchor = prevSelection.anchor
+  if nextAnchor.key != prevAnchor.key || nextAnchor.type != .text {
+    return .other
+  }
+
+  let nextAnchorOffset = nextAnchor.offset
+  let prevAnchorOffset = prevAnchor.offset
+  let textDiff = nextText.lengthAsNSString() - prevText.lengthAsNSString()
+  if textDiff == 1 && prevAnchorOffset == nextAnchorOffset - 1 {
+    return .insertCharacterAfterSelection
+  }
+  if textDiff == -1 && prevAnchorOffset == nextAnchorOffset + 1 {
+    return .deleteCharacterBeforeSelection
+  }
+  if textDiff == -1 && prevAnchorOffset == nextAnchorOffset {
+    return .deleteCharacterAfterSelection
+  }
+  return .other
+}
+
+public func createEmptyHistoryState() -> HistoryState {
+  HistoryState(current: nil, redoStack: [], undoStack: [])
+}
+
+func clearHistory(historyState: HistoryState) {
+  historyState.undoStack.removeAll()
+  historyState.redoStack.removeAll()
+  historyState.current = nil
+}

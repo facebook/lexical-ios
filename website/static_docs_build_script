@@ -1,0 +1,9 @@
+#! /bin/sh
+cd "$(dirname "$(realpath "$0")")";
+mkdir -p build
+cd ..
+xcodebuild docbuild -scheme Lexical -destination 'platform=iOS Simulator,OS=16.2,name=iPad Pro (11-inch) (3rd generation)' -derivedDataPath /tmp/LexicalDerivedData
+PATH_TO_DOARCHIVE_FILE=`find /tmp/LexicalDerivedData -type d -name '*.doccarchive'`
+$(xcrun --find docc) process-archive transform-for-static-hosting $PATH_TO_DOARCHIVE_FILE --output-path ./website/build --hosting-base-path intern/staticdocs/lexicalios
+rm ./website/build/index.html
+cp ./website/index.html ./website/build/index.html

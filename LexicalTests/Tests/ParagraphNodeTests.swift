@@ -1,0 +1,42 @@
+// (c) Meta Platforms, Inc. and affiliates. Confidential and proprietary.
+
+@testable import Lexical
+import XCTest
+
+class ParagraphNodeTests: XCTestCase {
+  func testinsertNewAfter() throws {
+    let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
+    let editor = view.editor
+
+    try editor.update {
+      guard let editorState = getActiveEditorState(),
+            let rootNode = editorState.getRootNode()
+      else {
+        XCTFail("should have editor state")
+        return
+      }
+
+      let paragraphNode = ParagraphNode()
+      try rootNode.append([paragraphNode])
+    }
+
+    try editor.update {
+      guard let editorState = getActiveEditorState() else {
+        XCTFail("should have editor state")
+        return
+      }
+
+      guard let paragraphNode = getNodeByKey(key: "0") as? ParagraphNode else {
+        XCTFail("Paragraph node not found")
+        return
+      }
+
+      let newNode = try paragraphNode.insertNewAfter(selection: editorState.selection)
+      XCTAssertNotNil(newNode)
+      XCTAssertEqual(newNode?.parent, paragraphNode.parent)
+      XCTAssertEqual(newNode?.type, paragraphNode.type)
+      XCTAssertNotEqual(newNode?.key, paragraphNode.key)
+      XCTAssertEqual(newNode, paragraphNode.getNextSibling())
+    }
+  }
+}
