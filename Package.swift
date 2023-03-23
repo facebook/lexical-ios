@@ -1,5 +1,7 @@
 // swift-tools-version: 5.6
 
+// (c) Meta Platforms, Inc. and affiliates. Confidential and proprietary.
+
 import PackageDescription
 
 let package = Package(
