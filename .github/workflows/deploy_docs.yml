@@ -35,7 +35,7 @@ jobs:
             -destination 'generic/platform=iOS';
           $(xcrun --find docc) process-archive \
             transform-for-static-hosting /tmp/docbuild/Build/Products/Debug-iphoneos/Lexical.doccarchive \
-            --hosting-base-path Lexical \
+            --hosting-base-path lexical-ios \
             --output-path docs;
           echo "<script>window.location.href += \"/documentation/lexical\"</script>" > docs/index.html;
       - name: Upload artifact
