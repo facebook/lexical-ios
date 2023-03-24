@@ -9,6 +9,11 @@ import UIKit
 
 public typealias NodeKey = String
 
+/// The base class for all Lexical nodes to inherit from.
+///
+/// This class provides various methods for reading and manipulating the node tree, as well as node lifecycle support.
+///
+/// If you're creating your own node class, typically you would inherit from ``TextNode``, ``DecoratorNode`` or ``ElementNode``, rather than directly inheriting from ``Node``.
 open class Node: Codable {
   enum CodingKeys: String, CodingKey {
     case type
@@ -40,6 +45,7 @@ open class Node: Codable {
     }
   }
 
+  /// Used when initialising node from JSON
   public required init(from decoder: Decoder) throws {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     key = LexicalConstants.uninitializedNodeKey
@@ -49,6 +55,7 @@ open class Node: Codable {
     _ = try? generateKey(node: self)
   }
 
+  /// Used when serialising node to JSON
   open func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(self.type.rawValue, forKey: .type)
@@ -68,25 +75,33 @@ open class Node: Codable {
     NodeType.unknown
   }
 
+  /// Provides the **preamble** part of the node's content. Typically the preamble is used for control characters to represent embedded objects (see ``DecoratorNode``).
+  ///
+  /// In Lexical iOS, a node's content is split into four parts: preamble, children, text, postamble. ``ElementNode`` subclasses can implement preamble/postamble, and TextNode subclasses can implement the text part.
   public func getPreamble() -> String {
     return ""
   }
 
+  /// Provides the **postamble** part of the node's content. Typically the postamble is used for paragraph-trailing newlines.
+  ///
+  /// In Lexical iOS, a node's content is split into four parts: preamble, children, text, postamble. ``ElementNode`` subclasses can implement preamble/postamble, and TextNode subclasses can implement the text part.
   public func getPostamble() -> String {
     return ""
   }
 
-  // Note that on JS, getTextContent() returns the text content of this node and all children.
-  // On iOS we need a way of getting just the text of the current node (not including children), so
-  // I called it getTextPart().
+  /// Provides the **text** part of the node's content. The text part of a node represents the text this node is providing (but not including the text of any children).
+  ///
+  /// In Lexical iOS, a node's content is split into four parts: preamble, children, text, postamble. ``ElementNode`` subclasses can implement preamble/postamble, and TextNode subclasses can implement the text part.
   public func getTextPart() -> String {
     return ""
   }
 
+  // Returns the length of the text part (as UTF 16 codepoints). Note that all string lengths within Lexical work using UTF 16 codepoints, because that is what TextKit uses.
   func getTextPartSize() -> Int {
     return getTextPart().lengthAsNSString()
   }
 
+  /// Returns true if this node has been marked dirty during this update cycle.
   func isDirty() -> Bool {
     guard let editor = getActiveEditor() else {
       fatalError()
@@ -94,6 +109,7 @@ open class Node: Codable {
     return editor.dirtyNodes[key] != nil
   }
 
+  /// Returns the latest version of the node from the active EditorState. This is used to avoid getting values from stale node references.
   public func getLatest() -> Self {
     guard let latest: Self = getNodeByKey(key: key) else {
       fatalError()
@@ -101,10 +117,7 @@ open class Node: Codable {
     return latest
   }
 
-  // All subclasses of Node should have clone method.
-  // We define clone here so we can call it on any  Node, and we throw this error
-  // by default since the subclass should provide their own implementation.
-  // The subclass implementation should not copy superclass properties
+  /// Clones this node, creating a new node with a different key and adding it to the EditorState (but not attaching it anywhere!). All nodes must implement this method.
   open func clone() -> Self {
     fatalError("LexicalNode: Node \(String(describing: self)) does not implement .clone().")
   }
@@ -127,6 +140,7 @@ open class Node: Codable {
     return theme.getBlockLevelAttributes(self.type)
   }
 
+  /// Returns a mutable version of the node. Will throw an error if called outside of a Lexical Editor ``Editor/update(_:)`` callback.
   public func getWritable() throws -> Self {
     try errorOnReadOnly()
 
@@ -160,6 +174,7 @@ open class Node: Codable {
     return mutableNode
   }
 
+  /// Returns the zero-based index of this node within the parent.
   public func getIndexWithinParent() -> Int? {
     guard let parent = self.getParent() else {
       return nil
@@ -168,13 +183,15 @@ open class Node: Codable {
     return parent.children.firstIndex(of: self.key)
   }
 
+  /// Returns the parent of this node, or nil if none is found.
   public func getParent() -> ElementNode? {
     guard let parent = getLatest().parent else { return nil }
 
     return getNodeByKey(key: parent)
   }
 
-  func getParentKeys() -> [NodeKey] {
+  /// Returns a list of the keys of every ancestor of this node, all the way up to the RootNode.
+  public func getParentKeys() -> [NodeKey] {
     var parents: [NodeKey] = []
     var node = self.getParent()
 
@@ -186,8 +203,9 @@ open class Node: Codable {
     return parents
   }
 
-  // this method returns the child of the top level element
-  // i.e. root _> paragraph -> text would return paragraph
+  /// Returns the highest (in the ``EditorState`` tree) non-root ancestor of this node, or null if none is found.
+  ///
+  /// Lexical JS has the concept of 'shadow roots', but this has not been implemented in Lexical iOS yet.
   public func getTopLevelElement() -> ElementNode? {
     var node = getNodeByKey(key: key)
 
@@ -203,6 +221,7 @@ open class Node: Codable {
     return nil
   }
 
+  /// Returns the highest (in the EditorState tree) non-root ancestor of this node, or throws if none is found.
   public func getTopLevelElementOrThrow() -> ElementNode {
     guard let parent = getTopLevelElement() else {
       fatalError("Expected node \(key) to have a top parent element.")
@@ -211,6 +230,7 @@ open class Node: Codable {
     return parent
   }
 
+  /// Returns a list of the every ancestor of this node, all the way up to the RootNode.
   public func getParents() -> [ElementNode] {
     var parents: [ElementNode] = []
     var node = self.getParent()
@@ -222,6 +242,7 @@ open class Node: Codable {
     return parents
   }
 
+  /// Returns the closest common ancestor of this node and the provided one or nil if one cannot be found.
   public func getCommonAncestor(node: Node) -> ElementNode? {
     var a = getParents()
     var b = node.getParents()
@@ -252,6 +273,7 @@ open class Node: Codable {
     return nil
   }
 
+  /// Returns the "previous" siblings - that is, the node that comes before this one in the same parent.
   public func getPreviousSibling() -> Node? {
     guard let parent = self.getParent() else { return nil }
 
@@ -268,6 +290,7 @@ open class Node: Codable {
     return getNodeByKey(key: parent.children[childrenIndex])
   }
 
+  /// Returns the "next" sibling - that is, the node that comes after this one in the same parent
   public func getNextSibling() -> Node? {
     guard let parent = self.getParent() else { return nil }
 
@@ -284,6 +307,7 @@ open class Node: Codable {
     return getNodeByKey(key: parent.children[childrenIndex])
   }
 
+  /// Returns the "previous" siblings - that is, the nodes that come between this one and the first child of it's parent, inclusive.
   public func getPreviousSiblings() -> [Node] {
     guard let parent = getParent() else { return [] }
 
@@ -296,6 +320,7 @@ open class Node: Codable {
     })
   }
 
+  /// Returns all "next" siblings - that is, the nodes that come between this one and the last child of its parent, inclusive.
   public func getNextSiblings() -> [Node] {
     guard let parent = getParent() else { return [] }
 
@@ -312,6 +337,7 @@ open class Node: Codable {
     }
   }
 
+  /// Returns a list of nodes that are between this node and the target node in the EditorState.
   public func getNodesBetween(targetNode: Node) -> [Node] {
     let isBefore = isBefore(targetNode)
     var nodes = [Node]()
@@ -472,6 +498,7 @@ open class Node: Codable {
     return false
   }
 
+  /// Returns the parent of this node, or throws if none is found.
   public func getParentOrThrow() throws -> ElementNode {
     guard let parent = getParent() else {
       throw LexicalError.invariantViolation("Expected node \(key) to have a parent.")
@@ -480,10 +507,14 @@ open class Node: Codable {
     return parent
   }
 
+  /// Returns the text content of the node, typically including its children.
+  ///
+  /// This is different from ``getTextPart()``, which just returns the text provided by this node.
   public func getTextContent(includeInert: Bool = false, includeDirectionless: Bool = false) -> String {
     return ""
   }
 
+  /// Returns the length of the string produced by calling getTextContent on this node.
   public func getTextContentSize(includeInert: Bool = false, includeDirectionless: Bool = false) -> Int {
     return getTextContent(
       includeInert: includeInert,
@@ -491,6 +522,7 @@ open class Node: Codable {
     ).lengthAsNSString()
   }
 
+  /// Removes this LexicalNode from the EditorState. If the node isn't re-inserted somewhere, the Lexical garbage collector will eventually clean it up.
   public func remove() throws {
     try errorOnReadOnly()
     try Node.removeNode(nodeToRemove: self, restoreSelection: true)
@@ -542,6 +574,7 @@ open class Node: Codable {
     }
   }
 
+  /// Inserts a node after this LexicalNode (as the next sibling).
   @discardableResult
   public func insertAfter(nodeToInsert: Node) throws -> Node {
     try errorOnReadOnly()
@@ -607,6 +640,7 @@ open class Node: Codable {
     return nodeToInsert
   }
 
+  /// Inserts a node before this LexicalNode (as the previous sibling).
   @discardableResult
   public func insertBefore(nodeToInsert: Node) throws -> Node {
     try errorOnReadOnly()
@@ -652,6 +686,9 @@ open class Node: Codable {
     return nodeToInsert
   }
 
+  /// Replaces this LexicalNode with the provided node, optionally transferring the children of the replaced node to the replacing node.
+  ///
+  /// - Returns: the node that replaced the target node (as a writable copy)
   @discardableResult
   public func replace<T: Node>(replaceWith: T) throws -> T {
     try errorOnReadOnly()
@@ -703,8 +740,9 @@ open class Node: Codable {
     return writableReplaceWith
   }
 
+  /// Moves selection to the previous sibling of this node, at the specified offsets.
   @discardableResult
-  func selectPrevious(anchorOffset: Int?, focusOffset: Int?) throws -> RangeSelection {
+  public func selectPrevious(anchorOffset: Int?, focusOffset: Int?) throws -> RangeSelection {
     try errorOnReadOnly()
     let parent = try getParentOrThrow()
     let previousSibling = getPreviousSibling()
@@ -724,7 +762,8 @@ open class Node: Codable {
     }
   }
 
-  func selectNext(anchorOffset: Int?, focusOffset: Int?) throws -> RangeSelection {
+  /// Moves selection to the next sibling of this node, at the specified offsets.
+  public func selectNext(anchorOffset: Int?, focusOffset: Int?) throws -> RangeSelection {
     try errorOnReadOnly()
     let nextSibling = getNextSibling()
     let parent = try getParentOrThrow()
@@ -756,6 +795,7 @@ extension Node: Equatable {
     return lhs.isSameKey(rhs)
   }
 
+  /// Returns true if there is a path between this node and the RootNode, false otherwise. This is a way of determining if the node is "attached" EditorState. Unattached nodes won't be reconciled and will ultimately be cleaned up by the Lexical GC.
   public func isAttached() -> Bool {
     var nodeKey: NodeKey? = key
 
@@ -772,6 +812,7 @@ extension Node: Equatable {
     return false
   }
 
+  /// Returns true if this node is contained within the provided Selection., false otherwise. Relies on the algorithms implemented in ``BaseSelection/getNodes()`` to determine what's included.
   public func isSelected() throws -> Bool {
     guard let selection = getSelection() else {
       return false
