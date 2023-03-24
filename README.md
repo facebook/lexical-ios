@@ -28,7 +28,7 @@ To programatically work with the data within your `LexicalView`, you need access
 For more information, see the documentation.
 
 ## Full documentation
-Lexical's documentation is written in Apple DocC format within the codebase. Currently we do not have it mirrored on a website; if you open the Lexical swift package in Xcode and choose "Build Documentation", you can read it in Xcode's documentation viewer.
+Read [the Lexical iOS documentation](https://facebook.github.io/lexical-ios/documentation/lexical/). 
 
 ## Join the Lexical community
 Feel free to join us at [our Discord server](https://discord.gg/KmG4wQnnD9), where you can talk with the Lexical team and other users.
