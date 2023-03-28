@@ -36,7 +36,7 @@ public func getSelection(allowInvalidPositions: Bool = false) -> RangeSelection?
   let editorState = getActiveEditorState()
   let selection = editorState?.selection
 
-  if let selection = selection {
+  if let selection {
     if allowInvalidPositions == true {
       return selection
     }
@@ -142,7 +142,7 @@ func moveSelectionPointToSibling(
     }
   }
 
-  if let siblingKey = siblingKey, type != nil {
+  if let siblingKey, type != nil {
     point.updatePoint(key: siblingKey, offset: offset, type: .text)
   } else {
     if let offset = node.getIndexWithinParent() {
@@ -156,7 +156,7 @@ func editorStateHasDirtySelection(pendingEditorState: EditorState, editor: Edito
   let pendingSelection = pendingEditorState.selection
 
   // Check if we need to update because of changes in selection
-  if let pendingSelection = pendingSelection {
+  if let pendingSelection {
     if pendingSelection.dirty || pendingSelection != currentSelection {
       return true
     }
@@ -247,7 +247,7 @@ func createRangeSelection(editor: Editor) throws -> RangeSelection? {
       return RangeSelection(anchor: anchor, focus: focus, format: TextFormat())
     }
   } else {
-    if let lastSelection = lastSelection {
+    if let lastSelection {
       let lastAnchor = lastSelection.anchor
       let lastFocus = lastSelection.focus
       let anchor = createPoint(key: lastAnchor.key, offset: lastAnchor.offset, type: lastAnchor.type)
@@ -414,7 +414,7 @@ func moveSelectionPointToEnd(point: Point, node: Node) {
     let lastNode = node.getLastDescendant()
 
     if isElementNode(node: lastNode) || isTextNode(lastNode) {
-      if let lastNode = lastNode {
+      if let lastNode {
         selectPointOnNode(point: point, node: lastNode)
       }
     } else {
@@ -527,4 +527,62 @@ public func updateCaretSelectionForUnicodeCharacter(
   } else {
     // TODO: Handling of multibyte characters
   }
+}
+
+public func setBlocksType(
+  selection: RangeSelection,
+  createElement: () -> ElementNode
+) {
+  if selection.anchor.key == kRootNodeKey {
+    let element = createElement()
+    guard let root = getRoot() else { return }
+    let firstChild = root.getFirstChild()
+
+    if let firstChild {
+      _ = try? firstChild.replace(replaceWith: element, includeChildren: true)
+    } else {
+      try? root.append([element])
+    }
+
+    return
+  }
+
+  guard var nodes = try? selection.getNodes() else { return }
+  var maybeBlock = try? selection.anchor.getNode().getParentOrThrow()
+
+  if let maybeBlock, !nodes.contains(maybeBlock) {
+    nodes.append(maybeBlock)
+  }
+
+  if let unwrappedMaybeBlock = maybeBlock, unwrappedMaybeBlock.isInline() {
+    maybeBlock = try? unwrappedMaybeBlock.getParentOrThrow()
+
+    if let maybeBlock, !nodes.contains(maybeBlock) {
+      nodes.append(maybeBlock)
+    }
+  }
+
+  for node in nodes {
+    if !isBlock(node) {
+      continue
+    }
+
+    let targetElement = createElement()
+    if let node = node as? ElementNode {
+      _ = try? targetElement.setIndent(node.getIndent())
+    }
+    _ = try? node.replace(replaceWith: targetElement, includeChildren: true)
+  }
+}
+
+private func isBlock(_ node: Node) -> Bool {
+  guard let node = node as? ElementNode, !isRootNode(node: node) else {
+    return false
+  }
+
+  let firstChild = node.getFirstChild()
+  let isLeafElement =
+    firstChild == nil || isTextNode(firstChild) || ((firstChild as? ElementNode)?.isInline() ?? false)
+
+  return !node.isInline() && node.canBeEmpty() != false && isLeafElement
 }

@@ -57,7 +57,7 @@ public class RootNode: ElementNode {
     throw LexicalError.invariantViolation("remove: cannot be called on root nodes")
   }
 
-  override public func replace<T: Node>(replaceWith: T) throws -> T {
+  override public func replace<T: Node>(replaceWith: T, includeChildren: Bool = false) throws -> T {
     throw LexicalError.invariantViolation("replace: cannot be called on root nodes")
   }
 

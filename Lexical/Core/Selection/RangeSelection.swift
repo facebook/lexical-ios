@@ -49,17 +49,30 @@ public class RangeSelection: BaseSelection {
   }
 
   public func getNodes() throws -> [Node] {
-    var firstNode = try anchor.getNode()
-    var lastNode = try focus.getNode()
+    let isBefore = try anchor.isBefore(point: focus)
+    let firstPoint = isBefore ? anchor : focus
+    let lastPoint = isBefore ? focus : anchor
+    var firstNode = try firstPoint.getNode()
+    var lastNode = try lastPoint.getNode()
+    let startOffset = firstPoint.offset
+    let endOffset = lastPoint.offset
 
-    if let elementNode = firstNode as? ElementNode {
-      firstNode = elementNode.getDescendantByIndex(index: anchor.offset)
+    if let elementNode = firstNode as? ElementNode, let descendent = elementNode.getDescendantByIndex(index: startOffset) {
+      firstNode = descendent
     }
     if let elementNode = lastNode as? ElementNode {
-      lastNode = elementNode.getDescendantByIndex(index: focus.offset)
+      var lastNodeDescendant = elementNode.getDescendantByIndex(index: endOffset)
+      // We don't want to over-select, as node selection infers the child before
+      // the last descendant, not including that descendant.
+      if let lastNodeDescendantUnwrapped = lastNodeDescendant,
+         lastNodeDescendantUnwrapped != firstNode,
+         elementNode.getChildAtIndex(index: endOffset) == lastNodeDescendant {
+        lastNodeDescendant = lastNodeDescendantUnwrapped.getPreviousSibling()
+      }
+      lastNode = lastNodeDescendant ?? lastNode
     }
     if firstNode == lastNode {
-      if isElementNode(node: firstNode) {
+      if let firstNode = firstNode as? ElementNode, firstNode.getChildrenSize() > 0 {
         return []
       }
       return [firstNode]
@@ -254,7 +267,7 @@ public class RangeSelection: BaseSelection {
       var nextSibling = firstNode.getNextSibling() as? TextNode
       if !isTextNode(nextSibling) || isTokenOrInertOrSegmented(nextSibling) {
         nextSibling = createTextNode(text: "")
-        guard let nextSibling = nextSibling else {
+        guard let nextSibling else {
           return
         }
         if !firstNodeParent.canInsertTextAfter() {
@@ -263,7 +276,7 @@ public class RangeSelection: BaseSelection {
           _ = try firstNode.insertAfter(nodeToInsert: nextSibling)
         }
       }
-      guard let nextSibling = nextSibling else {
+      guard let nextSibling else {
         return
       }
       _ = try nextSibling.select(anchorOffset: 0, focusOffset: 0)
@@ -277,7 +290,7 @@ public class RangeSelection: BaseSelection {
       var prevSibling = firstNode.getPreviousSibling() as? TextNode
       if !isTextNode(prevSibling ) || isTokenOrInertOrSegmented(prevSibling) {
         prevSibling = createTextNode(text: "")
-        guard let prevSibling = prevSibling else {
+        guard let prevSibling else {
           return
         }
         if !firstNodeParent.canInsertTextBefore() {
@@ -286,7 +299,7 @@ public class RangeSelection: BaseSelection {
           _ = try firstNode.insertBefore(nodeToInsert: prevSibling)
         }
       }
-      guard let prevSibling = prevSibling else {
+      guard let prevSibling else {
         return
       }
       _ = try prevSibling.select(anchorOffset: nil, focusOffset: nil)

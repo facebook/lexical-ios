@@ -176,12 +176,8 @@ open class ElementNode: Node {
     }
   }
 
-  public func getDescendantByIndex(index: Int) -> Node {
+  public func getDescendantByIndex(index: Int) -> Node? {
     let children = getChildren()
-
-    if children.count == 0 {
-      return self
-    }
 
     if index >= children.count {
       if let resolvedNode = children.last as? ElementNode,
@@ -189,7 +185,7 @@ open class ElementNode: Node {
         return lastDescendant
       }
 
-      return children[children.count - 1]
+      return children.last
     }
 
     if let node = children[index] as? ElementNode, let firstDescendant = node.getFirstDescendant() {
@@ -385,15 +381,15 @@ open class ElementNode: Node {
     var updatedAnchorOffset = childrenCount
     var updatedFocusOffset = childrenCount
 
-    if let anchorOffset = anchorOffset {
+    if let anchorOffset {
       updatedAnchorOffset = anchorOffset
     }
 
-    if let focusOffset = focusOffset {
+    if let focusOffset {
       updatedFocusOffset = focusOffset
     }
 
-    guard let selection = selection else {
+    guard let selection else {
       return try makeRangeSelection(
         anchorKey: key,
         anchorOffset: updatedAnchorOffset,
@@ -429,7 +425,7 @@ open class ElementNode: Node {
     if let node = firstNode as? TextNode {
       return try node.select(anchorOffset: 0, focusOffset: 0)
     }
-    if let firstNode = firstNode {
+    if let firstNode {
       return try firstNode.selectPrevious(anchorOffset: nil, focusOffset: nil)
     }
     return try select(anchorOffset: 0, focusOffset: 0)

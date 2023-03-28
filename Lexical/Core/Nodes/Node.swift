@@ -37,7 +37,7 @@ open class Node: Codable {
     self.type = Node.getType()
     self.version = 1
 
-    if let key = key, key != LexicalConstants.uninitializedNodeKey {
+    if let key, key != LexicalConstants.uninitializedNodeKey {
       self.key = key
     } else {
       self.key = LexicalConstants.uninitializedNodeKey
@@ -367,7 +367,7 @@ open class Node: Codable {
           dfsAncestor = node
         }
 
-        if let child = child {
+        if let child {
           node = child
         }
 
@@ -376,14 +376,14 @@ open class Node: Codable {
 
       let nextSibling = isBefore ? node.getNextSibling() : node.getPreviousSibling()
 
-      if let nextSibling = nextSibling {
+      if let nextSibling {
         node = nextSibling
         continue
       }
 
       let parent = node.getParent()
 
-      if let parent = parent {
+      if let parent {
         if !visited.contains(parent.key) {
           nodes.append(parent)
         }
@@ -396,7 +396,7 @@ open class Node: Codable {
       var parentSibling: Node?
       var ancestor = parent
 
-      if let parent = parent {
+      if let parent {
         if parent.isSameKey(dfsAncestor) {
           dfsAncestor = nil
         }
@@ -411,7 +411,7 @@ open class Node: Codable {
         ancestor = ancestor?.getParent()
 
         if ancestor != nil {
-          if let ancestor = ancestor {
+          if let ancestor {
             if ancestor.isSameKey(dfsAncestor) {
               dfsAncestor = nil
             }
@@ -423,7 +423,7 @@ open class Node: Codable {
         }
       } while parentSibling == nil
 
-      if let parentSibling = parentSibling {
+      if let parentSibling {
         node = parentSibling
       }
     }
@@ -436,7 +436,7 @@ open class Node: Codable {
   }
 
   func isSameKey(_ object: Node?) -> Bool {
-    guard let object = object else { return false }
+    guard let object else { return false }
 
     return getKey() == object.getKey()
   }
@@ -538,7 +538,7 @@ open class Node: Codable {
     let selection = getSelection()
 
     var selectionMoved = false
-    if let selection = selection, restoreSelection {
+    if let selection, restoreSelection {
       let anchor = selection.anchor
       let focus = selection.focus
       if anchor.key == key {
@@ -561,7 +561,7 @@ open class Node: Codable {
     let writableNodeToRemove = try nodeToRemove.getWritable()
     writableNodeToRemove.parent = nil
 
-    if let selection = selection, restoreSelection && !selectionMoved {
+    if let selection, restoreSelection && !selectionMoved {
       try updateElementSelectionOnCreateDeleteNode(
         selection: selection,
         parentNode: parent,
@@ -587,7 +587,7 @@ open class Node: Codable {
     var elementAnchorSelectionOnNode = false
     var elementFocusSelectionOnNode = false
 
-    if let oldParent = oldParent {
+    if let oldParent {
       let writableParent = try oldParent.getWritable()
 
       guard let index = writableParent.children.firstIndex(where: { $0 == writableNodeToInsert.key }) else {
@@ -596,7 +596,7 @@ open class Node: Codable {
 
       internallyMarkSiblingsAsDirty(node: writableNodeToInsert, status: .userInitiated)
 
-      if let selection = selection,
+      if let selection,
          let oldIndex = nodeToInsert.getIndexWithinParent() {
         let oldParentKey = oldParent.key
         elementAnchorSelectionOnNode = selection.anchor.type == .element &&
@@ -621,7 +621,7 @@ open class Node: Codable {
     writableParent.children.insert(insertKey, at: index + 1)
     internallyMarkSiblingsAsDirty(node: writableNodeToInsert, status: .userInitiated)
 
-    if let selection = selection {
+    if let selection {
       try updateElementSelectionOnCreateDeleteNode(
         selection: selection,
         parentNode: writableParent,
@@ -652,7 +652,7 @@ open class Node: Codable {
       let children = writableParent.children
       let index = children.firstIndex(of: writableNodeToInsert.key)
 
-      if let index = index {
+      if let index {
         writableParent.children.remove(at: index)
       } else {
         throw LexicalError.invariantViolation("Node is not a child of its parent")
@@ -667,7 +667,7 @@ open class Node: Codable {
     let children = writableParent.children
     let index = children.firstIndex(of: writableSelf.key)
 
-    if let index = index {
+    if let index {
       writableParent.children.insert(insertKey, at: index)
     } else {
       throw LexicalError.invariantViolation("Node is not a child of its parent")
@@ -675,7 +675,7 @@ open class Node: Codable {
 
     internallyMarkSiblingsAsDirty(node: writableNodeToInsert, status: .userInitiated)
 
-    if let selection = getSelection(), let index = index {
+    if let selection = getSelection(), let index {
       try updateElementSelectionOnCreateDeleteNode(
         selection: selection,
         parentNode: writableParent,
@@ -690,7 +690,7 @@ open class Node: Codable {
   ///
   /// - Returns: the node that replaced the target node (as a writable copy)
   @discardableResult
-  public func replace<T: Node>(replaceWith: T) throws -> T {
+  public func replace<T: Node>(replaceWith: T, includeChildren: Bool = false) throws -> T {
     try errorOnReadOnly()
     let toReplaceKey = key
     let writableReplaceWith = try replaceWith.getWritable() as T
@@ -702,7 +702,7 @@ open class Node: Codable {
 
       internallyMarkSiblingsAsDirty(node: writableReplaceWith, status: .userInitiated)
 
-      if let index = index {
+      if let index {
         children.remove(at: index)
       } else {
         throw LexicalError.invariantViolation("Node is not a child of its parent")
@@ -714,7 +714,7 @@ open class Node: Codable {
     let index = writableParent.children.firstIndex(of: key)
     let newKey = writableReplaceWith.key
 
-    if let index = index {
+    if let index {
       writableParent.children.insert(newKey, at: index)
     } else {
       throw LexicalError.invariantViolation("Node is not a child of its parent")
@@ -723,6 +723,10 @@ open class Node: Codable {
     writableReplaceWith.parent = newParent.key
     try Node.removeNode(nodeToRemove: self, restoreSelection: false)
     internallyMarkSiblingsAsDirty(node: writableReplaceWith, status: .userInitiated)
+
+    if includeChildren, let writableReplaceWith = writableReplaceWith as? ElementNode, let selfElement = self as? ElementNode {
+      try writableReplaceWith.append(selfElement.getChildren())
+    }
 
     if let selection = getSelection() {
       let anchor = selection.anchor

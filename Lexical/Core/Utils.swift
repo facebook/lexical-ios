@@ -129,7 +129,7 @@ public func toggleTextFormatType(format: TextFormat, type: TextFormatType, align
   let isStateFlagPresent = format.isTypeSet(type: type)
   var flag = false
 
-  if let alignWithFormat = alignWithFormat {
+  if let alignWithFormat {
     // remove the type from format
     if isStateFlagPresent && !alignWithFormat.isTypeSet(type: type) {
       flag = false
@@ -194,12 +194,12 @@ public func isLeafNode(_ node: Node?) -> Bool {
 }
 
 public func isTokenOrInert(_ node: TextNode?) -> Bool {
-  guard let node = node else { return false }
+  guard let node else { return false }
   return node.isToken() || node.isInert()
 }
 
 public func isTokenOrInertOrSegmented(_ node: TextNode?) -> Bool {
-  guard let node = node else { return false }
+  guard let node else { return false }
   return isTokenOrInert(node) || node.isSegmented()
 }
 
@@ -337,7 +337,7 @@ public func wrapLeafNodesInElements(
 
       if wrappingElement != nil {
         try wrappingElement?.append([element])
-        if let wrappingElement = wrappingElement {
+        if let wrappingElement {
           element = wrappingElement
         }
       }
@@ -400,7 +400,7 @@ public func wrapLeafNodesInElements(
       }
     }
 
-    if let wrappingElement = wrappingElement {
+    if let wrappingElement {
       try elements.forEach({ try wrappingElement.append([$0]) })
     }
 
@@ -410,12 +410,12 @@ public func wrapLeafNodesInElements(
 
       let firstChild = target.getFirstChild()
 
-      if let firstChild = firstChild {
+      if let firstChild {
         if let elementNode = firstChild as? ElementNode {
           target = elementNode
         }
 
-        if let wrappingElement = wrappingElement {
+        if let wrappingElement {
           try firstChild.insertBefore(nodeToInsert: wrappingElement)
         } else {
           for element in elements {
@@ -423,18 +423,18 @@ public func wrapLeafNodesInElements(
           }
         }
       } else {
-        if let wrappingElement = wrappingElement {
+        if let wrappingElement {
           try target.append([wrappingElement])
         } else {
           try elements.forEach({ try target.append([$0]) })
         }
       }
     } else {
-      guard let target = target else {
+      guard let target else {
         return
       }
 
-      if let wrappingElement = wrappingElement {
+      if let wrappingElement {
         try target.insertAfter(nodeToInsert: wrappingElement)
       } else {
         elements.reverse()
@@ -526,4 +526,22 @@ internal func destroyCachedDecoratorView(forKey key: NodeKey) {
     return
   }
   editor.decoratorCache.removeValue(forKey: key)
+}
+
+public typealias FindFunction = (
+  _ node: Node
+) -> Bool
+
+public func findMatchingParent(startingNode: Node?, findFn: FindFunction) -> Node? {
+  var currentNode: Node? = startingNode
+
+  while let curr = currentNode, curr != getRoot() {
+    if findFn(curr) {
+      return curr
+    }
+
+    currentNode = curr.getParent()
+  }
+
+  return nil
 }

@@ -33,11 +33,11 @@ public class Point {
     let bOffset = b.offset
 
     if let elementNode = aNode as? ElementNode {
-      aNode = elementNode.getDescendantByIndex(index: aOffset)
+      aNode = elementNode.getDescendantByIndex(index: aOffset) ?? aNode
     }
 
     if let elementNode = bNode as? ElementNode {
-      bNode = elementNode.getDescendantByIndex(index: bOffset)
+      bNode = elementNode.getDescendantByIndex(index: bOffset) ?? bNode
     }
 
     if aNode == bNode {

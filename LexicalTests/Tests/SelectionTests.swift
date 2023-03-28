@@ -378,13 +378,14 @@ class SelectionTests: XCTestCase {
       try textNode3.setText("again")
 
       let paragraphNode = ParagraphNode()
+      try getRoot()?.append([paragraphNode])
 
       var startPoint = createPoint(key: paragraphNode.key, offset: 0, type: .text)
       var endPoint = createPoint(key: paragraphNode.key, offset: 0, type: .text)
       var selection = RangeSelection(anchor: startPoint, focus: endPoint, format: TextFormat())
       var extractedNodes = try selection.extract()
 
-      XCTAssertEqual(extractedNodes.count, 0)
+      XCTAssertEqual(extractedNodes.count, 1, "should have one (empty) paragraph node")
 
       try paragraphNode.append([textNode])
       extractedNodes = try selection.extract()
