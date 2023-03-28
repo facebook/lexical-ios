@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "lexical-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/facebook/lexical-ios",
+      "state" : {
+        "branch" : "main",
+        "revision" : "4515070d3d724cd467892b95d087ae9936ce15fe"
+      }
+    }
+  ],
+  "version" : 2
+}
