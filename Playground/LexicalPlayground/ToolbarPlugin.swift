@@ -11,41 +11,41 @@ import UIKit
 
 public class ToolbarPlugin: Plugin {
   private var _toolbar: UIToolbar
-  
+
   weak var editor: Editor?
   weak var viewControllerForPresentation: UIViewController?
-  
+
   init(viewControllerForPresentation: UIViewController) {
     self._toolbar = UIToolbar()
     self.viewControllerForPresentation = viewControllerForPresentation
     setUpToolbar()
   }
-  
+
   // MARK: - Plugin API
-  
+
   public func setUp(editor: Editor) {
     self.editor = editor
-    
+
     _ = editor.registerUpdateListener { [weak self] activeEditorState, previousEditorState, dirtyNodes in
-      if let self = self {
+      if let self {
         self.updateToolbar()
       }
     }
   }
-  
+
   public func tearDown() {
   }
-  
+
   // MARK: - Public accessors
-  
+
   public var toolbar: UIToolbar {
     get {
       _toolbar
     }
   }
-  
+
   // MARK: - Private helpers
-  
+
   var undoButton: UIBarButtonItem?
   var redoButton: UIBarButtonItem?
   var paragraphButton: UIBarButtonItem?
@@ -58,75 +58,75 @@ public class ToolbarPlugin: Plugin {
 
   private func setUpToolbar() {
     let undo = UIBarButtonItem(image: UIImage(systemName: "arrow.uturn.backward"),
-                                    style: .plain,
-                                    target: self,
-                                    action: #selector(undo))
+                               style: .plain,
+                               target: self,
+                               action: #selector(undo))
     self.undoButton = undo
-    
+
     let redo = UIBarButtonItem(image: UIImage(systemName: "arrow.uturn.forward"),
-                                    style: .plain,
-                                    target: self,
-                                    action: #selector(redo))
+                               style: .plain,
+                               target: self,
+                               action: #selector(redo))
     self.redoButton = redo
-    
+
     let paragraph = UIBarButtonItem(image: UIImage(systemName: "paragraph"), menu: self.paragraphMenu)
     self.paragraphButton = paragraph
-    
+
     let bold = UIBarButtonItem(image: UIImage(systemName: "bold"),
                                style: .plain,
                                target: self,
                                action: #selector(toggleBold))
     self.boldButton = bold
-    
+
     let italic = UIBarButtonItem(image: UIImage(systemName: "italic"),
-                               style: .plain,
-                               target: self,
-                               action: #selector(toggleItalic))
+                                 style: .plain,
+                                 target: self,
+                                 action: #selector(toggleItalic))
     self.italicButton = italic
-    
+
     let underline = UIBarButtonItem(image: UIImage(systemName: "underline"),
                                     style: .plain,
                                     target: self,
                                     action: #selector(toggleUnderline))
     self.underlineButton = underline
-    
+
     let strikethrough = UIBarButtonItem(image: UIImage(systemName: "strikethrough"),
                                         style: .plain,
                                         target: self,
                                         action: #selector(toggleStrikethrough))
     self.strikethroughButton = strikethrough
-    
+
     let inlineCode = UIBarButtonItem(image: UIImage(systemName: "chevron.left.forwardslash.chevron.right"),
-                                        style: .plain,
-                                        target: self,
-                                        action: #selector(toggleInlineCode))
+                                     style: .plain,
+                                     target: self,
+                                     action: #selector(toggleInlineCode))
     self.inlineCodeButton = inlineCode
-    
+
     let link = UIBarButtonItem(image: UIImage(systemName: "link"),
-                                        style: .plain,
-                                        target: self,
-                                        action: #selector(link))
+                               style: .plain,
+                               target: self,
+                               action: #selector(link))
     self.linkButton = link
-    
+
     toolbar.items = [/* undo, redo, */ paragraph, bold, italic, underline, strikethrough, inlineCode /*, link */]
   }
-  
+
   func updateToolbar() {
     if let selection = getSelection() {
       guard let anchorNode = try? selection.anchor.getNode() else { return }
-            
+
       var element =
-      isRootNode(node: anchorNode)
-      ? anchorNode
-      : findMatchingParent(startingNode: anchorNode, findFn: { e in
-        let parent = e.getParent()
-        return parent != nil && isRootNode(node: parent)
-      })
-      
+        isRootNode(node: anchorNode)
+        ? anchorNode
+        : findMatchingParent(startingNode: anchorNode, findFn: { e in
+          let parent = e.getParent()
+          return parent != nil && isRootNode(node: parent)
+        })
+
       if element == nil {
-        element = anchorNode.getTopLevelElementOrThrow();
+        element = anchorNode.getTopLevelElementOrThrow()
       }
-      
+
       // derive paragraph style
       if let heading = element as? HeadingNode {
         if heading.getTag() == .h1 {
@@ -141,7 +141,7 @@ public class ToolbarPlugin: Plugin {
       } else {
         paragraphButton?.image = UIImage(systemName: "paragraph")
       }
-      
+
       boldButton?.isSelected = selection.hasFormat(type: .bold)
       italicButton?.isSelected = selection.hasFormat(type: .italic)
       underlineButton?.isSelected = selection.hasFormat(type: .underline)
@@ -149,9 +149,9 @@ public class ToolbarPlugin: Plugin {
       inlineCodeButton?.isSelected = selection.hasFormat(type: .code)
     }
   }
-  
+
   // MARK: - Paragraph Styles
-  
+
   private var paragraphMenuItems: [UIAction] {
     return [
       UIAction(title: "Normal", image: UIImage(systemName: "paragraph"), handler: { (_) in
@@ -181,7 +181,7 @@ public class ToolbarPlugin: Plugin {
       })
     ]
   }
-  
+
   private func setBlock(creationFunc: () -> ElementNode) {
     try? editor?.update {
       if let selection = getSelection() {
@@ -189,20 +189,18 @@ public class ToolbarPlugin: Plugin {
       }
     }
   }
-  
+
   private var paragraphMenu: UIMenu {
     return UIMenu(title: "Paragraph Style", image: nil, identifier: nil, options: [], children: self.paragraphMenuItems)
   }
-  
+
   // MARK: - Button actions
-  
+
   @objc private func undo() {
-    
   }
   @objc private func redo() {
-    
   }
-  
+
   @objc private func toggleBold() {
     editor?.dispatchCommand(type: .formatText, payload: TextFormatType.bold)
   }
@@ -219,6 +217,5 @@ public class ToolbarPlugin: Plugin {
     editor?.dispatchCommand(type: .formatText, payload: TextFormatType.code)
   }
   @objc private func link() {
-    
   }
 }
