@@ -7,6 +7,7 @@
 
 import Lexical
 import UIKit
+import LexicalListPlugin
 
 class ViewController: UIViewController {
 
@@ -19,9 +20,12 @@ class ViewController: UIViewController {
 
     let toolbarPlugin = ToolbarPlugin(viewControllerForPresentation: self)
     let toolbar = toolbarPlugin.toolbar
-
+    
+    let listPlugin = ListPlugin()
+    
     let theme = Theme()
-    let editorConfig = EditorConfig(theme: theme, plugins: [toolbarPlugin])
+    theme.indentSize = 40.0
+    let editorConfig = EditorConfig(theme: theme, plugins: [toolbarPlugin, listPlugin])
     let lexicalView = LexicalView(editorConfig: editorConfig, featureFlags: FeatureFlags())
 
     self.lexicalView = lexicalView

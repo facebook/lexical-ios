@@ -15,14 +15,14 @@ public enum ListType {
 }
 
 extension NodeType {
-  static let list = NodeType(rawValue: "list")
+  public static let list = NodeType(rawValue: "list")
 }
 
 public class ListNode: ElementNode {
   private var listType: ListType = .bullet
   private var start: Int = 1
 
-  public required convenience init(listType: ListType, start: Int, key: NodeKey?) {
+  public required convenience init(listType: ListType, start: Int, key: NodeKey? = nil) {
     self.init(key)
     self.listType = listType
     self.start = start

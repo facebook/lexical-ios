@@ -756,7 +756,9 @@ class SelectionTests: XCTestCase {
       XCTAssertEqual(textNode2.format.bold, false)
     }
 
-    try updateTextFormat(type: .italic, editor: editor)
+    try editor.update {
+      try updateTextFormat(type: .italic, editor: editor)
+    }
     XCTAssertEqual(editor.getEditorState().selection?.format.italic, true)
     XCTAssertEqual(editor.getEditorState().selection?.format.bold, true)
   }

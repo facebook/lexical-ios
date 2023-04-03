@@ -52,7 +52,7 @@ public class QuoteNode: ElementNode {
     return newBlock
   }
 
-  override func collapseAtStart(selection: RangeSelection) throws -> Bool {
+  override public func collapseAtStart(selection: RangeSelection) throws -> Bool {
     let paragraph = createParagraphNode()
     let children = getChildren()
     try children.forEach({ try paragraph.append([$0]) })

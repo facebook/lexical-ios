@@ -469,12 +469,19 @@ public class Editor: NSObject {
     mountDecoratorSubviewsIfNecessary()
   }
 
+  var isMounting = false
   internal func mountDecoratorSubviewsIfNecessary() {
+    if isMounting { return }
+    isMounting = true
+    defer {
+      isMounting = false
+    }
+    
     guard let superview = frontend?.viewForDecoratorSubviews else {
       self.log(.editor, .verbose, "No view for mounting decorator subviews.")
       return
     }
-    try? self.update {
+    try? self.read {
       for (nodeKey, decoratorCacheItem) in decoratorCache {
         switch decoratorCacheItem {
         case .needsCreation:
@@ -529,10 +536,8 @@ public class Editor: NSObject {
 
   // MARK: - Manipulating the editor state
 
+  var isUpdating = false
   private func beginUpdate(_ closure: () throws -> Void, mode: UpdateBehaviourModificationMode) throws {
-
-    self.log(.editor, .verbose)
-
     var editorStateWasCloned = false
 
     if pendingEditorState == nil {
@@ -554,6 +559,8 @@ public class Editor: NSObject {
     let isInsideNestedEditorBlock = (isEditorPresentInUpdateStack(self)) && !isReadOnlyMode()
 
     try runWithStateLexicalScopeProperties(activeEditor: self, activeEditorState: pendingEditorState, readOnlyMode: false) {
+      let previouslyUpdating = self.isUpdating
+      self.isUpdating = true
 
       if editorStateWasCloned {
         pendingEditorState.selection = try createRangeSelection(editor: self)
@@ -563,6 +570,7 @@ public class Editor: NSObject {
         try closure()
 
         if isInsideNestedEditorBlock {
+          self.isUpdating = previouslyUpdating
           return
         }
 
@@ -576,12 +584,14 @@ public class Editor: NSObject {
 
         if mode.allowUpdateWithoutTextStorage && textStorage == nil {
           // we want to leave the pending editor state as pending here; it will be reconciled when a text storage is attached
+          self.isUpdating = previouslyUpdating
           return
         }
 
         if !headless {
           try Reconciler.updateEditorState(currentEditorState: editorState, pendingEditorState: pendingEditorState, editor: self, shouldReconcileSelection: !mode.suppressReconcilingSelection, markedTextOperation: mode.markedTextOperation)
         }
+        self.isUpdating = previouslyUpdating
         garbageCollectDetachedNodes(prevEditorState: editorState, editorState: pendingEditorState, dirtyLeaves: dirtyNodes)
       } catch {
         triggerErrorListeners(
@@ -592,6 +602,7 @@ public class Editor: NSObject {
         isRecoveringFromError = true
         resetEditor(pendingEditorState: editorState)
         try beginUpdate({}, mode: UpdateBehaviourModificationMode())
+        self.isUpdating = previouslyUpdating
         return
       }
 

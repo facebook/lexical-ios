@@ -17,7 +17,7 @@ internal func onInsertTextFromUITextView(text: String, editor: Editor, updateMod
       editor.log(.UITextView, .error, "Expected a selection here")
       return
     }
-
+    
     if let markedTextOperation = updateMode.markedTextOperation, markedTextOperation.createMarkedText == true {
       // Here we special case STARTING or UPDATING a marked text operation.
       try selection.applySelectionRange(markedTextOperation.selectionRangeToReplace, affinity: .forward)
@@ -27,7 +27,7 @@ internal func onInsertTextFromUITextView(text: String, editor: Editor, updateMod
       // do not seem to use this way of ending marked text.
       try selection.applySelectionRange(markedRange, affinity: .forward)
     }
-
+    
     if text == "\n" || text == "\u{2029}" {
       try selection.insertParagraph()
     } else if text == "\u{2028}" {
@@ -39,91 +39,55 @@ internal func onInsertTextFromUITextView(text: String, editor: Editor, updateMod
 }
 
 internal func onInsertLineBreakFromUITextView(editor: Editor) throws {
-  guard getActiveEditor() == nil else {
-    throw LexicalError.invariantViolation("onDeleteBackwardsFromUITextView() should not be called from inside a read/edit block")
+  guard getActiveEditor() != nil, let selection = getSelection() else {
+    throw LexicalError.invariantViolation("No editor or selection")
   }
-
-  try editor.update {
-    guard let selection = getSelection() else {
-      return
-    }
-    try selection.insertLineBreak(selectStart: false)
-  }
+  try selection.insertLineBreak(selectStart: false)
 }
 
 internal func onInsertParagraphFromUITextView(editor: Editor) throws {
-  guard getActiveEditor() == nil else {
-    throw LexicalError.invariantViolation("onInsertParagraphFromUITextView() should not be called from inside a read/edit block")
+  guard getActiveEditor() != nil, let selection = getSelection() else {
+    throw LexicalError.invariantViolation("No editor or selection")
   }
-
-  try editor.update {
-    guard let selection = getSelection() else {
-      return
-    }
-    try selection.insertParagraph()
-  }
+  try selection.insertParagraph()
 }
 
 internal func onRemoveTextFromUITextView(editor: Editor) throws {
-  guard getActiveEditor() == nil else {
-    throw LexicalError.invariantViolation("onRemoveTextFromUITextView() should not be called from inside a read/edit block")
+  guard getActiveEditor() != nil, let selection = getSelection() else {
+    throw LexicalError.invariantViolation("No editor or selection")
   }
-
-  try editor.update {
-    guard let selection = getSelection() else {
-      return
-    }
-    try selection.removeText()
-  }
-
+  try selection.removeText()
+  
   editor.frontend?.showPlaceholderText()
 }
 
 internal func onDeleteBackwardsFromUITextView(editor: Editor) throws {
-  guard getActiveEditor() == nil else {
-    throw LexicalError.invariantViolation("onDeleteBackwardsFromUITextView() should not be called from inside a read/edit block")
+  guard let editor = getActiveEditor(), let selection = getSelection() else {
+    throw LexicalError.invariantViolation("No editor or selection")
   }
-
-  try editor.update {
-    guard let selection = getSelection() else {
-      return
-    }
-
-    try selection.deleteCharacter(isBackwards: true)
-  }
-
+  
+  try selection.deleteCharacter(isBackwards: true)
+  
   editor.frontend?.showPlaceholderText()
 }
 
 internal func onDeleteWordFromUITextView(editor: Editor) throws {
-  guard getActiveEditor() == nil else {
-    throw LexicalError.invariantViolation("onDeleteWordFromUITextView() should not be called from inside a read/edit block")
+  guard getActiveEditor() != nil, let selection = getSelection() else {
+    throw LexicalError.invariantViolation("No editor or selection")
   }
-
-  try editor.update {
-    guard let selection = getSelection() else {
-      return
-    }
-
-    try selection.deleteWord(isBackwards: true)
-  }
-
+  
+  try selection.deleteWord(isBackwards: true)
+  
   editor.frontend?.showPlaceholderText()
 }
 
 internal func onDeleteLineFromUITextView(editor: Editor) throws {
-  guard getActiveEditor() == nil else {
-    throw LexicalError.invariantViolation("onDeleteLineFromUITextView() should not be called from inside a read/edit block")
+  guard getActiveEditor() != nil, let selection = getSelection() else {
+    throw LexicalError.invariantViolation("No editor or selection")
   }
-
-  try editor.update {
-    guard let selection = getSelection() else {
-      return
-    }
-
-    try selection.deleteLine(isBackwards: true)
-  }
-
+  
+  try selection.deleteLine(isBackwards: true)
+  
   editor.frontend?.showPlaceholderText()
 }
 
@@ -132,80 +96,62 @@ internal func onFormatTextFromUITextView(editor: Editor, type: TextFormatType) t
 }
 
 internal func onCopyFromUITextView(editor: Editor, pasteboard: UIPasteboard) throws {
-  guard getActiveEditor() == nil else {
-    throw LexicalError.invariantViolation("onCopyFromUITextView() should not be called from inside a read/edit block")
+  guard getActiveEditor() != nil, let selection = getSelection() else {
+    throw LexicalError.invariantViolation("No editor or selection")
   }
-
-  try editor.update {
-    guard let selection = getSelection() else {
-      return
-    }
-    try setPasteboard(selection: selection, pasteboard: pasteboard)
-  }
+  try setPasteboard(selection: selection, pasteboard: pasteboard)
 }
 
 internal func onCutFromUITextView(editor: Editor, pasteboard: UIPasteboard) throws {
-  guard getActiveEditor() == nil else {
-    throw LexicalError.invariantViolation("onCutFromUITextView() should not be called from inside a read/edit block")
+  guard getActiveEditor() != nil, let selection = getSelection() else {
+    throw LexicalError.invariantViolation("No editor or selection")
   }
-
-  try editor.update {
-    guard let selection = getSelection() else {
-      return
-    }
-    try setPasteboard(selection: selection, pasteboard: pasteboard)
-    try selection.removeText()
-  }
-
+  try setPasteboard(selection: selection, pasteboard: pasteboard)
+  try selection.removeText()
+  
   editor.frontend?.showPlaceholderText()
 }
 
 internal func onPasteFromUITextView(editor: Editor, pasteboard: UIPasteboard) throws {
-  guard getActiveEditor() == nil else {
-    throw LexicalError.invariantViolation("onPasteFromUITextView() should not be called from inside a read/edit block")
+  guard getActiveEditor() != nil, let selection = getSelection() else {
+    throw LexicalError.invariantViolation("No editor or selection")
   }
-
-  try editor.update {
-    guard let selection = getSelection() else {
-      return
-    }
-
-    try insertDataTransferForRichText(selection: selection, pasteboard: pasteboard)
-  }
-
+  
+  try insertDataTransferForRichText(selection: selection, pasteboard: pasteboard)
+  
   editor.frontend?.showPlaceholderText()
 }
 
 public func shouldInsertTextAfterOrBeforeTextNode(selection: RangeSelection, node: TextNode) -> Bool {
   var shouldInsertTextBefore = false
   var shouldInsertTextAfter = false
-
+  
   if node.isSegmented() {
     return true
   }
-
+  
   if !selection.isCollapsed() {
     return true
   }
-
+  
   let offset = selection.anchor.offset
-
+  
   shouldInsertTextBefore = offset == 0 && checkIfTokenOrCanTextBeInserted(node: node)
-
+  
   shouldInsertTextAfter = node.getTextContentSize() == offset &&
-    checkIfTokenOrCanTextBeInserted(node: node)
-
+  checkIfTokenOrCanTextBeInserted(node: node)
+  
   return shouldInsertTextBefore || shouldInsertTextAfter
 }
 
 func checkIfTokenOrCanTextBeInserted(node: TextNode) -> Bool {
   let isToken = node.isToken()
   let parent = node.getParent()
-
+  
   if let parent = parent {
     return !parent.canInsertTextBefore() || !node.canInsertTextBefore() || isToken
   }
-
+  
   return !node.canInsertTextBefore() || isToken
 }
 
@@ -216,9 +162,9 @@ internal func onSelectionChange(editor: Editor) {
       guard let lexicalSelection = getSelection() else {
         return
       }
-
+      
       try lexicalSelection.applyNativeSelection(nativeSelection)
-
+      
       switch lexicalSelection.anchor.type {
       case .text:
         guard let anchorNode = try lexicalSelection.anchor.getNode() as? TextNode else { break }
@@ -235,8 +181,30 @@ internal func onSelectionChange(editor: Editor) {
   }
 }
 
-public func registerRichText(editor: Editor) {
+internal func handleIndentAndOutdent(insertTab: (Node) -> Void, indentOrOutdent: (ElementNode) -> Void) throws {
+  guard getActiveEditor() != nil, let selection = getSelection() else {
+    throw LexicalError.invariantViolation("No editor or selection")
+  }
+  var alreadyHandled: Set<NodeKey> = Set()
+  let nodes = try selection.getNodes()
+  
+  for node in nodes {
+    let key = node.getKey()
+    if alreadyHandled.contains(key) { continue }
+    let parentBlock = try getNearestBlockElementAncestorOrThrow(startNode: node)
+    let parentKey = parentBlock.getKey()
+    if parentBlock.canInsertTab() {
+      insertTab(parentBlock)
+      alreadyHandled.insert(parentKey)
+    } else if parentBlock.canIndent() && !alreadyHandled.contains(parentKey) {
+      alreadyHandled.insert(parentKey)
+      indentOrOutdent(parentBlock)
+    }
+  }
+}
 
+public func registerRichText(editor: Editor) {
+  
   _ = editor.registerCommand(type: .insertLineBreak, listener: { [weak editor] payload in
     guard let editor = editor else { return false }
     do {
@@ -247,7 +215,7 @@ public func registerRichText(editor: Editor) {
     }
     return true
   })
-
+  
   _ = editor.registerCommand(type: .deleteCharacter, listener: { [weak editor] payload in
     guard let editor = editor else { return false }
     do {
@@ -258,7 +226,7 @@ public func registerRichText(editor: Editor) {
     }
     return true
   })
-
+  
   _ = editor.registerCommand(type: .deleteWord, listener: { [weak editor] payload in
     guard let editor = editor else { return false }
     do {
@@ -269,7 +237,7 @@ public func registerRichText(editor: Editor) {
     }
     return true
   })
-
+  
   _ = editor.registerCommand(type: .deleteLine, listener: { [weak editor] payload in
     guard let editor = editor else { return false }
     do {
@@ -280,7 +248,7 @@ public func registerRichText(editor: Editor) {
     }
     return true
   })
-
+  
   _ = editor.registerCommand(type: .insertText, listener: { [weak editor] payload in
     guard let editor = editor else { return false }
     do {
@@ -288,7 +256,7 @@ public func registerRichText(editor: Editor) {
         editor.log(.TextView, .warning, "insertText missing payload")
         return false
       }
-
+      
       try onInsertTextFromUITextView(text: text, editor: editor)
       return true
     } catch {
@@ -296,7 +264,7 @@ public func registerRichText(editor: Editor) {
     }
     return true
   })
-
+  
   _ = editor.registerCommand(type: .insertParagraph, listener: { [weak editor] payload in
     guard let editor = editor else { return false }
     do {
@@ -307,7 +275,7 @@ public func registerRichText(editor: Editor) {
     }
     return true
   })
-
+  
   _ = editor.registerCommand(type: .removeText, listener: { [weak editor] payload in
     guard let editor = editor else { return false }
     do {
@@ -318,12 +286,12 @@ public func registerRichText(editor: Editor) {
     }
     return true
   })
-
+  
   _ = editor.registerCommand(type: .formatText, listener: { [weak editor] payload in
     guard let editor = editor else { return false }
     do {
       guard let text = payload as? TextFormatType else { return false }
-
+      
       try onFormatTextFromUITextView(editor: editor, type: text)
       return true
     } catch {
@@ -331,12 +299,12 @@ public func registerRichText(editor: Editor) {
     }
     return true
   })
-
+  
   _ = editor.registerCommand(type: .copy, listener: { [weak editor] payload in
     guard let editor = editor else { return false }
     do {
       guard let text = payload as? UIPasteboard else { return false }
-
+      
       try onCopyFromUITextView(editor: editor, pasteboard: text)
       return true
     } catch {
@@ -344,12 +312,12 @@ public func registerRichText(editor: Editor) {
     }
     return true
   })
-
+  
   _ = editor.registerCommand(type: .cut, listener: { [weak editor] payload in
     guard let editor = editor else { return false }
     do {
       guard let text = payload as? UIPasteboard else { return false }
-
+      
       try onCutFromUITextView(editor: editor, pasteboard: text)
       return true
     } catch {
@@ -357,12 +325,12 @@ public func registerRichText(editor: Editor) {
     }
     return true
   })
-
+  
   _ = editor.registerCommand(type: .paste, listener: { [weak editor] payload in
     guard let editor = editor else { return false }
     do {
       guard let text = payload as? UIPasteboard else { return false }
-
+      
       try onPasteFromUITextView(editor: editor, pasteboard: text)
       return true
     } catch {
@@ -370,4 +338,50 @@ public func registerRichText(editor: Editor) {
     }
     return true
   })
+  
+  _ = editor.registerCommand(type: .indentContent, listener: { [weak editor] payload in
+    guard let editor = editor else { return false }
+    do {
+      try handleIndentAndOutdent(insertTab: { node in
+        editor.dispatchCommand(type: .insertText, payload: "\t")
+      }, indentOrOutdent: { elementNode in
+        let indent = elementNode.getIndent()
+        if indent != 10 {
+          _ = try? elementNode.setIndent(indent + 1);
+        }
+      })
+      return true
+    } catch {
+      print("\(error)")
+    }
+    return true
+  })
+  
+  _ = editor.registerCommand(type: .outdentContent, listener: { [weak editor] payload in
+    guard let editor = editor else { return false }
+    do {
+      try handleIndentAndOutdent(insertTab: { node in
+        if let node = node as? TextNode {
+          let textContent = node.getTextContent()
+          if let character = textContent.last {
+            if character == "\t" {
+              editor.dispatchCommand(type: .deleteCharacter)
+            }
+          }
+        }
+
+        editor.dispatchCommand(type: .insertText, payload: "\t")
+      }, indentOrOutdent: { elementNode in
+        let indent = elementNode.getIndent()
+        if indent != 0 {
+          _ = try? elementNode.setIndent(indent - 1);
+        }
+      })
+      return true
+    } catch {
+      print("\(error)")
+    }
+    return true
+  })
 }
+

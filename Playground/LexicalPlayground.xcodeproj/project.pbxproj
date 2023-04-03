@@ -13,7 +13,7 @@
 		0656CF8529D1E439009CA08F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0656CF8329D1E439009CA08F /* LaunchScreen.storyboard */; };
 		0656CF9029D1ED8F009CA08F /* ToolbarPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0656CF8F29D1ED8F009CA08F /* ToolbarPlugin.swift */; };
 		0656CF9929D23743009CA08F /* Lexical in Frameworks */ = {isa = PBXBuildFile; productRef = 0656CF9829D23743009CA08F /* Lexical */; };
-		0656CF9C29D28739009CA08F /* Lexical in Frameworks */ = {isa = PBXBuildFile; productRef = 0656CF9B29D28739009CA08F /* Lexical */; };
+		0656CFA229D48391009CA08F /* LexicalListPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 0656CFA129D48391009CA08F /* LexicalListPlugin */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +24,7 @@
 		0656CF8429D1E439009CA08F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0656CF8629D1E439009CA08F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0656CF8F29D1ED8F009CA08F /* ToolbarPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarPlugin.swift; sourceTree = "<group>"; };
+		0656CFA029D4837C009CA08F /* lexical-ios */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "lexical-ios"; path = ..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,8 +32,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0656CFA229D48391009CA08F /* LexicalListPlugin in Frameworks */,
 				0656CF9929D23743009CA08F /* Lexical in Frameworks */,
-				0656CF9C29D28739009CA08F /* Lexical in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -42,6 +43,7 @@
 		0656CF6C29D1E437009CA08F = {
 			isa = PBXGroup;
 			children = (
+				0656CF9F29D4837C009CA08F /* Packages */,
 				0656CF7729D1E438009CA08F /* LexicalPlayground */,
 				0656CF7629D1E438009CA08F /* Products */,
 				0656CF9729D23743009CA08F /* Frameworks */,
@@ -76,6 +78,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		0656CF9F29D4837C009CA08F /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				0656CFA029D4837C009CA08F /* lexical-ios */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -95,7 +105,7 @@
 			name = LexicalPlayground;
 			packageProductDependencies = (
 				0656CF9829D23743009CA08F /* Lexical */,
-				0656CF9B29D28739009CA08F /* Lexical */,
+				0656CFA129D48391009CA08F /* LexicalListPlugin */,
 			);
 			productName = LexicalPlayground;
 			productReference = 0656CF7529D1E438009CA08F /* LexicalPlayground.app */;
@@ -126,7 +136,6 @@
 			);
 			mainGroup = 0656CF6C29D1E437009CA08F;
 			packageReferences = (
-				0656CF9A29D28739009CA08F /* XCRemoteSwiftPackageReference "lexical-ios" */,
 			);
 			productRefGroup = 0656CF7629D1E438009CA08F /* Products */;
 			projectDirPath = "";
@@ -370,17 +379,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		0656CF9A29D28739009CA08F /* XCRemoteSwiftPackageReference "lexical-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/facebook/lexical-ios";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
 /* Begin XCSwiftPackageProductDependency section */
 		0656CF9529D2373C009CA08F /* Lexical */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -390,10 +388,9 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = Lexical;
 		};
-		0656CF9B29D28739009CA08F /* Lexical */ = {
+		0656CFA129D48391009CA08F /* LexicalListPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0656CF9A29D28739009CA08F /* XCRemoteSwiftPackageReference "lexical-ios" */;
-			productName = Lexical;
+			productName = LexicalListPlugin;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

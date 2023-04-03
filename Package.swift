@@ -15,6 +15,9 @@ let package = Package(
     .library(
       name: "Lexical",
       targets: ["Lexical"]),
+    .library(
+      name: "LexicalListPlugin",
+      targets: ["LexicalListPlugin"]),
   ],
   dependencies: [
   ],
@@ -23,6 +26,10 @@ let package = Package(
       name: "Lexical",
       dependencies: [],
       path: "./Lexical"),
+    .target(
+      name: "LexicalListPlugin",
+      dependencies: ["Lexical"],
+      path: "./Plugins/LexicalListPlugin"),
     .testTarget(
       name: "LexicalTests",
       dependencies: ["Lexical"],

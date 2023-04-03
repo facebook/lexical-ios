@@ -52,7 +52,7 @@ func triggerErrorListeners(activeEditor: Editor, activeEditorState: EditorState,
 public func triggerTextContentListeners(activeEditor: Editor, activeEditorState: EditorState, previousEditorState: EditorState) throws {
   let activeTextContent = try getEditorStateTextContent(editorState: activeEditorState)
   let previousTextContent = try getEditorStateTextContent(editorState: previousEditorState)
-
+  
   if activeTextContent != previousTextContent {
     for listener in activeEditor.listeners.textContent.values {
       listener(activeTextContent)
@@ -62,29 +62,48 @@ public func triggerTextContentListeners(activeEditor: Editor, activeEditorState:
 
 public func triggerCommandListeners(activeEditor: Editor, type: CommandType, payload: Any?) -> Bool {
   let listenersInPriorityOrder = activeEditor.commands[type]
-
-  for priority in [
-    CommandPriority.Critical,
-    CommandPriority.High,
-    CommandPriority.Normal,
-    CommandPriority.Low,
-    CommandPriority.Editor,
-  ] {
-    guard let listeners = listenersInPriorityOrder?[priority]?.values else {
-      continue
-    }
-
-    for listener in listeners {
-      if listener(payload) {
-        return true
+  
+  var handled = false
+  
+  let closure: () throws -> Void = {
+    for priority in [
+      CommandPriority.Critical,
+      CommandPriority.High,
+      CommandPriority.Normal,
+      CommandPriority.Low,
+      CommandPriority.Editor,
+    ] {
+      guard let listeners = listenersInPriorityOrder?[priority]?.values else {
+        continue
+      }
+      
+      // TODO: handle throws
+      for listener in listeners {
+        if listener(payload) {
+          handled = true
+          return
+        }
       }
     }
   }
-
+  
+  do {
+    if !activeEditor.isUpdating {
+      try activeEditor.update(closure)
+    } else {
+      try closure()
+    }
+  } catch {
+    print("\(error)")
+    return false
+  }
+  
+  if handled { return true }
+  
   if let parent = activeEditor.parentEditor {
     return triggerCommandListeners(activeEditor: parent, type: type, payload: payload)
   }
-
+  
   // no parent, no handler
   return false
 }
@@ -101,21 +120,22 @@ internal func runWithStateLexicalScopeProperties(activeEditor: Editor?, activeEd
   let previousActiveEditorState = Thread.current.threadDictionary[activeEditorStateThreadDictionaryKey]
   let previousReadOnly = Thread.current.threadDictionary[readOnlyModeThreadDictionaryKey]
   let previousParentUpdateBlocks: [Editor] = Thread.current.threadDictionary[previousParentUpdateBlocksThreadDictionaryKey] as? [Editor] ?? []
-
+  
   Thread.current.threadDictionary[activeEditorThreadDictionaryKey] = activeEditor
   Thread.current.threadDictionary[activeEditorStateThreadDictionaryKey] = activeEditorState
   Thread.current.threadDictionary[readOnlyModeThreadDictionaryKey] = readOnlyMode
-
+  
   if let activeEditor = activeEditor {
     var newParentUpdateBlocks = previousParentUpdateBlocks
     newParentUpdateBlocks.append(activeEditor)
     Thread.current.threadDictionary[previousParentUpdateBlocksThreadDictionaryKey] = newParentUpdateBlocks
   }
-
+  
   try closure()
-
+  
   Thread.current.threadDictionary[activeEditorThreadDictionaryKey] = previousActiveEditor
   Thread.current.threadDictionary[activeEditorStateThreadDictionaryKey] = previousActiveEditorState
   Thread.current.threadDictionary[readOnlyModeThreadDictionaryKey] = previousReadOnly
   Thread.current.threadDictionary[previousParentUpdateBlocksThreadDictionaryKey] = previousParentUpdateBlocks
 }
+

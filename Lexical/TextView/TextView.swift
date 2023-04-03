@@ -339,12 +339,16 @@ class TextView: UITextView {
   }
 
   func showPlaceholderText() {
-    if !self.text.isEmpty {
-      hidePlaceholderLabel()
-      return
-    }
-
+    var shouldShow = false
     do {
+      try editor.read {
+        guard let root = getRoot() else { return }
+        shouldShow = root.getTextContentSize() == 0
+      }
+      if !shouldShow {
+        hidePlaceholderLabel()
+        return
+      }
       try editor.read {
         if canShowPlaceholder(isComposing: editor.isComposing()) {
           placeholderLabel.isHidden = false

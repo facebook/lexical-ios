@@ -92,6 +92,10 @@ open class ElementNode: Node {
     node.direction = direction
     return node
   }
+  
+  open func canIndent() -> Bool {
+    return true
+  }
 
   open func getIndent() -> Int {
     let node = getLatest() as ElementNode
@@ -106,7 +110,7 @@ open class ElementNode: Node {
     return node
   }
 
-  public func append(_ nodesToAppend: [Node]) throws {
+  open func append(_ nodesToAppend: [Node]) throws {
     try errorOnReadOnly()
     let writeableSelf: ElementNode = try self.getWritable()
     let writeableSelfKey = writeableSelf.key
@@ -225,7 +229,7 @@ open class ElementNode: Node {
     return false
   }
 
-  func collapseAtStart(selection: RangeSelection) throws -> Bool {
+  open func collapseAtStart(selection: RangeSelection) throws -> Bool {
     return false
   }
 
@@ -265,7 +269,7 @@ open class ElementNode: Node {
     return true
   }
 
-  func canMergeWith(node: ElementNode) -> Bool {
+  public func canMergeWith(node: ElementNode) -> Bool {
     return false
   }
 

@@ -331,7 +331,9 @@ class TextViewTests: XCTestCase {
       XCTAssertTrue(label.isHidden)
     }
 
-    try onDeleteBackwardsFromUITextView(editor: textView.editor)
+    try textView.editor.update {
+      try onDeleteBackwardsFromUITextView(editor: textView.editor)
+    }
     if let label = textView.subviews.first(where: { $0 is UILabel }) as? UILabel {
       XCTAssertTrue(!label.isHidden)
     }
