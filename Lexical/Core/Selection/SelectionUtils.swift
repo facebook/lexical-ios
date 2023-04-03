@@ -118,7 +118,7 @@ func moveSelectionPointToSibling(
   point: Point,
   node: Node,
   parent: ElementNode) {
-  var siblingKey: String?
+  var siblingKey: NodeKey?
   var offset = 0
   var type: SelectionType?
 
@@ -142,11 +142,13 @@ func moveSelectionPointToSibling(
     }
   }
 
-  if let siblingKey, type != nil {
-    point.updatePoint(key: siblingKey, offset: offset, type: .text)
+  if let siblingKey, let type {
+    point.updatePoint(key: siblingKey, offset: offset, type: type)
   } else {
     if let offset = node.getIndexWithinParent() {
       point.updatePoint(key: parent.key, offset: offset, type: .element)
+    } else {
+      point.updatePoint(key: parent.key, offset: parent.getChildrenSize(), type: .element)
     }
   }
 }

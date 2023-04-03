@@ -9,6 +9,11 @@ import Foundation
 import Lexical
 import UIKit
 
+extension CommandType {
+  public static let insertUnorderedList = CommandType(rawValue: "insertUnorderedList")
+  public static let removeList = CommandType(rawValue: "removeList")
+}
+
 open class ListPlugin: Plugin {
   public init() {}
 
@@ -19,6 +24,12 @@ open class ListPlugin: Plugin {
     do {
       try editor.registerNode(nodeType: NodeType.list, constructor: { decoder in try ListNode(from: decoder) })
       try editor.registerNode(nodeType: NodeType.listItem, constructor: { decoder in try ListItemNode(from: decoder) })
+
+      _ = editor.registerCommand(type: .insertUnorderedList, listener: { [weak editor] payload in
+        guard let editor else { return false }
+        try? insertList(editor: editor, listType: .bullet)
+        return true
+      })
 
       try editor.registerCustomDrawing(customAttribute: .listItem, layer: .text, granularity: .contiguousParagraphs) {
         attributeKey, attributeValue, layoutManager, characterRange, expandedCharRange, glyphRange, rect, firstLineFragment in

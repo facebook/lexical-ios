@@ -34,6 +34,18 @@ public func generateKey(node: Node) throws -> NodeKey? {
   return stringKey
 }
 
+private func internallyMarkChildrenAsDirty(  element: ElementNode,
+                                             nodeMap: [NodeKey: Node],
+                                             editor: Editor,
+                                             status: DirtyStatusCause = .editorInitiated) {
+  for childKey in element.children {
+    editor.dirtyNodes[childKey] = status
+    if let childElement = nodeMap[childKey] as? ElementNode {
+      internallyMarkChildrenAsDirty(element: childElement, nodeMap: nodeMap, editor: editor)
+    }
+  }
+}
+
 private func internallyMarkParentElementsAsDirty(
   parentKey: NodeKey,
   nodeMap: [NodeKey: Node],
@@ -71,6 +83,9 @@ internal func internallyMarkNodeAsDirty(node: Node, cause: DirtyStatusCause = .e
 
   if let parent = latest.parent {
     internallyMarkParentElementsAsDirty(parentKey: parent, nodeMap: nodeMap, editor: editor)
+  }
+  if let elementNode = node as? ElementNode {
+    internallyMarkChildrenAsDirty(element: elementNode, nodeMap: nodeMap, editor: editor)
   }
 
   editor.dirtyType = .hasDirtyNodes
@@ -544,4 +559,90 @@ public func findMatchingParent(startingNode: Node?, findFn: FindFunction) -> Nod
   }
 
   return nil
+}
+
+/**
+ *Returns the element node of the nearest ancestor, otherwise throws an error.
+ * @param startNode - The starting node of the search
+ * @returns The ancestor node found
+ */
+public func getNearestBlockElementAncestorOrThrow(startNode: Node) throws -> ElementNode {
+  let blockNode = findMatchingParent(startingNode: startNode) { node in
+    if let elementNode = node as? ElementNode {
+      return !elementNode.isInline()
+    }
+    return false
+  }
+
+  guard let blockNode = blockNode as? ElementNode else {
+    throw LexicalError.invariantViolation("expected node to have closest block element node")
+  }
+
+  return blockNode
+}
+
+public func applyNodeReplacement<N: Node>(
+  node: N
+) throws -> N {
+  // TODO: Lexical iOS doesn't support node replacement yet
+  return node as N
+}
+
+/**
+ * Takes a node and traverses up its ancestors (toward the root node)
+ * in order to find a specific type of node.
+ * @param node - the node to begin searching.
+ * @param klass - an instance of the type of node to look for.
+ * @returns the node of type klass that was passed, or null if none exist.
+ */
+public func getNearestNodeOfType<T: ElementNode>(
+  node: Node,
+  type: NodeType
+) -> T? {
+  var parent: Node? = node
+
+  while let unwrappedParent = parent {
+    if unwrappedParent.type == type, let typedParent = unwrappedParent as? T {
+      return typedParent as T
+    }
+
+    parent = unwrappedParent.getParent()
+  }
+
+  return nil
+}
+
+public func hasAncestor(
+  child: Node,
+  targetNode: Node
+) -> Bool {
+  var parent = child.getParent()
+  while let unwrappedParent = parent {
+    if unwrappedParent.isSameNode(targetNode) {
+      return true
+    }
+    parent = unwrappedParent.getParent()
+  }
+  return false
+}
+
+public func maybeMoveChildrenSelectionToParent(
+  parentNode: Node,
+  offset: Int = 0
+) throws -> RangeSelection? {
+  if offset != 0 {
+    throw LexicalError.invariantViolation("TODO")
+  }
+  guard let selection = getSelection() else {
+    return nil
+  }
+  let anchorNode = try selection.anchor.getNode()
+  let focusNode = try selection.focus.getNode()
+  if hasAncestor(child: anchorNode, targetNode: parentNode) {
+    selection.anchor.updatePoint(key: parentNode.getKey(), offset: 0, type: .element)
+  }
+  if hasAncestor(child: focusNode, targetNode: parentNode) {
+    selection.focus.updatePoint(key: parentNode.getKey(), offset: 0, type: .element)
+  }
+  return selection
 }

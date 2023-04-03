@@ -1631,7 +1631,9 @@ class NodeTests: XCTestCase {
       }
     }
 
-    try formatLargeHeading(editor: editor)
+    try editor.update {
+      try formatLargeHeading(editor: editor)
+    }
 
     // verify
     try editor.read {
@@ -1662,9 +1664,9 @@ class NodeTests: XCTestCase {
         focus: Point(key: key, offset: 4, type: .text),
         format: TextFormat())
       editorState.selection = selection
-    }
 
-    try formatSmallHeading(editor: editor)
+      try formatSmallHeading(editor: editor)
+    }
 
     try editor.read {
       guard let editorState = getActiveEditorState(), let rootNode = editorState.getRootNode() else {

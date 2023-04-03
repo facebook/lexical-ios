@@ -7,6 +7,7 @@
 
 import Foundation
 import Lexical
+import LexicalListPlugin
 import UIKit
 
 public class ToolbarPlugin: Plugin {
@@ -55,6 +56,8 @@ public class ToolbarPlugin: Plugin {
   var strikethroughButton: UIBarButtonItem?
   var inlineCodeButton: UIBarButtonItem?
   var linkButton: UIBarButtonItem?
+  var increaseIndentButton: UIBarButtonItem?
+  var decreaseIndentButton: UIBarButtonItem?
 
   private func setUpToolbar() {
     let undo = UIBarButtonItem(image: UIImage(systemName: "arrow.uturn.backward"),
@@ -108,7 +111,19 @@ public class ToolbarPlugin: Plugin {
                                action: #selector(link))
     self.linkButton = link
 
-    toolbar.items = [/* undo, redo, */ paragraph, bold, italic, underline, strikethrough, inlineCode /*, link */]
+    let increaseIndent = UIBarButtonItem(image: UIImage(systemName: "increase.indent"),
+                                         style: .plain,
+                                         target: self,
+                                         action: #selector(increaseIndent))
+    self.increaseIndentButton = link
+
+    let decreaseIndent = UIBarButtonItem(image: UIImage(systemName: "decrease.indent"),
+                                         style: .plain,
+                                         target: self,
+                                         action: #selector(decreaseIndent))
+    self.decreaseIndentButton = link
+
+    toolbar.items = [/* undo, redo, */ paragraph, bold, italic, underline, strikethrough, inlineCode /*, link */, decreaseIndent, increaseIndent]
   }
 
   func updateToolbar() {
@@ -138,6 +153,21 @@ public class ToolbarPlugin: Plugin {
         paragraphButton?.image = UIImage(systemName: "chevron.left.forwardslash.chevron.right")
       } else if element is QuoteNode {
         paragraphButton?.image = UIImage(systemName: "quote.opening")
+      } else if let element = element as? ListNode {
+        var listType: ListType = .bullet
+        if let parentList: ListNode = getNearestNodeOfType(node: anchorNode, type: .list) {
+          listType = parentList.getListType()
+        } else {
+          listType = element.getListType()
+        }
+        switch listType {
+        case .bullet:
+          paragraphButton?.image = UIImage(systemName: "list.bullet")
+        case .number:
+          paragraphButton?.image = UIImage(systemName: "list.number")
+        case .check:
+          paragraphButton?.image = UIImage(systemName: "checklist")
+        }
       } else {
         paragraphButton?.image = UIImage(systemName: "paragraph")
       }
@@ -178,6 +208,9 @@ public class ToolbarPlugin: Plugin {
         self.setBlock {
           createQuoteNode()
         }
+      }),
+      UIAction(title: "Bulleted List", image: UIImage(systemName: "list.bullet"), handler: { (_) in
+        self.editor?.dispatchCommand(type: .insertUnorderedList)
       })
     ]
   }
@@ -217,5 +250,11 @@ public class ToolbarPlugin: Plugin {
     editor?.dispatchCommand(type: .formatText, payload: TextFormatType.code)
   }
   @objc private func link() {
+  }
+  @objc private func increaseIndent() {
+    editor?.dispatchCommand(type: .indentContent, payload: nil)
+  }
+  @objc private func decreaseIndent() {
+    editor?.dispatchCommand(type: .outdentContent, payload: nil)
   }
 }

@@ -441,7 +441,7 @@ open class Node: Codable {
     return getKey() == object.getKey()
   }
 
-  func getKey() -> NodeKey {
+  public func getKey() -> NodeKey {
     return key
   }
 
@@ -523,7 +523,7 @@ open class Node: Codable {
   }
 
   /// Removes this LexicalNode from the EditorState. If the node isn't re-inserted somewhere, the Lexical garbage collector will eventually clean it up.
-  public func remove() throws {
+  open func remove() throws {
     try errorOnReadOnly()
     try Node.removeNode(nodeToRemove: self, restoreSelection: true)
   }
@@ -535,7 +535,7 @@ open class Node: Codable {
       return
     }
 
-    let selection = getSelection()
+    let selection = try maybeMoveChildrenSelectionToParent(parentNode: nodeToRemove)
 
     var selectionMoved = false
     if let selection, restoreSelection {
@@ -576,7 +576,7 @@ open class Node: Codable {
 
   /// Inserts a node after this LexicalNode (as the next sibling).
   @discardableResult
-  public func insertAfter(nodeToInsert: Node) throws -> Node {
+  open func insertAfter(nodeToInsert: Node) throws -> Node {
     try errorOnReadOnly()
 
     let writableSelf = try getWritable()
@@ -690,7 +690,7 @@ open class Node: Codable {
   ///
   /// - Returns: the node that replaced the target node (as a writable copy)
   @discardableResult
-  public func replace<T: Node>(replaceWith: T, includeChildren: Bool = false) throws -> T {
+  open func replace<T: Node>(replaceWith: T, includeChildren: Bool = false) throws -> T {
     try errorOnReadOnly()
     let toReplaceKey = key
     let writableReplaceWith = try replaceWith.getWritable() as T
@@ -784,6 +784,10 @@ open class Node: Codable {
       let index = nextSibling?.getIndexWithinParent()
       return try parent.select(anchorOffset: index, focusOffset: index)
     }
+  }
+
+  public func isSameNode(_ node: Node) -> Bool {
+    return self.getKey() == node.getKey()
   }
 }
 

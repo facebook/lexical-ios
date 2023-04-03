@@ -130,6 +130,8 @@ public struct CommandType: RawRepresentable, Hashable {
   public static let clearEditor = CommandType(rawValue: "clearEditor")
   public static let linkTapped = CommandType(rawValue: "linkTapped")
   public static let truncationIndicatorTapped = CommandType(rawValue: "truncationIndicatorTapped")
+  public static let indentContent = CommandType(rawValue: "indentContent")
+  public static let outdentContent = CommandType(rawValue: "outdentContent")
 }
 
 @objc public enum CommandPriority: Int {

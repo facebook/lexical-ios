@@ -31,9 +31,10 @@ class EventsTests: XCTestCase {
         anchor: Point(key: key, offset: 0, type: .text),
         focus: Point(key: key, offset: 0, type: .text),
         format: TextFormat())
+
+      try formatLargeHeading(editor: editor)
     }
 
-    try formatLargeHeading(editor: editor)
     try editor.read {
       let editorState = editor.getEditorState()
       guard let rootNode = editorState.getRootNode() else {
@@ -53,7 +54,10 @@ class EventsTests: XCTestCase {
       }
     }
 
-    try formatParagraph(editor: editor)
+    try editor.update {
+      try formatParagraph(editor: editor)
+    }
+
     try editor.read {
       let editorState = editor.getEditorState()
       guard let rootNode = editorState.getRootNode() else {
@@ -72,7 +76,10 @@ class EventsTests: XCTestCase {
       }
     }
 
-    try formatSmallHeading(editor: editor)
+    try editor.update {
+      try formatSmallHeading(editor: editor)
+    }
+
     try editor.read {
       let editorState = editor.getEditorState()
       guard let rootNode = editorState.getRootNode() else {
@@ -117,7 +124,10 @@ class EventsTests: XCTestCase {
         format: TextFormat())
     }
 
-    try formatQuote(editor: editor)
+    try editor.update {
+      try formatQuote(editor: editor)
+    }
+
     try editor.read {
       let editorState = editor.getEditorState()
       guard let rootNode = editorState.getRootNode() else {
