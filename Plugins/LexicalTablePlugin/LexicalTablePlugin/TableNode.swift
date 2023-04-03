@@ -56,7 +56,7 @@ public class TableNode: DecoratorNode {
     self.numRows = numRows
     self.type = NodeType.table
 
-    if let newRows = newRows {
+    if let newRows {
       self.rows = newRows
       return
     }
@@ -120,7 +120,7 @@ public class TableNode: DecoratorNode {
   override public func didMoveTo(newEditor editor: Editor) {
     for row in rows {
       for cell in row.cells {
-        if let cell = cell {
+        if let cell {
           cell.textKitContext.editor.parentEditor = editor
         }
       }
@@ -154,7 +154,7 @@ public class TableNode: DecoratorNode {
     let rowObj = rows[row]
     let cell = rowObj.cells[col]
 
-    if let cell = cell {
+    if let cell {
       return cell.textKitContext.editor
     }
 
@@ -210,7 +210,7 @@ public class TableNode: DecoratorNode {
     for row in getLatest().rows {
       var maxRowSize = CGFloat(0)
       for cell in row.cells {
-        if let cell = cell, cellWidth != cell.cachedWidth {
+        if let cell, cellWidth != cell.cachedWidth {
           cell.cachedWidth = cellWidth
           cell.textKitContext.setTextContainerSize(forWidth: cellWidth)
           cell.cachedHeight = cell.textKitContext.requiredSize().height

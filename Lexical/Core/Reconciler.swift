@@ -92,7 +92,7 @@ internal enum Reconciler {
       fatalError("Cannot run reconciler on an editor with no text storage")
     }
 
-    if let markedTextOperation = markedTextOperation, markedTextOperation.createMarkedText {
+    if let markedTextOperation, markedTextOperation.createMarkedText {
       guard shouldReconcileSelection == false else {
         editor.log(.reconciler, .warning, "should not reconcile selection whilst starting marked text!")
         throw LexicalError.invariantViolation("should not reconcile selection whilst starting marked text!")
@@ -132,7 +132,7 @@ internal enum Reconciler {
     var markedTextAttributedString: NSAttributedString?
     var markedTextPointForAddition: Point?
 
-    if let markedTextOperation = markedTextOperation {
+    if let markedTextOperation {
       // Find the Point corresponding to the location where marked text will be added
       markedTextPointForAddition = try? pointAtStringLocation(
         markedTextOperation.selectionRangeToReplace.location,
@@ -213,7 +213,7 @@ internal enum Reconciler {
       guard let node = getNodeByKey(key: nodeKey),
             let cacheItem = rangeCache[nodeKey],
             cacheItem.range.length > 0, // if there's an empty node at the end of the text, it'll cause problems when we enumerate paragraphs.
-                                        // Since there's never a need to apply block attribs to an empty string, we just filter them out here.
+            // Since there's never a need to apply block attribs to an empty string, we just filter them out here.
             let attributes = node.getBlockLevelAttributes(theme: editor.getTheme())
       else { continue }
 
@@ -224,9 +224,9 @@ internal enum Reconciler {
     textStorage.endEditing()
     textStorage.mode = previousMode
 
-    if let markedTextOperation = markedTextOperation,
+    if let markedTextOperation,
        markedTextOperation.createMarkedText,
-       let markedTextAttributedString = markedTextAttributedString,
+       let markedTextAttributedString,
        let startPoint = markedTextPointForAddition,
        let frontend = editor.frontend {
       // We have a marked text operation, an attributed string, we know the Point at which it should be added.
@@ -545,8 +545,8 @@ internal enum Reconciler {
     prevSelection: RangeSelection?,
     nextSelection: RangeSelection?,
     editor: Editor) throws {
-    guard let nextSelection = nextSelection else {
-      if let prevSelection = prevSelection {
+    guard let nextSelection else {
+      if let prevSelection {
         if !prevSelection.dirty {
           return
         }

@@ -50,7 +50,7 @@ class NodeTests: XCTestCase {
       node = Node()
       paragraphNode = ParagraphNode()
 
-      guard let node = node, let paragraphNode = paragraphNode else {
+      guard let node, let paragraphNode else {
         XCTFail("can't get node")
         return
       }
@@ -257,7 +257,7 @@ class NodeTests: XCTestCase {
     }
 
     try editor.getEditorState().read {
-      guard let textNodeKey = textNodeKey else {
+      guard let textNodeKey else {
         XCTFail("should have editor state")
         return
       }
@@ -623,7 +623,7 @@ class NodeTests: XCTestCase {
 
       XCTAssertTrue(paragraphNode.isParentOf(textNode))
 
-      if let rootNode = rootNode {
+      if let rootNode {
         XCTAssertTrue(rootNode.isParentOf(paragraphNode))
       }
     }
@@ -680,7 +680,7 @@ class NodeTests: XCTestCase {
       XCTAssertTrue(textNode.isBefore(paragraphNode))
       XCTAssertFalse(textNode2.isBefore(textNode))
 
-      if let rootNode = rootNode {
+      if let rootNode {
         XCTAssertTrue(paragraphNode.isBefore(rootNode))
         XCTAssertFalse(rootNode.isBefore(textNode))
       }
@@ -712,7 +712,7 @@ class NodeTests: XCTestCase {
       XCTAssertNotNil(textNode2.getKey())
       XCTAssertNotNil(paragraphNode.getKey())
 
-      if let rootNode = rootNode {
+      if let rootNode {
         XCTAssertNotNil(rootNode.getKey())
       }
     }
@@ -2181,7 +2181,7 @@ class NodeTests: XCTestCase {
   func testNoCrashWhenSplittingMultiCodepointString() throws {
     let unicodeTestString = "Test\u{1f609}"
 
-    guard let view = view else {
+    guard let view else {
       XCTFail("Editor unexpectedly nil")
       return
     }

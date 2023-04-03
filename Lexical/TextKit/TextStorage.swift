@@ -81,7 +81,7 @@ public class TextStorage: NSTextStorage {
     }
 
     do {
-      guard let editor = editor, let frontend = editor.frontend else { return }
+      guard let editor, let frontend = editor.frontend else { return }
 
       let nativeSelection = NativeSelection(range: range, affinity: .forward)
       var updatedSelection: RangeSelection?
@@ -93,7 +93,7 @@ public class TextStorage: NSTextStorage {
         try selection.insertText(str)
         updatedSelection = getSelection()
       }
-      guard let updatedSelection = updatedSelection else {
+      guard let updatedSelection else {
         return
       }
       try editor.getEditorState().read {

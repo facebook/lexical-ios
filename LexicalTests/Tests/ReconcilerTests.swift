@@ -74,7 +74,7 @@ class ReconcilerTests: XCTestCase {
     XCTAssertEqual(editor.textStorage?.string, "Hello world!")
 
     try editor.update {
-      guard let childNodeKey = childNodeKey, let childNode = getNodeByKey(key: childNodeKey) as? TextNode else {
+      guard let childNodeKey, let childNode = getNodeByKey(key: childNodeKey) as? TextNode else {
         XCTFail()
         return
       }

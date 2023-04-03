@@ -41,21 +41,21 @@ import UIKit
   override public func layoutSubviews() {
     self.backgroundColor = .clear
     super.layoutSubviews()
-    guard let textKitContext = textKitContext else {
+    guard let textKitContext else {
       return
     }
     textKitContext.viewDidLayoutSubviews(viewBounds: self.bounds)
   }
 
   override public func draw(_ rect: CGRect) {
-    if let textKitContext = textKitContext,
+    if let textKitContext,
        let graphicsContext = UIGraphicsGetCurrentContext() {
       textKitContext.draw(inContext: graphicsContext)
     }
   }
 
   @objc func handleTap(gestureRecognizer: UITapGestureRecognizer) {
-    guard let textKitContext = textKitContext else { return }
+    guard let textKitContext else { return }
     let pointInView = gestureRecognizer.location(in: self)
     let pointInTextContainer = CGPoint(x: pointInView.x - textKitContext.textContainerInsets.left,
                                        y: pointInView.y - textKitContext.textContainerInsets.top)

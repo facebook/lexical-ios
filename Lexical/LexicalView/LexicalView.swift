@@ -65,7 +65,7 @@ public class LexicalView: UIView, Frontend {
     self.textView.editor.frontend = self
 
     self.textView.lexicalDelegate = self
-    if let placeholderText = placeholderText {
+    if let placeholderText {
       self.textView.setPlaceholderText(placeholderText.text, textColor: placeholderText.color, font: placeholderText.font)
     }
 
@@ -109,7 +109,7 @@ public class LexicalView: UIView, Frontend {
 
     let markedOpaqueRange = textView.markedTextRange
     var markedNSRange: NSRange?
-    if let markedOpaqueRange = markedOpaqueRange {
+    if let markedOpaqueRange {
       let markedStart: Int = textView.offset(from: textView.beginningOfDocument, to: markedOpaqueRange.start)
       let markedEnd: Int = textView.offset(from: textView.beginningOfDocument, to: markedOpaqueRange.end)
       if markedStart != NSNotFound && markedEnd != NSNotFound {

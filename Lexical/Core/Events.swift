@@ -202,7 +202,7 @@ func checkIfTokenOrCanTextBeInserted(node: TextNode) -> Bool {
   let isToken = node.isToken()
   let parent = node.getParent()
 
-  if let parent = parent {
+  if let parent {
     return !parent.canInsertTextBefore() || !node.canInsertTextBefore() || isToken
   }
 
@@ -238,7 +238,7 @@ internal func onSelectionChange(editor: Editor) {
 public func registerRichText(editor: Editor) {
 
   _ = editor.registerCommand(type: .insertLineBreak, listener: { [weak editor] payload in
-    guard let editor = editor else { return false }
+    guard let editor else { return false }
     do {
       try onInsertLineBreakFromUITextView(editor: editor)
       return true
@@ -249,7 +249,7 @@ public func registerRichText(editor: Editor) {
   })
 
   _ = editor.registerCommand(type: .deleteCharacter, listener: { [weak editor] payload in
-    guard let editor = editor else { return false }
+    guard let editor else { return false }
     do {
       try onDeleteBackwardsFromUITextView(editor: editor)
       return true
@@ -260,7 +260,7 @@ public func registerRichText(editor: Editor) {
   })
 
   _ = editor.registerCommand(type: .deleteWord, listener: { [weak editor] payload in
-    guard let editor = editor else { return false }
+    guard let editor else { return false }
     do {
       try onDeleteWordFromUITextView(editor: editor)
       return true
@@ -271,7 +271,7 @@ public func registerRichText(editor: Editor) {
   })
 
   _ = editor.registerCommand(type: .deleteLine, listener: { [weak editor] payload in
-    guard let editor = editor else { return false }
+    guard let editor else { return false }
     do {
       try onDeleteLineFromUITextView(editor: editor)
       return true
@@ -282,7 +282,7 @@ public func registerRichText(editor: Editor) {
   })
 
   _ = editor.registerCommand(type: .insertText, listener: { [weak editor] payload in
-    guard let editor = editor else { return false }
+    guard let editor else { return false }
     do {
       guard let text = payload as? String else {
         editor.log(.TextView, .warning, "insertText missing payload")
@@ -298,7 +298,7 @@ public func registerRichText(editor: Editor) {
   })
 
   _ = editor.registerCommand(type: .insertParagraph, listener: { [weak editor] payload in
-    guard let editor = editor else { return false }
+    guard let editor else { return false }
     do {
       try onInsertParagraphFromUITextView(editor: editor)
       return true
@@ -309,7 +309,7 @@ public func registerRichText(editor: Editor) {
   })
 
   _ = editor.registerCommand(type: .removeText, listener: { [weak editor] payload in
-    guard let editor = editor else { return false }
+    guard let editor else { return false }
     do {
       try onRemoveTextFromUITextView(editor: editor)
       return true
@@ -320,7 +320,7 @@ public func registerRichText(editor: Editor) {
   })
 
   _ = editor.registerCommand(type: .formatText, listener: { [weak editor] payload in
-    guard let editor = editor else { return false }
+    guard let editor else { return false }
     do {
       guard let text = payload as? TextFormatType else { return false }
 
@@ -333,7 +333,7 @@ public func registerRichText(editor: Editor) {
   })
 
   _ = editor.registerCommand(type: .copy, listener: { [weak editor] payload in
-    guard let editor = editor else { return false }
+    guard let editor else { return false }
     do {
       guard let text = payload as? UIPasteboard else { return false }
 
@@ -346,7 +346,7 @@ public func registerRichText(editor: Editor) {
   })
 
   _ = editor.registerCommand(type: .cut, listener: { [weak editor] payload in
-    guard let editor = editor else { return false }
+    guard let editor else { return false }
     do {
       guard let text = payload as? UIPasteboard else { return false }
 
@@ -359,7 +359,7 @@ public func registerRichText(editor: Editor) {
   })
 
   _ = editor.registerCommand(type: .paste, listener: { [weak editor] payload in
-    guard let editor = editor else { return false }
+    guard let editor else { return false }
     do {
       guard let text = payload as? UIPasteboard else { return false }
 

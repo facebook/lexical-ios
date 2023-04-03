@@ -49,7 +49,7 @@ import UIKit
     // check if width has changed. Only resize the text container if it has.
     let existingWidth = textContainer.size.width + textContainerInsets.left + textContainerInsets.right
     if existingWidth != viewBounds.width {
-      if let targetHeight = targetHeight {
+      if let targetHeight {
         setTextContainerSize(forWidth: viewBounds.width, targetHeight: targetHeight, snapToPreviousLineLeeway: snapToPreviousLineLeeway)
       } else {
         setTextContainerSize(forWidth: viewBounds.width)

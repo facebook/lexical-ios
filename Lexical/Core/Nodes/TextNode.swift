@@ -276,7 +276,7 @@ open class TextNode: Node {
     var attributeDictionary = super.getAttributedStringAttributes(theme: theme)
 
     // TODO: Remove this once codeHighlight node is implemented
-    if let parent = parent, let _ = getNodeByKey(key: parent) as? CodeNode {
+    if let parent, let _ = getNodeByKey(key: parent) as? CodeNode {
       format = TextFormat()
     }
 
@@ -360,7 +360,7 @@ open class TextNode: Node {
     try writableNode.setText("\(prefixText)\(newText)\(postText)")
 
     let selection = getSelection(allowInvalidPositions: true)
-    if moveSelection, let selection = selection {
+    if moveSelection, let selection {
       let newOffset = offset + newText.lengthAsNSString()
       selection.setTextNodeRange(
         anchorNode: writableNode,
@@ -472,7 +472,7 @@ open class TextNode: Node {
       let siblingKey = sibling.key
       let nextTextSize = textSize + partSize
 
-      if let selection = selection {
+      if let selection {
         let anchor = selection.anchor
         let focus = selection.focus
 
@@ -515,7 +515,7 @@ open class TextNode: Node {
       writableParent.children.replaceSubrange(insertionIndex...insertionIndex, with: splitNodesKeys)
     }
 
-    if let selection = selection {
+    if let selection {
       try updateElementSelectionOnCreateDeleteNode(
         selection: selection,
         parentNode: parent,
@@ -538,14 +538,14 @@ open class TextNode: Node {
     let lastOffset = text.lengthAsNSString()
     var updatedAnchorOffset = lastOffset
     var updatedFocusOffset = lastOffset
-    if let anchorOffset = anchorOffset {
+    if let anchorOffset {
       updatedAnchorOffset = anchorOffset
     }
-    if let focusOffset = focusOffset {
+    if let focusOffset {
       updatedFocusOffset = focusOffset
     }
 
-    guard let selection = selection else {
+    guard let selection else {
       return try makeRangeSelection(
         anchorKey: key,
         anchorOffset: updatedAnchorOffset,
@@ -576,7 +576,7 @@ open class TextNode: Node {
     let targetKey = target.key
     let textLength = text.lengthAsNSString()
     let selection = getSelection()
-    if let selection = selection {
+    if let selection {
       let anchor = selection.anchor
       let focus = selection.focus
 

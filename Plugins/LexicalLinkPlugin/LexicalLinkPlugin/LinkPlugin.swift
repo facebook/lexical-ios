@@ -76,7 +76,7 @@ open class LinkPlugin: Plugin {
     guard let selection = getSelection() else { return }
     let nodes = try selection.extract()
 
-    guard let url = url else {
+    guard let url else {
       // Remove linkNode
       try nodes.forEach { node in
         if let parent = node.getParent() as? LinkNode {
@@ -124,7 +124,7 @@ open class LinkPlugin: Plugin {
         prevParent = parent
         linkNode = createLinkNode(url: url)
 
-        guard let linkNode = linkNode else {
+        guard let linkNode else {
           return
         }
 

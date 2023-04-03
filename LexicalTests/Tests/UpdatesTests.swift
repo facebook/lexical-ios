@@ -20,7 +20,7 @@ class UpdatesTests: XCTestCase {
       XCTAssertNotNil(editorState)
       node = Node()
 
-      guard let node = node else {
+      guard let node else {
         XCTFail("should have node")
         return
       }

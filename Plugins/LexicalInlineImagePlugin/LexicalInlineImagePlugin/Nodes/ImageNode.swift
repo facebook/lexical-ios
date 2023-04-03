@@ -116,14 +116,14 @@ public class ImageNode: DecoratorNode {
   }
 
   private func loadImage(imageView: UIImageView) {
-    guard let url = url else { return }
+    guard let url else { return }
 
     URLSession.shared.dataTask(with: url) { (data, response, error) in
       if error != nil {
         return
       }
 
-      guard let data = data else {
+      guard let data else {
         return
       }
 

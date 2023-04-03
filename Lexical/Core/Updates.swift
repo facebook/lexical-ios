@@ -106,7 +106,7 @@ internal func runWithStateLexicalScopeProperties(activeEditor: Editor?, activeEd
   Thread.current.threadDictionary[activeEditorStateThreadDictionaryKey] = activeEditorState
   Thread.current.threadDictionary[readOnlyModeThreadDictionaryKey] = readOnlyMode
 
-  if let activeEditor = activeEditor {
+  if let activeEditor {
     var newParentUpdateBlocks = previousParentUpdateBlocks
     newParentUpdateBlocks.append(activeEditor)
     Thread.current.threadDictionary[previousParentUpdateBlocksThreadDictionaryKey] = newParentUpdateBlocks

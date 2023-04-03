@@ -62,7 +62,7 @@ class TableNodeView: UIView {
     var columnWidths: [CGFloat] = []
     var totalWidth: CGFloat = 0.0
     for cell in firstRow.cells {
-      guard let cell = cell, let width = cell.cachedWidth else { return }
+      guard let cell, let width = cell.cachedWidth else { return }
       columnWidths.append(width)
       totalWidth += lineWidth
       totalWidth += width
@@ -80,7 +80,7 @@ class TableNodeView: UIView {
       var cumulativeWidth = lineWidth
       var thisHeight: CGFloat = 0.0
       for (i, cell) in row.cells.enumerated() {
-        guard let cell = cell else { continue }
+        guard let cell else { continue }
         let drawingPoint = CGPoint(x: cumulativeWidth, y: cumulativeHeight)
         cell.cachedOrigin = drawingPoint // cache the point that the cell needs drawing at
         textKitDrawQueue.append(cell) // queue up this cell for later drawing
@@ -122,7 +122,7 @@ class TableNodeView: UIView {
 
     for row in rows {
       for cell in row.cells {
-        if let cell = cell {
+        if let cell {
           let textKitContext = cell.textKitContext
           guard let textContainerOrigin = cell.cachedOrigin else { continue }
           let pointInTextContainer = CGPoint(x: pointInView.x - textKitContext.textContainerInsets.left - textContainerOrigin.x,

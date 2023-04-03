@@ -60,7 +60,7 @@ open class CodeHighlightPlugin: Plugin {
   // Especially when pasting code into CodeBlock.
   var isHighlighting = false
   func codeNodeTransform(node: CodeNode) throws {
-    guard let editor = editor else {
+    guard let editor else {
       return
     }
 

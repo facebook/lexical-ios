@@ -195,7 +195,7 @@ class TextView: UITextView {
 
   override func setAttributedMarkedText(_ markedText: NSAttributedString?, selectedRange: NSRange) {
     editor.log(.UITextView, .verbose)
-    if let markedText = markedText {
+    if let markedText {
       setMarkedTextInternal(markedText.string, selectedRange: selectedRange)
     } else {
       unmarkText()
@@ -204,7 +204,7 @@ class TextView: UITextView {
 
   override func setMarkedText(_ markedText: String?, selectedRange: NSRange) {
     editor.log(.UITextView, .verbose)
-    if let markedText = markedText {
+    if let markedText {
       setMarkedTextInternal(markedText, selectedRange: selectedRange)
     } else {
       unmarkText()
@@ -275,7 +275,7 @@ class TextView: UITextView {
     isUpdatingNativeSelection = true
     super.unmarkText()
     isUpdatingNativeSelection = oldIsUpdatingNative
-    if let previousMarkedRange = previousMarkedRange {
+    if let previousMarkedRange {
       // find all nodes in selection. Mark dirty. Reconcile. This should correct all the attributes to be what we expect.
       do {
         try editor.update {

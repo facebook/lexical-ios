@@ -25,7 +25,7 @@ class TableNodeScrollableWrapperView: UIView {
   var tableNodeView: TableNodeView? {
     didSet {
       oldValue?.removeFromSuperview()
-      if let tableNodeView = tableNodeView {
+      if let tableNodeView {
         scrollView.addSubview(tableNodeView)
       }
     }
@@ -36,7 +36,7 @@ class TableNodeScrollableWrapperView: UIView {
 
     scrollView.frame = self.bounds
 
-    guard let tableNodeView = tableNodeView else { return }
+    guard let tableNodeView else { return }
 
     let contentWidth = max((minimumCellWidth + lineWidth) * Double(tableNodeView.numColumns) + lineWidth, self.bounds.width)
     scrollView.contentSize = CGSize(width: contentWidth, height: self.bounds.height)

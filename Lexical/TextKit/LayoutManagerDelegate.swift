@@ -72,7 +72,7 @@ class LayoutManagerDelegate: NSObject, NSLayoutManagerDelegate {
       } else {
         // We now have a transform to do. Do it one character at a time in order to keep our character mapping accurate.
         textStorageString.enumerateSubstrings(in: operationRange.range, options: .byComposedCharacterSequences) { substring, substringRange, enclosingRange, _ in
-          guard let substring = substring else {
+          guard let substring else {
             return
           }
 
@@ -93,7 +93,7 @@ class LayoutManagerDelegate: NSObject, NSLayoutManagerDelegate {
           // iterate through this _new_ string, in case upper casing it resulted in more than one composed character
           (modifiedSubstring as NSString).enumerateSubstrings(in: NSRange(location: 0, length: modifiedSubstring.lengthAsNSString()),
                                                               options: .byComposedCharacterSequences) { innerSubstring, innerSubstringRange, innerEnclosingRange, _ in
-            guard let innerSubstring = innerSubstring else {
+            guard let innerSubstring else {
               return
             }
 
@@ -194,8 +194,8 @@ class LayoutManagerDelegate: NSObject, NSLayoutManagerDelegate {
     // TODO: derive this somehow
     // (currently using this heuristic to detect 'blank line' and add no spacing)
     let xLoc = (lineFragmentUsedRect.width < 6)
-    ? 0.0
-    : lineFragmentUsedRect.minX + lineFragmentUsedRect.width + 6.0 // the '6.0' is the spacing
+      ? 0.0
+      : lineFragmentUsedRect.minX + lineFragmentUsedRect.width + 6.0 // the '6.0' is the spacing
 
     layoutManager.customTruncationDrawingRect = CGRect(x: xLoc,
                                                        y: lineFragmentUsedRect.minY + (lineFragmentUsedRect.height - requiredRect.height),

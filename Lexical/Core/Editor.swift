@@ -62,7 +62,7 @@ public class Editor: NSObject {
   internal weak var frontend: Frontend? {
     didSet {
       if pendingEditorState != nil {
-        if let textStorage = textStorage {
+        if let textStorage {
           textStorage.mode = .controllerMode
           textStorage.replaceCharacters(in: NSRange(location: 0, length: textStorage.string.lengthAsNSString()), with: "")
           textStorage.mode = .none
@@ -227,7 +227,7 @@ public class Editor: NSObject {
     self.listeners.errors[uuid] = listener
 
     return { [weak self] in
-      guard let self = self else { return }
+      guard let self else { return }
       self.listeners.update.removeValue(forKey: uuid)
     }
   }
@@ -239,7 +239,7 @@ public class Editor: NSObject {
     let uuid = UUID()
     self.listeners.update[uuid] = listener
     return { [weak self] in
-      guard let self = self else { return }
+      guard let self else { return }
       self.listeners.update.removeValue(forKey: uuid)
     }
   }
@@ -253,7 +253,7 @@ public class Editor: NSObject {
     self.listeners.textContent[uuid] = listener
 
     return { [weak self] in
-      guard let self = self else { return }
+      guard let self else { return }
       self.listeners.textContent.removeValue(forKey: uuid)
     }
   }
@@ -283,7 +283,7 @@ public class Editor: NSObject {
     self.commands[type]?[priority]?[uuid] = listener
 
     return { [weak self] in
-      guard let self = self else { return }
+      guard let self else { return }
 
       self.commands[type]?[priority]?.removeValue(forKey: uuid)
     }
@@ -367,7 +367,7 @@ public class Editor: NSObject {
       decoratorCache.removeValue(forKey: key)
     }
 
-    if let pendingEditorState = pendingEditorState {
+    if let pendingEditorState {
       for (_, node) in pendingEditorState.nodeMap {
         node.didMoveTo(newEditor: self)
       }
@@ -430,7 +430,7 @@ public class Editor: NSObject {
     pendingEditorState = newEditorState
     dirtyType = .fullReconcile
     if compositionKey != nil {
-      if let frontend = frontend, frontend.isFirstResponder {
+      if let frontend, frontend.isFirstResponder {
         frontend.unmarkTextWithoutUpdate()
       }
       compositionKey = nil
@@ -448,7 +448,7 @@ public class Editor: NSObject {
       let selection = getSelection()
       guard let rootNode = getRoot() else { return }
 
-      if let selection = selection {
+      if let selection {
         // Marking the selection dirty will force the selection back to it
         selection.dirty = true
       } else if rootNode.children.count != 0 {
@@ -549,7 +549,7 @@ public class Editor: NSObject {
       isRecoveringFromError = false
     }
 
-    guard let pendingEditorState = pendingEditorState else { return }
+    guard let pendingEditorState else { return }
 
     let isInsideNestedEditorBlock = (isEditorPresentInUpdateStack(self)) && !isReadOnlyMode()
 
@@ -621,7 +621,7 @@ public class Editor: NSObject {
 
     frontend?.isUpdatingNativeSelection = false
 
-    if featureFlags.reconcilerSanityCheck && !mode.suppressSanityCheck && compositionKey == nil, let frontend = frontend {
+    if featureFlags.reconcilerSanityCheck && !mode.suppressSanityCheck && compositionKey == nil, let frontend {
       do {
         try performReconcilerSanityCheck(editor: self, expectedOutput: frontend.textStorage)
       } catch LexicalError.sanityCheck(errorMessage: let errorMessage, textViewText: let textViewText, fullReconcileText: let fullReconcileText) {

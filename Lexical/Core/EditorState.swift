@@ -57,7 +57,7 @@ public class EditorState: NSObject {
   public func clone(selection: RangeSelection?) -> EditorState {
     let editorState = EditorState(self)
 
-    if let selection = selection {
+    if let selection {
       editorState.selection = selection.clone() as? RangeSelection
     } else {
       editorState.selection = self.selection?.clone() as? RangeSelection
@@ -99,7 +99,7 @@ public class EditorState: NSObject {
       guard let jsonString = String(data: encodedData, encoding: .utf8) else { return "" }
       return jsonString
     }
-    if let string = string {
+    if let string {
       return string
     }
     throw LexicalError.invariantViolation("Expected string")

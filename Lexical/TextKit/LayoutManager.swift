@@ -54,8 +54,8 @@ public class LayoutManager: NSLayoutManager {
   }
 
   private func drawCustomTruncationIfNeeded(forGlyphRange drawingGlyphRange: NSRange, at origin: CGPoint) {
-    guard let customTruncationString = customTruncationString,
-          let customTruncationDrawingRect = customTruncationDrawingRect,
+    guard let customTruncationString,
+          let customTruncationDrawingRect,
           let attributes = editor?.getTheme().truncationIndicatorAttributes else { return }
 
     let modifiedDrawingRect = customTruncationDrawingRect.offsetBy(dx: origin.x, dy: origin.y)
@@ -74,7 +74,7 @@ public class LayoutManager: NSLayoutManager {
       let granularity = value.granularity
 
       textStorage.enumerateAttribute(attribute, in: characterRange) { value, attributeRunRange, _ in
-        guard let value = value else {
+        guard let value else {
           // we only trigger when there is a non-nil value
           return
         }
@@ -138,7 +138,7 @@ public class LayoutManager: NSLayoutManager {
   }
 
   private func updateDecoratorSize(forGlyphAt glyphIndex: Int) {
-    guard let textContainer = textContainers.first, let textStorage = textStorage else {
+    guard let textContainer = textContainers.first, let textStorage else {
       editor?.log(.TextView, .warning, "called with no container or storage")
       return
     }

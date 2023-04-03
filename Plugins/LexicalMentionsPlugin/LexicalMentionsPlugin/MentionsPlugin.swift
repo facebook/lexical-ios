@@ -66,7 +66,7 @@ open class MentionsPlugin: Plugin {
 
       previousText = text
 
-      guard let text = text, let match = getPossibleMentionMatch(text: text) else {
+      guard let text, let match = getPossibleMentionMatch(text: text) else {
         onClearMentionSearch?()
 
         return
@@ -167,7 +167,7 @@ open class MentionsPlugin: Plugin {
 
     matchRange = match.range(withName: mentionCaptureGroupName)
 
-    guard let matchRange = matchRange else {
+    guard let matchRange else {
       return nil
     }
 
@@ -184,7 +184,7 @@ open class MentionsPlugin: Plugin {
   }
 
   public func onSelectMention(editor: Editor?, mentionName: String, mentionID: String) throws {
-    guard let editor = editor else {
+    guard let editor else {
       return
     }
 
@@ -193,7 +193,7 @@ open class MentionsPlugin: Plugin {
 
       let anchor = selection.anchor
 
-      guard let anchorNode = try anchor.getNode() as? TextNode, anchorNode.isSimpleText(), let matchRange = matchRange else {
+      guard let anchorNode = try anchor.getNode() as? TextNode, anchorNode.isSimpleText(), let matchRange else {
         return
       }
 

@@ -116,7 +116,7 @@ public class CodeNode: ElementNode {
   }
 
   override open func insertNewAfter(selection: RangeSelection?) throws -> ParagraphNode? {
-    guard let selection = selection else {
+    guard let selection else {
       return nil
     }
 

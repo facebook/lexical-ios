@@ -94,7 +94,7 @@ public class EditorHistory {
   }
 
   func undo() {
-    guard let externalHistoryState = externalHistoryState,
+    guard let externalHistoryState,
           externalHistoryState.undoStack.count != 0
     else { return }
 
@@ -124,7 +124,7 @@ public class EditorHistory {
   }
 
   func redo() {
-    guard let externalHistoryState = externalHistoryState,
+    guard let externalHistoryState,
           externalHistoryState.redoStack.count != 0
     else { return }
 
@@ -156,7 +156,7 @@ public class EditorHistory {
     } else if type == .undo {
       undo()
     } else if type == .clearEditor {
-      guard let externalHistoryState = externalHistoryState else { return }
+      guard let externalHistoryState else { return }
 
       clearHistory(historyState: externalHistoryState)
     }
@@ -268,7 +268,7 @@ func getChangeType(
     return .other
   }
 
-  guard let prevEditorState = prevEditorState else { return .other }
+  guard let prevEditorState else { return .other }
 
   if isComposing {
     return .composingCharacter

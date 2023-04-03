@@ -13,7 +13,7 @@ public class TextAttachment: NSTextAttachment {
   internal var hasDoneSizeLayout: Bool = false
 
   override public func attachmentBounds(for _: NSTextContainer?, proposedLineFragment: CGRect, glyphPosition _: CGPoint, characterIndex _: Int) -> CGRect {
-    guard let key = key, let editor = editor else {
+    guard let key, let editor else {
       return CGRect.zero
     }
 

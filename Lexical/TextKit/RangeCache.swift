@@ -44,7 +44,7 @@ struct RangeCacheItem {
 internal func pointAtStringLocation(_ location: Int, searchDirection: UITextStorageDirection, rangeCache: [NodeKey: RangeCacheItem]) throws -> Point? {
   do {
     let searchResult = try evaluateNode(kRootNodeKey, stringLocation: location, searchDirection: searchDirection, rangeCache: rangeCache)
-    guard let searchResult = searchResult, let offset = searchResult.offset else {
+    guard let searchResult, let offset = searchResult.offset else {
       return nil
     }
 
@@ -97,7 +97,7 @@ private func evaluateNode(_ nodeKey: NodeKey, stringLocation: Int, searchDirecti
         possibleBoundaryElementResult = RangeCacheSearchResult(nodeKey: nodeKey, type: .element, offset: childIndex + 1)
       }
     }
-    if let possibleBoundaryElementResult = possibleBoundaryElementResult {
+    if let possibleBoundaryElementResult {
       // We do this 'possible result' check so that we prioritise text results where we can.
       return possibleBoundaryElementResult
     }

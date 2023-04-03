@@ -172,7 +172,7 @@ func basicInsertStrategy(nodes: [Node], selection: RangeSelection) throws {
   for (index, _) in nodes.enumerated() {
     let node = nodes[index]
     if ((node as? ElementNode)?.isInline() ?? false) || isTextNode(node) || isLineBreakNode(node) {
-      if let currentBlock = currentBlock {
+      if let currentBlock {
         try currentBlock.append([node])
       } else {
         let paragraphNode = createParagraphNode()
@@ -201,7 +201,7 @@ func appendNodesToArray(
   (clone as? ElementNode)?.children = []
 
   if let textClone = clone as? TextNode {
-    if let selection = selection {
+    if let selection {
       clone = try sliceSelectedTextNodeContent(selection: selection, textNode: textClone)
     }
   }
