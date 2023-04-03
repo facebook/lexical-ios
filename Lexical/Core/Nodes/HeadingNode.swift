@@ -93,7 +93,7 @@ public class HeadingNode: ElementNode {
     return newElement
   }
 
-  override func collapseAtStart(selection: RangeSelection) throws -> Bool {
+  override public func collapseAtStart(selection: RangeSelection) throws -> Bool {
     let paragraph = createParagraphNode()
 
     try getChildren().forEach { node in

@@ -85,7 +85,7 @@ public class CodeNode: ElementNode {
     Self(language: language, key: key)
   }
 
-  override func collapseAtStart(selection: RangeSelection) throws -> Bool {
+  override public func collapseAtStart(selection: RangeSelection) throws -> Bool {
     let paragraph = createParagraphNode()
 
     try getChildren().forEach { node in

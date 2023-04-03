@@ -16,7 +16,7 @@ public enum SelectionType: String {
 }
 
 public class Point {
-  var key: NodeKey
+  public var key: NodeKey
   public var offset: Int
   public var type: SelectionType
 
@@ -63,7 +63,7 @@ public class Point {
     return type
   }
 
-  func updatePoint(key: NodeKey, offset: Int, type: SelectionType) {
+  public func updatePoint(key: NodeKey, offset: Int, type: SelectionType) {
     self.key = key
     self.offset = offset
     self.type = type
