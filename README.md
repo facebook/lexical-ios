@@ -8,9 +8,15 @@ Lexical iOS is used in multiple apps at Meta, including rendering feed posts tha
 
 As of March 2023, the date of our initial open source release, Lexical iOS should be treated as an unsupported preview version. We have not established a version numbering or release cadence yet; it is expected our first 'release' will be numbered 0.1.
 
-We do not currently have an open source playground app for Lexical iOS. This is planned for the future.
+## Playground
 
-We also do not currently have a rich text toolbar. Inside Meta, our current integrations all use toolbars written specifically for the app in question, and we haven't had time yet to build a toolbar that does not depend on internal Meta code.
+We have a sample playground app demonstrating some of Lexical's features:
+
+![Screenshot of playground app](docs/resources/playground.png)
+
+The playground app contains the code for a rich text toolbar. While this is not specifically a reusable toolbar that you can drop straight into your projects, its code should provide a good starting point for you to customise.
+
+This playground app is very new, and many more features will come in time!
 
 ## Requirements
 Lexical iOS is written in Swift, and targets iOS 13 and above.
