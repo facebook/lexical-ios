@@ -59,5 +59,4 @@ public class NodeHierarchyViewPlugin: Plugin {
       print("Error updating node hierarchy.")
     }
   }
-
 }
