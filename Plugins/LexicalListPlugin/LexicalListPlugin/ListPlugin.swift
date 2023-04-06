@@ -11,6 +11,7 @@ import UIKit
 
 extension CommandType {
   public static let insertUnorderedList = CommandType(rawValue: "insertUnorderedList")
+  public static let insertOrderedList = CommandType(rawValue: "insertOrderedList")
   public static let removeList = CommandType(rawValue: "removeList")
 }
 
@@ -28,6 +29,12 @@ open class ListPlugin: Plugin {
       _ = editor.registerCommand(type: .insertUnorderedList, listener: { [weak editor] payload in
         guard let editor else { return false }
         try? insertList(editor: editor, listType: .bullet)
+        return true
+      })
+
+      _ = editor.registerCommand(type: .insertOrderedList, listener: { [weak editor] payload in
+        guard let editor else { return false }
+        try? insertList(editor: editor, listType: .number)
         return true
       })
 

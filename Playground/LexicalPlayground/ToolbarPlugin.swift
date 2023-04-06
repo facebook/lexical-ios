@@ -211,6 +211,9 @@ public class ToolbarPlugin: Plugin {
       }),
       UIAction(title: "Bulleted List", image: UIImage(systemName: "list.bullet"), handler: { (_) in
         self.editor?.dispatchCommand(type: .insertUnorderedList)
+      }),
+      UIAction(title: "Numbered List", image: UIImage(systemName: "list.number"), handler: { (_) in
+        self.editor?.dispatchCommand(type: .insertOrderedList)
       })
     ]
   }
