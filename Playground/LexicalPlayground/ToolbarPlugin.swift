@@ -126,7 +126,7 @@ public class ToolbarPlugin: Plugin {
     toolbar.items = [/* undo, redo, */ paragraph, bold, italic, underline, strikethrough, inlineCode /*, link */, decreaseIndent, increaseIndent]
   }
 
-  func updateToolbar() {
+  private func updateToolbar() {
     if let selection = getSelection() {
       guard let anchorNode = try? selection.anchor.getNode() else { return }
 
