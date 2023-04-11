@@ -19,4 +19,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     window.rootViewController = viewController
     return true
   }
+
+  func applicationWillTerminate(_ application: UIApplication) {
+    persistEditorState()
+  }
+
+  func persistEditorState() {
+    guard let viewController = window?.rootViewController as? ViewController else {
+      return
+    }
+
+    viewController.persistEditorState()
+  }
 }
