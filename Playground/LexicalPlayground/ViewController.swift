@@ -14,6 +14,7 @@ class ViewController: UIViewController {
   var lexicalView: LexicalView?
   weak var toolbar: UIToolbar?
   weak var hierarchyView: UIView?
+  private let editorStatePersistenceKey = "editorState"
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -35,6 +36,8 @@ class ViewController: UIViewController {
     self.lexicalView = lexicalView
     self.toolbar = toolbar
     self.hierarchyView = hierarchyView
+
+    self.restoreEditorState()
 
     view.addSubview(lexicalView)
     view.addSubview(toolbar)
@@ -61,5 +64,38 @@ class ViewController: UIViewController {
                                    width: view.bounds.width,
                                    height: hierarchyViewHeight)
     }
+  }
+
+  func persistEditorState() {
+    guard let editor = lexicalView?.editor else {
+      return
+    }
+
+    let currentEditorState = editor.getEditorState()
+
+    // turn the editor state into stringified JSON
+    guard let jsonString = try? currentEditorState.toJSON() else {
+      return
+    }
+
+    UserDefaults.standard.set(jsonString, forKey: editorStatePersistenceKey)
+  }
+
+  func restoreEditorState() {
+    guard let editor = lexicalView?.editor else {
+      return
+    }
+
+    guard let jsonString = UserDefaults.standard.value(forKey: editorStatePersistenceKey) as? String else {
+      return
+    }
+
+    // turn the JSON back into a new editor state
+    guard let newEditorState = try? EditorState.fromJSON(json: jsonString, editor: editor) else {
+      return
+    }
+
+    // install the new editor state into editor
+    try? editor.setEditorState(newEditorState)
   }
 }
