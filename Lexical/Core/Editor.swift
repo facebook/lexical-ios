@@ -508,11 +508,14 @@ public class Editor: NSObject {
           decoratorCache[nodeKey] = DecoratorCacheItem.cachedView(view)
           self.log(.editor, .verbose, "unmounted -> cached. Key \(nodeKey). Frame \(view.frame). Superview \(String(describing: view.superview))")
         case .needsDecorating(let view):
-          view.isHidden = true // decorators will be hidden until they are layed out by TextKit
           superview.addSubview(view)
           decoratorCache[nodeKey] = DecoratorCacheItem.cachedView(view)
           if let node = getNodeByKey(key: nodeKey) as? DecoratorNode {
             node.decorate(view: view)
+          }
+          if let rangeCacheItem = rangeCache[nodeKey] {
+            // required so that TextKit does the new size calculation, and correctly hides or unhides the view
+            frontend?.layoutManager.invalidateLayout(forCharacterRange: rangeCacheItem.range, actualCharacterRange: nil)
           }
         }
       }
