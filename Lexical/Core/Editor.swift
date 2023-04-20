@@ -336,12 +336,19 @@ public class Editor: NSObject {
   /// - Parameters:
   ///   - editor: The editor to clear
   ///   - pendingEditorState: A new pending EditorState to replace whatever is already there.
-  @objc public func resetEditor(pendingEditorState: EditorState? = nil) {
+  @objc public func resetEditor(pendingEditorState newEditorState: EditorState? = nil) {
 
     cloneNotNeeded.removeAll()
     dirtyType = (pendingEditorState != nil) ? .fullReconcile : .noDirtyNodes
     dirtyNodes = [:]
-    self.pendingEditorState = pendingEditorState ?? EditorState()
+    if let newEditorState, let pendingEditorState {
+      pendingEditorState.nodeMap = newEditorState.nodeMap
+      pendingEditorState.selection = newEditorState.selection
+    } else if let newEditorState {
+      pendingEditorState = newEditorState
+    } else {
+      pendingEditorState = nil
+    }
     compositionKey = nil
     editorState = EditorState()
 
@@ -429,8 +436,17 @@ public class Editor: NSObject {
   // MARK: - Internal
 
   public func setEditorState(_ newEditorState: EditorState) throws {
-    pendingEditorState = newEditorState
+    // If we already have a pending editor state, modify that one. Otherwise, if we're inside an update block, the previous pending editor state
+    // will remain attached to the thread as activeEditorState, and things like getLatest won't work right.
+    if let pendingEditorState {
+      pendingEditorState.nodeMap = newEditorState.nodeMap
+      pendingEditorState.selection = newEditorState.selection
+    } else {
+      pendingEditorState = newEditorState
+    }
+
     dirtyType = .fullReconcile
+    cloneNotNeeded = Set()
     if compositionKey != nil {
       if let frontend, frontend.isFirstResponder {
         frontend.unmarkTextWithoutUpdate()
@@ -565,7 +581,9 @@ public class Editor: NSObject {
       isRecoveringFromError = false
     }
 
-    guard let pendingEditorState else { return }
+    guard let pendingEditorState else {
+      return
+    }
 
     let isInsideNestedEditorBlock = (isEditorPresentInUpdateStack(self)) && !isReadOnlyMode()
 
@@ -579,6 +597,12 @@ public class Editor: NSObject {
 
       do {
         try closure()
+
+        // Need to do this here, in case pendingEditorState was replaced or manipulated inside the closure.
+        guard let pendingEditorState = self.pendingEditorState else {
+          self.isUpdating = previouslyUpdating
+          return
+        }
 
         if isInsideNestedEditorBlock {
           self.isUpdating = previouslyUpdating
