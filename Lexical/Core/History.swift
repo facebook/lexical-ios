@@ -180,18 +180,18 @@ public class EditorHistory {
       dirtyLeavesSet: dirtyNodes,
       isComposing: editor.isComposing())
 
-    defer {
-      prevChangeTime = changeTime
-      prevChangeType = changeType
-    }
-
     let selection = nextEditorState.selection
     let prevSelection = prevEditorState?.selection
     let hasDirtyNodes = dirtyNodes.count > 0
     if !hasDirtyNodes {
       if prevSelection == nil && selection != nil {
+        prevChangeTime = changeTime
+        prevChangeType = changeType
+
         return .historyMerge
       }
+
+      // since we're discarding the candidate, do not cache the prev change time/type
       return .discardHistoryCandidate
     }
 
@@ -201,8 +201,14 @@ public class EditorHistory {
         changeType == prevChangeType &&
         changeTime < prevChangeTime + Double(self.delay) &&
         isSameEditor {
+      prevChangeTime = changeTime
+      prevChangeType = changeType
+
       return .historyMerge
     }
+
+    prevChangeTime = changeTime
+    prevChangeType = changeType
 
     return .historyPush
   }
