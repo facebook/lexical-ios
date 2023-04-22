@@ -92,7 +92,8 @@ open class DecoratorNode: Node {
 
   /// Calculate the size that your view should be. You can take into account the width of the text view,
   /// for example if you want to make a decorator that is always full width.
-  open func sizeForDecoratorView(textViewWidth: CGFloat) -> CGSize {
+  open func sizeForDecoratorView(textViewWidth: CGFloat, attributes: [NSAttributedString.Key: Any]) -> CGSize {
+
     fatalError("sizeForDecoratorView: base method not extended")
   }
 

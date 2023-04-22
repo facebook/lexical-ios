@@ -12,17 +12,19 @@ public class TextAttachment: NSTextAttachment {
   weak var editor: Editor?
   internal var hasDoneSizeLayout: Bool = false
 
-  override public func attachmentBounds(for _: NSTextContainer?, proposedLineFragment: CGRect, glyphPosition _: CGPoint, characterIndex _: Int) -> CGRect {
+  override public func attachmentBounds(for textContainer: NSTextContainer?, proposedLineFragment: CGRect, glyphPosition _: CGPoint, characterIndex: Int) -> CGRect {
     guard let key, let editor else {
       return CGRect.zero
     }
+
+    let attributes = textContainer?.layoutManager?.textStorage?.attributes(at: characterIndex, effectiveRange: nil) ?? [:]
 
     var bounds = CGRect.zero
     try? editor.read {
       guard let decoratorNode = getNodeByKey(key: key) as? DecoratorNode else {
         return
       }
-      let size = decoratorNode.sizeForDecoratorView(textViewWidth: editor.frontend?.textLayoutWidth ?? CGFloat(0))
+      let size = decoratorNode.sizeForDecoratorView(textViewWidth: editor.frontend?.textLayoutWidth ?? CGFloat(0), attributes: attributes)
       bounds = CGRect(x: 0, y: 0, width: size.width, height: size.height)
     }
     hasDoneSizeLayout = true

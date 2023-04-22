@@ -44,7 +44,7 @@ class TestDecoratorNode: DecoratorNode {
     getLatest().numberOfTimesDecorateHasBeenCalled += 1
   }
 
-  override public func sizeForDecoratorView(textViewWidth: CGFloat) -> CGSize {
+  override public func sizeForDecoratorView(textViewWidth: CGFloat, attributes: [NSAttributedString.Key: Any]) -> CGSize {
     return CGSize(width: 100, height: 100)
   }
 }

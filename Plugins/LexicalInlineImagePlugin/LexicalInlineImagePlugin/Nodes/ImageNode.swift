@@ -135,7 +135,8 @@ public class ImageNode: DecoratorNode {
 
   let maxImageHeight: CGFloat = 600.0
 
-  override open func sizeForDecoratorView(textViewWidth: CGFloat) -> CGSize {
+  override open func sizeForDecoratorView(textViewWidth: CGFloat, attributes: [NSAttributedString.Key: Any]) -> CGSize {
+
     if size.width <= textViewWidth {
       return size
     }

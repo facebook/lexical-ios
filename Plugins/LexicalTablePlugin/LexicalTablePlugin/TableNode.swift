@@ -197,7 +197,8 @@ public class TableNode: DecoratorNode {
     }
   }
 
-  override open func sizeForDecoratorView(textViewWidth: CGFloat) -> CGSize {
+  override open func sizeForDecoratorView(textViewWidth: CGFloat, attributes: [NSAttributedString.Key: Any]) -> CGSize {
+
     // the +1 is because there is one more line than columns
     var cellWidth = floor((Double(textViewWidth) - (Double(numColumns + 1) * lineWidth)) / Double(numColumns))
 

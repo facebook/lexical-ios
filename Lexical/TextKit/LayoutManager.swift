@@ -160,6 +160,8 @@ public class LayoutManager: NSLayoutManager {
       return
     }
 
+    let allAttributesAtLocation = textStorage.attributes(at: characterIndex, effectiveRange: nil)
+
     let textContainerInset = self.editor?.frontend?.textContainerInsets ?? UIEdgeInsets.zero
 
     try? editor.read {
@@ -180,7 +182,7 @@ public class LayoutManager: NSLayoutManager {
       var decoratorOrigin = glyphBoundingRect.offsetBy(dx: textContainerInset.left, dy: textContainerInset.top).origin // top left
 
       let textLayoutWidth = editor.frontend?.textLayoutWidth ?? CGFloat(0)
-      let decoratorSize = decoratorNode.sizeForDecoratorView(textViewWidth: textLayoutWidth)
+      let decoratorSize = decoratorNode.sizeForDecoratorView(textViewWidth: textLayoutWidth, attributes: allAttributesAtLocation)
 
       decoratorOrigin.y += (glyphBoundingRect.height - decoratorSize.height) // bottom left now!
 
