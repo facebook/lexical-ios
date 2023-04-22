@@ -22,14 +22,7 @@ public class LayoutManager: NSLayoutManager {
     }
   }
 
-  // set by the Lexical consumer
-  @objc public var customTruncationString: String? = "See More"
-
-  // set by the ReadOnlyView
-  internal var activeTruncationMode: ActiveTruncationMode = .noTruncation
-
-  // set by layout manager delegate during layout process
-  internal var customTruncationDrawingRect: CGRect?
+  internal var readOnlySizeCache: LexicalReadOnlySizeCache? // set to nil if not operating in read only mode
 
   private var customDrawingBackground: [NSAttributedString.Key: Editor.CustomDrawingHandlerInfo] {
     get {
@@ -54,12 +47,14 @@ public class LayoutManager: NSLayoutManager {
   }
 
   private func drawCustomTruncationIfNeeded(forGlyphRange drawingGlyphRange: NSRange, at origin: CGPoint) {
-    guard let customTruncationString,
-          let customTruncationDrawingRect,
-          let attributes = editor?.getTheme().truncationIndicatorAttributes else { return }
+    guard let readOnlySizeCache,
+          let customTruncationRect = readOnlySizeCache.customTruncationRect,
+          let string = readOnlySizeCache.customTruncationString else { return }
 
-    let modifiedDrawingRect = customTruncationDrawingRect.offsetBy(dx: origin.x, dy: origin.y)
-    let attributedString = NSAttributedString(string: customTruncationString, attributes: attributes)
+    let modifiedDrawingRect = customTruncationRect.offsetBy(dx: origin.x, dy: origin.y)
+
+    let attributes = readOnlySizeCache.customTruncationAttributes
+    let attributedString = NSAttributedString(string: string, attributes: attributes)
     attributedString.draw(in: modifiedDrawingRect)
   }
 
@@ -146,12 +141,11 @@ public class LayoutManager: NSLayoutManager {
     let glyphIsInTextContainer = NSLocationInRange(glyphIndex, glyphRange(for: textContainer))
 
     var glyphBoundingRect: CGRect = .zero
-    var shouldHideView: Bool = true // this will be set to false if we get a non-empty bounding rect
+    let shouldHideView: Bool = !glyphIsInTextContainer
 
     if glyphIsInTextContainer {
       ensureLayout(forGlyphRange: NSRange(location: glyphIndex, length: 1))
       glyphBoundingRect = boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer)
-      shouldHideView = glyphBoundingRect.isEmpty // if the decorator is outside the text container, the bounding rect will be empty
     }
 
     let characterIndex = characterIndexForGlyph(at: glyphIndex)

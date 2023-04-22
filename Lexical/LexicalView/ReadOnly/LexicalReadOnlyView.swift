@@ -60,7 +60,7 @@ import UIKit
     let pointInTextContainer = CGPoint(x: pointInView.x - textKitContext.textContainerInsets.left,
                                        y: pointInView.y - textKitContext.textContainerInsets.top)
 
-    if let truncationRect = textKitContext.layoutManager.customTruncationDrawingRect {
+    if let truncationRect = textKitContext.sizeCache.customTruncationRect {
       if truncationRect.contains(pointInTextContainer) {
         textKitContext.editor.dispatchCommand(type: .truncationIndicatorTapped, payload: nil)
         return

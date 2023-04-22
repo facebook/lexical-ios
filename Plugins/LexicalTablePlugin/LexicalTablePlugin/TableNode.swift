@@ -212,7 +212,7 @@ public class TableNode: DecoratorNode {
       for cell in row.cells {
         if let cell, cellWidth != cell.cachedWidth {
           cell.cachedWidth = cellWidth
-          cell.textKitContext.setTextContainerSize(forWidth: cellWidth)
+          cell.textKitContext.setTextContainerSizeWithUnlimitedHeight(forWidth: cellWidth)
           cell.cachedHeight = cell.textKitContext.requiredSize().height
         }
         maxRowSize = max(cell?.cachedHeight ?? 0, maxRowSize)

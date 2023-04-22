@@ -17,6 +17,20 @@ import UIKit
 
 public class TextContainer: NSTextContainer {
 
+  internal var readOnlySizeCache: LexicalReadOnlySizeCache?
+
+  override open var isSimpleRectangularTextContainer: Bool {
+    get {
+      guard let readOnlySizeCache else { return true }
+
+      // if we're limiting height, AND there's a custom truncation string, then we're maybe not rectangular. Otherwise we definitely are.
+      if readOnlySizeCache.requiredHeight != nil {
+        return (readOnlySizeCache.customTruncationString == nil)
+      }
+      return true
+    }
+  }
+
   override public func lineFragmentRect(
     forProposedRect proposedRect: CGRect,
     at characterIndex: Int,
@@ -28,30 +42,26 @@ public class TextContainer: NSTextContainer {
                                                   writingDirection: baseWritingDirection,
                                                   remaining: remainingRect)
 
-    guard let layoutManager = layoutManager as? LayoutManager,
-          case let .truncateLine(desiredTruncationLine) = layoutManager.activeTruncationMode,
-          let truncationString = layoutManager.customTruncationString
+    guard let readOnlySizeCache,
+          let characterRange = readOnlySizeCache.characterRangeForLastLineFragmentBeforeTruncation,
+          let glyphRange = readOnlySizeCache.glyphRangeForLastLineFragmentBeforeTruncation,
+          let cutPoint = readOnlySizeCache.glyphIndexAtTruncationIndicatorCutPoint,
+          NSLocationInRange(characterIndex, characterRange),
+          let sizeForTruncationString = readOnlySizeCache.sizeForTruncationString
     else {
       return lineFragmentRect
     }
 
-    // check if we're looking at the last line
-    guard lineFragmentRect.minY == desiredTruncationLine.minY else {
-      return lineFragmentRect
+    // can we shrink the line? Or should we display truncation indicator below?
+    let glyphsBeforeIndicator = cutPoint - glyphRange.lowerBound
+    if glyphsBeforeIndicator < 2 {
+      // display indicator below, so don't resize the last line fragment.
+      readOnlySizeCache.textContainerDidShrinkLastLine = false
+    } else {
+      // display indicator inline
+      lineFragmentRect.size.width = min(lineFragmentRect.width, self.size.width - (sizeForTruncationString.width + readOnlySizeCache.gapBeforeTruncationString))
+      readOnlySizeCache.textContainerDidShrinkLastLine = true
     }
-
-    // we have a match, and should truncate. Shrink the line by enough room to display our truncation string.
-    let truncationAttributes = layoutManager.editor?.getTheme().truncationIndicatorAttributes ?? [:]
-    let truncationAttributedString = NSAttributedString(string: truncationString, attributes: truncationAttributes)
-
-    // assuming we don't make the line fragment rect bigger in order to fit the truncation string
-    let requiredRect = truncationAttributedString.boundingRect(with: lineFragmentRect.size, options: .usesLineFragmentOrigin, context: nil)
-
-    // TODO: derive this somehow
-    let spacing = (requiredRect.width < 6) ? 0.0 : 6.0 // using this heuristic to detect 'blank line' and add no spacing
-
-    // make the change
-    lineFragmentRect.size.width = min(lineFragmentRect.width, size.width - (requiredRect.width + spacing))
 
     return lineFragmentRect
   }

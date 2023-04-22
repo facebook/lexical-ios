@@ -7,6 +7,63 @@
 
 import UIKit
 
+internal class LexicalReadOnlySizeCache {
+
+  internal enum TruncationStringMode {
+    case noTruncation
+    case displayedInLastLine
+    case displayedUnderLastLine
+  }
+
+  var requiredWidth: CGFloat = 0
+  var requiredHeight: CGFloat? // nil if auto height
+  var measuredTextKitHeight: CGFloat? // the height of rendered text. Will always be less than the targetHeight
+  var customTruncationString: String? // set to nil to opt out of custom truncation
+  var customTruncationAttributes: [NSAttributedString.Key: Any] = [:]
+  var truncationStringMode: TruncationStringMode = .noTruncation // this is the computed truncation mode, not the desired mode
+  var extraHeightForTruncationLine: CGFloat = 0 // iff truncationStringMode is displayedUnderLastLine, this is the height needed to add to the main height.
+  var cachedTextContainerInsets: UIEdgeInsets = .zero
+  var glyphRangeForLastLineFragmentBeforeTruncation: NSRange?
+  var glyphRangeForLastLineFragmentAfterTruncation: NSRange?
+  var characterRangeForLastLineFragmentBeforeTruncation: NSRange?
+  var glyphIndexAtTruncationIndicatorCutPoint: Int? // assuming the truncation indicator is inline, this is where it would be cut.
+  var textContainerDidShrinkLastLine: Bool?
+  var sizeForTruncationString: CGSize?
+  var originForTruncationStringInTextKitCoordinates: CGPoint? // need adding the insets left/top to get it in view coordinates
+  var gapBeforeTruncationString: CGFloat = 6.0
+
+  var completeHeightToRender: CGFloat {
+    get {
+      guard let measuredTextKitHeight else { return 0 }
+      var height = measuredTextKitHeight
+
+      // add insets if necessary
+      height += cachedTextContainerInsets.top
+      height += cachedTextContainerInsets.bottom
+
+      if truncationStringMode == .displayedUnderLastLine {
+        height += extraHeightForTruncationLine
+      }
+
+      return height
+    }
+  }
+
+  var completeSizeToRender: CGSize {
+    get {
+      return CGSize(width: requiredWidth, height: completeHeightToRender)
+    }
+  }
+
+  var customTruncationRect: CGRect? {
+    get {
+      guard let origin = originForTruncationStringInTextKitCoordinates,
+            let size = sizeForTruncationString else { return nil }
+      return CGRect(origin: origin, size: size)
+    }
+  }
+}
+
 @objc public class LexicalReadOnlyTextKitContext: NSObject, Frontend {
   @objc public let layoutManager: LayoutManager
   public let textStorage: TextStorage
@@ -15,7 +72,9 @@ import UIKit
   @objc public let editor: Editor
 
   private var targetHeight: CGFloat? // null if fully auto-height
-  private var snapToPreviousLineLeeway: CGFloat = 0.0
+  internal var sizeCache: LexicalReadOnlySizeCache
+
+  @objc public var truncationString: String?
 
   @objc weak var attachedView: LexicalReadOnlyView? {
     didSet {
@@ -26,7 +85,6 @@ import UIKit
       }
     }
   }
-
   @objc public init(editorConfig: EditorConfig, featureFlags: FeatureFlags) {
     layoutManager = LayoutManager()
     layoutManagerDelegate = LayoutManagerDelegate()
@@ -39,6 +97,10 @@ import UIKit
     // TEMP
     textContainer.lineBreakMode = .byTruncatingTail
 
+    sizeCache = LexicalReadOnlySizeCache()
+    textContainer.readOnlySizeCache = sizeCache
+    layoutManager.readOnlySizeCache = sizeCache
+
     editor = Editor(featureFlags: featureFlags, editorConfig: editorConfig)
     super.init()
     editor.frontend = self
@@ -46,85 +108,107 @@ import UIKit
   }
 
   internal func viewDidLayoutSubviews(viewBounds: CGRect) {
-    // check if width has changed. Only resize the text container if it has.
-    let existingWidth = textContainer.size.width + textContainerInsets.left + textContainerInsets.right
-    if existingWidth != viewBounds.width {
-      if let targetHeight {
-        setTextContainerSize(forWidth: viewBounds.width, targetHeight: targetHeight, snapToPreviousLineLeeway: snapToPreviousLineLeeway)
-      } else {
-        setTextContainerSize(forWidth: viewBounds.width)
-      }
-    }
+    setTextContainerSize(forWidth: viewBounds.width, maxHeight: self.targetHeight)
   }
 
-  @objc public func setTextContainerSize(forWidth width: CGFloat) {
-    // reset any fixed maximum height
-    self.targetHeight = nil
-    self.snapToPreviousLineLeeway = 0.0
-    layoutManager.activeTruncationMode = .noTruncation
+  // MARK: - Size cache logistics
 
-    let size = CGSize(width: width - textContainerInsets.left - textContainerInsets.right, height: 1000000)
-    if textContainer.size != size {
-      textContainer.size = size
-    }
+  private func createAndPropagateSizeCache() {
+    sizeCache = LexicalReadOnlySizeCache()
+    textContainer.readOnlySizeCache = sizeCache
+    layoutManager.readOnlySizeCache = sizeCache
   }
 
-  @objc public func setTextContainerSize(forWidth width: CGFloat, targetHeight: CGFloat, snapToPreviousLineLeeway: CGFloat) {
-    // 1. set text container to the size with maximum height
-    setTextContainerSize(forWidth: width)
+  // MARK: - Size calculation
 
-    // cache the target height in case we have to re-lay-out
-    // (we do this after calling setTextContainerSize(forWidth:), because that method will clear these variables.)
-    self.targetHeight = targetHeight
-    self.snapToPreviousLineLeeway = snapToPreviousLineLeeway
+  let arbitrarilyLargeHeight: CGFloat = 100000
 
-    // 2. get line fragment that contains the target height
-    var previousLineFragmentRect: CGRect = CGRect.null
-    let targetTextContainerHeight = targetHeight - textContainerInsets.top - textContainerInsets.bottom
+  @objc public func setTextContainerSizeWithUnlimitedHeight(forWidth width: CGFloat) {
+    setTextContainerSize(forWidth: width, maxHeight: nil)
+  }
 
-    var foundOverflowLFR = false
-    layoutManager.ensureLayout(for: textContainer)
-    layoutManager.enumerateLineFragments(forGlyphRange: layoutManager.glyphRange(for: textContainer)) { currentLineFragmentRect, usedRect, inTextContainer, glyphRange, stopPointer in
-      // Check if target height was inside this line
-      // (but only if there's a previous line fragment rect -- we always want to display at least one line, even if it's a large image!)
-      if currentLineFragmentRect.maxY > targetTextContainerHeight && !previousLineFragmentRect.isNull {
-        foundOverflowLFR = true
-        stopPointer.initialize(to: true)
-        return
-      }
-      previousLineFragmentRect = currentLineFragmentRect
-    }
+  @objc public func setTextContainerSizeWithTruncation(forWidth width: CGFloat, maximumHeight maxHeight: CGFloat) {
+    setTextContainerSize(forWidth: width, maxHeight: maxHeight)
+  }
 
-    if foundOverflowLFR == false {
-      layoutManager.activeTruncationMode = .noTruncation
-      textContainer.size = CGSize(width: width, height: layoutManager.usedRect(for: textContainer).height)
-      // leave the height at whatever we set in step 1, because everything fits.
+  private func setTextContainerSize(forWidth width: CGFloat, maxHeight: CGFloat?) {
+    if sizeCache.requiredWidth == width && sizeCache.requiredHeight == maxHeight {
       return
     }
 
-    let prevLineFragmentMaxY = previousLineFragmentRect.maxY
-    var targetTextContainerSize = CGSize.zero
+    createAndPropagateSizeCache()
+    sizeCache.requiredWidth = width
+    self.targetHeight = maxHeight
+    sizeCache.requiredHeight = maxHeight
+    sizeCache.customTruncationString = truncationString
 
-    // 3. For now we're snapping to the previous height always (ignoring the leeway parameter).
-    // Doing otherwise was causing some obscure bugs.
-    targetTextContainerSize = CGSize(width: width - textContainerInsets.left - textContainerInsets.right, height: prevLineFragmentMaxY + textContainerInsets.top + textContainerInsets.bottom)
+    // 1. Set text container size
+    let textContainerWidth = width - textContainerInsets.left - textContainerInsets.right
+    sizeCache.cachedTextContainerInsets = textContainerInsets
+    let textContainerHeight = maxHeight ?? arbitrarilyLargeHeight
+    textContainer.size = CGSize(width: textContainerWidth, height: textContainerHeight)
 
-    textContainer.size = targetTextContainerSize
-    layoutManager.activeTruncationMode = .truncateLine(previousLineFragmentRect)
+    // we need a full re-lay-out here since size changed.
+    layoutManager.invalidateLayout(forCharacterRange: NSRange(location: 0, length: textStorage.length), actualCharacterRange: nil)
+
+    // 2. Get the last line fragment rect (pre truncation)
+    let glyphRangeForContainer = layoutManager.glyphRange(for: textContainer)
+    let lastGlyph = glyphRangeForContainer.upperBound - 1
+    var effectiveGlyphRangeForLastLineFragmentPreTruncation = NSRange()
+    let lastLineFragmentRect = layoutManager.lineFragmentRect(forGlyphAt: lastGlyph, effectiveRange: &effectiveGlyphRangeForLastLineFragmentPreTruncation)
+    sizeCache.glyphRangeForLastLineFragmentBeforeTruncation = effectiveGlyphRangeForLastLineFragmentPreTruncation
+    sizeCache.characterRangeForLastLineFragmentBeforeTruncation = layoutManager.characterRange(forGlyphRange: effectiveGlyphRangeForLastLineFragmentPreTruncation, actualGlyphRange: nil)
+
+    // 3. Use the last line fragment rect to derive the used height. This will get replaced if we do truncation!
+    sizeCache.measuredTextKitHeight = lastLineFragmentRect.maxY
+
+    // 4. Is there truncation?
+    let characterRangeForContainer = layoutManager.characterRange(forGlyphRange: glyphRangeForContainer, actualGlyphRange: nil)
+    let isTruncating = self.truncationString != nil && characterRangeForContainer.upperBound < textStorage.string.lengthAsNSString()
+    guard isTruncating, let truncationString else {
+      return
+    }
+
+    // 5. If there's to be truncation, work out size of truncation string
+    let truncationAttributes = editor.getTheme().truncationIndicatorAttributes
+    let truncationAttributedString = NSAttributedString(string: truncationString, attributes: truncationAttributes)
+    let truncationStringRect = truncationAttributedString.boundingRect(with: lastLineFragmentRect.size, options: .usesLineFragmentOrigin, context: nil)
+    sizeCache.customTruncationAttributes = truncationAttributes
+    sizeCache.sizeForTruncationString = truncationStringRect.size
+
+    // 6. Now we've set the custom truncation string metrics on the size cache, if we re lay out, it should return different size.
+    let characterRangeForLastLineFragmentPreTruncation = layoutManager.characterRange(forGlyphRange: effectiveGlyphRangeForLastLineFragmentPreTruncation, actualGlyphRange: nil)
+    let truncationStringPlusGapLocation = CGRect(x: lastLineFragmentRect.width - truncationStringRect.width - sizeCache.gapBeforeTruncationString,
+                                                 y: lastLineFragmentRect.minY,
+                                                 width: truncationStringRect.width + sizeCache.gapBeforeTruncationString,
+                                                 height: lastLineFragmentRect.height)
+    let truncationCutPoint = layoutManager.glyphIndex(for: CGPoint(x: truncationStringPlusGapLocation.minX, y: lastLineFragmentRect.maxY - 1), in: textContainer, fractionOfDistanceThroughGlyph: nil)
+    sizeCache.glyphIndexAtTruncationIndicatorCutPoint = truncationCutPoint
+
+    layoutManager.invalidateLayout(forCharacterRange: characterRangeForLastLineFragmentPreTruncation, actualCharacterRange: nil)
+    // at this point, consider the code flow as going to TextContainer.swift
+
+    let newLastLineFragmentUsedRect = layoutManager.lineFragmentUsedRect(forGlyphAt: effectiveGlyphRangeForLastLineFragmentPreTruncation.lowerBound, effectiveRange: nil)
+
+    // Replace the derived text kit height, in case something is different now!
+    sizeCache.measuredTextKitHeight = newLastLineFragmentUsedRect.maxY
+
+    // 7. now we detect truncation mode
+    if let didShrink = sizeCache.textContainerDidShrinkLastLine, didShrink == true {
+      // the line shrunk, so we must be truncating inline
+      sizeCache.truncationStringMode = .displayedInLastLine
+      sizeCache.originForTruncationStringInTextKitCoordinates = CGPoint(x: newLastLineFragmentUsedRect.maxX + sizeCache.gapBeforeTruncationString, y: newLastLineFragmentUsedRect.maxY - truncationStringRect.height)
+    } else {
+      // we know we're truncating due to step 4, but the last line seems not to have shrunk, so we must put See More on a new line.
+      // To clarify, the shrinking happens in the logic inside TextContainer.swift
+      sizeCache.truncationStringMode = .displayedUnderLastLine
+      sizeCache.extraHeightForTruncationLine = truncationStringRect.height + sizeCache.gapBeforeTruncationString
+      sizeCache.originForTruncationStringInTextKitCoordinates = CGPoint(x: 0, y: newLastLineFragmentUsedRect.maxY + sizeCache.gapBeforeTruncationString)
+    }
   }
 
   @objc public func requiredSize() -> CGSize {
-    // If we're doing truncation, use the truncation location for height. Otherwise derive it from layout manager.
-
-    var textContainerMaxY: CGFloat
-    if case .truncateLine(let truncationRect) = layoutManager.activeTruncationMode {
-      textContainerMaxY = truncationRect.maxY
-    } else {
-      textContainerMaxY = layoutManager.usedRect(for: textContainer).maxY
-    }
-
-    return CGSize(width: textContainer.size.width + textContainerInsets.left + textContainerInsets.right,
-                  height: textContainerMaxY + textContainerInsets.top + textContainerInsets.bottom)
+    return sizeCache.completeSizeToRender
   }
 
   var textLayoutWidth: CGFloat {
@@ -200,8 +284,7 @@ import UIKit
     context.saveGState()
     UIGraphicsPushContext(context)
 
-    let rect = layoutManager.usedRect(for: textContainer)
-    let glyphRange = layoutManager.glyphRange(forBoundingRectWithoutAdditionalLayout: rect, in: textContainer)
+    let glyphRange = layoutManager.glyphRange(for: textContainer)
     let insetPoint = CGPoint(x: point.x + textContainerInsets.left, y: point.y + textContainerInsets.top)
     layoutManager.drawBackground(forGlyphRange: glyphRange, at: insetPoint)
     layoutManager.drawGlyphs(forGlyphRange: glyphRange, at: insetPoint)
