@@ -23,8 +23,13 @@ public func generateKey(node: Node) throws -> NodeKey? {
     return nil
   }
 
+  while editorState.nodeMap[String(editor.keyCounter)] != nil {
+    editor.keyCounter += 1
+  }
+
   let key = editor.keyCounter
   editor.keyCounter += 1
+
   let stringKey = String(key)
   node.key = stringKey
   editorState.nodeMap[stringKey] = node

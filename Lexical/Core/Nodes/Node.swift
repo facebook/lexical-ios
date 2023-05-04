@@ -351,7 +351,7 @@ open class Node: Codable {
         nodes.append(node)
       }
 
-      if node === targetNode {
+      if node == targetNode {
         break
       }
 
