@@ -151,16 +151,21 @@ internal enum Reconciler {
     decoratorsToRemove.forEach { key in
       decoratorView(forKey: key, createIfNecessary: false)?.removeFromSuperview()
       destroyCachedDecoratorView(forKey: key)
+      textStorage.decoratorPositionCache[key] = nil
     }
     reconcilerState.decoratorsToAdd.forEach { key in
       if editor.decoratorCache[key] == nil {
         editor.decoratorCache[key] = DecoratorCacheItem.needsCreation
       }
+      guard let rangeCacheItem = reconcilerState.nextRangeCache[key] else { return }
+      textStorage.decoratorPositionCache[key] = rangeCacheItem.location
     }
     decoratorsToDecorate.forEach { key in
       if let cacheItem = editor.decoratorCache[key], let view = cacheItem.view {
         editor.decoratorCache[key] = DecoratorCacheItem.needsDecorating(view)
       }
+      guard let rangeCacheItem = reconcilerState.nextRangeCache[key] else { return }
+      textStorage.decoratorPositionCache[key] = rangeCacheItem.location
     }
 
     editor.log(.reconciler, .verbose, "about to do rangesToAdd: total \(reconcilerState.rangesToAdd.count)")

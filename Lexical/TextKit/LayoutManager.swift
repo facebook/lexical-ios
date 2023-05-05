@@ -7,11 +7,6 @@
 
 import UIKit
 
-internal enum ActiveTruncationMode {
-  case noTruncation
-  case truncateLine(CGRect) // the rect is the pre-calculated last line. See calculations in LexicalReadOnlyView
-}
-
 public class LayoutManager: NSLayoutManager {
   internal weak var editor: Editor? {
     get {
@@ -44,6 +39,7 @@ public class LayoutManager: NSLayoutManager {
     super.drawGlyphs(forGlyphRange: drawingGlyphRange, at: origin)
     draw(forGlyphRange: drawingGlyphRange, at: origin, handlers: customDrawingText)
     drawCustomTruncationIfNeeded(forGlyphRange: drawingGlyphRange, at: origin)
+    positionAllDecorators()
   }
 
   private func drawCustomTruncationIfNeeded(forGlyphRange drawingGlyphRange: NSRange, at origin: CGPoint) {
@@ -127,28 +123,29 @@ public class LayoutManager: NSLayoutManager {
     }
   }
 
-  override public func attachmentSize(forGlyphAt glyphIndex: Int) -> CGSize {
-    updateDecoratorSize(forGlyphAt: glyphIndex)
-    return super.attachmentSize(forGlyphAt: glyphIndex)
+  private func positionAllDecorators() {
+    guard let textStorage = textStorage as? TextStorage else { return }
+    for (key, location) in textStorage.decoratorPositionCache {
+      positionDecorator(forKey: key, characterIndex: location)
+    }
   }
 
-  private func updateDecoratorSize(forGlyphAt glyphIndex: Int) {
+  private func positionDecorator(forKey key: NodeKey, characterIndex: TextStorage.CharacterLocation) {
     guard let textContainer = textContainers.first, let textStorage else {
       editor?.log(.TextView, .warning, "called with no container or storage")
       return
     }
 
+    let glyphIndex = glyphIndexForCharacter(at: characterIndex)
     let glyphIsInTextContainer = NSLocationInRange(glyphIndex, glyphRange(for: textContainer))
 
     var glyphBoundingRect: CGRect = .zero
     let shouldHideView: Bool = !glyphIsInTextContainer
 
     if glyphIsInTextContainer {
-      ensureLayout(forGlyphRange: NSRange(location: glyphIndex, length: 1))
       glyphBoundingRect = boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer)
     }
 
-    let characterIndex = characterIndexForGlyph(at: glyphIndex)
     var attribute: TextAttachment?
 
     if NSLocationInRange(characterIndex, NSRange(location: 0, length: textStorage.length)) {
@@ -160,13 +157,10 @@ public class LayoutManager: NSLayoutManager {
       return
     }
 
-    let allAttributesAtLocation = textStorage.attributes(at: characterIndex, effectiveRange: nil)
-
     let textContainerInset = self.editor?.frontend?.textContainerInsets ?? UIEdgeInsets.zero
 
     try? editor.read {
-      guard let decoratorView = decoratorView(forKey: key, createIfNecessary: !shouldHideView),
-            let decoratorNode = getNodeByKey(key: key) as? DecoratorNode else {
+      guard let decoratorView = decoratorView(forKey: key, createIfNecessary: !shouldHideView) else {
         editor.log(.TextView, .warning, "create decorator view failed")
         return
       }
@@ -181,12 +175,9 @@ public class LayoutManager: NSLayoutManager {
 
       var decoratorOrigin = glyphBoundingRect.offsetBy(dx: textContainerInset.left, dy: textContainerInset.top).origin // top left
 
-      let textLayoutWidth = editor.frontend?.textLayoutWidth ?? CGFloat(0)
-      let decoratorSize = decoratorNode.sizeForDecoratorView(textViewWidth: textLayoutWidth, attributes: allAttributesAtLocation)
+      decoratorOrigin.y += (glyphBoundingRect.height - attr.bounds.height) // bottom left now!
 
-      decoratorOrigin.y += (glyphBoundingRect.height - decoratorSize.height) // bottom left now!
-
-      decoratorView.frame = CGRect(origin: decoratorOrigin, size: decoratorSize)
+      decoratorView.frame = CGRect(origin: decoratorOrigin, size: attr.bounds.size)
     }
   }
 

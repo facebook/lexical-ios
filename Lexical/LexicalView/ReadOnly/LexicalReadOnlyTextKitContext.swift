@@ -78,6 +78,9 @@ internal class LexicalReadOnlySizeCache {
 
   @objc weak var attachedView: LexicalReadOnlyView? {
     didSet {
+      if oldValue == attachedView {
+        return
+      }
       if attachedView == nil {
         editor.frontendDidUnattachView()
       } else {

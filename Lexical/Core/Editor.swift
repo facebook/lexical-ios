@@ -514,6 +514,8 @@ public class Editor: NSObject {
           decoratorCache[nodeKey] = DecoratorCacheItem.cachedView(view)
           self.log(.editor, .verbose, "needsCreation -> cached. Key \(nodeKey). Frame \(view.frame). Superview \(String(describing: view.superview))")
         case .cachedView(let view):
+          // This shouldn't be needed if our appear/disappear logic is perfect, but it turns out we do currently need this.
+          superview.addSubview(view)
           self.log(.editor, .verbose, "no-op, already cached. Key \(nodeKey). Frame \(view.frame). Superview \(String(describing: view.superview))")
         case .unmountedCachedView(let view):
           view.isHidden = true // decorators will be hidden until they are layed out by TextKit
@@ -539,24 +541,30 @@ public class Editor: NSObject {
   }
 
   internal func unmountDecoratorSubviewsIfNecessary() {
-    for (nodeKey, decoratorCacheItem) in decoratorCache {
-      switch decoratorCacheItem {
-      case .needsCreation:
-        break
-      case .cachedView(let view):
-        view.removeFromSuperview()
-        if let node = getNodeByKey(key: nodeKey) as? DecoratorNode {
-          node.decoratorDidDisappear(view: view)
+    try? self.read {
+      for (nodeKey, decoratorCacheItem) in decoratorCache {
+        switch decoratorCacheItem {
+        case .needsCreation:
+          break
+        case .cachedView(let view):
+          view.removeFromSuperview()
+          if let node = getNodeByKey(key: nodeKey) as? DecoratorNode {
+            node.decoratorDidDisappear(view: view)
+            decoratorCache[nodeKey] = DecoratorCacheItem.unmountedCachedView(view)
+          } else {
+            decoratorCache[nodeKey] = nil
+          }
+        case .unmountedCachedView:
+          break
+        case .needsDecorating(let view):
+          view.removeFromSuperview()
+          if let node = getNodeByKey(key: nodeKey) as? DecoratorNode {
+            node.decoratorDidDisappear(view: view)
+            decoratorCache[nodeKey] = DecoratorCacheItem.unmountedCachedView(view)
+          } else {
+            decoratorCache[nodeKey] = nil
+          }
         }
-        decoratorCache[nodeKey] = DecoratorCacheItem.unmountedCachedView(view)
-      case .unmountedCachedView:
-        break
-      case .needsDecorating(let view):
-        view.removeFromSuperview()
-        if let node = getNodeByKey(key: nodeKey) as? DecoratorNode {
-          node.decoratorDidDisappear(view: view)
-        }
-        decoratorCache[nodeKey] = DecoratorCacheItem.unmountedCachedView(view)
       }
     }
   }
@@ -660,6 +668,7 @@ public class Editor: NSObject {
       editorState = pendingEditorState
       self.pendingEditorState = nil
       dirtyNodes.removeAll()
+      dirtyType = .noDirtyNodes
       cloneNotNeeded.removeAll()
 
       mountDecoratorSubviewsIfNecessary()

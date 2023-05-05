@@ -10,7 +10,6 @@ import UIKit
 public class TextAttachment: NSTextAttachment {
   public var key: NodeKey?
   weak var editor: Editor?
-  internal var hasDoneSizeLayout: Bool = false
 
   override public func attachmentBounds(for textContainer: NSTextContainer?, proposedLineFragment: CGRect, glyphPosition _: CGPoint, characterIndex: Int) -> CGRect {
     guard let key, let editor else {
@@ -27,7 +26,8 @@ public class TextAttachment: NSTextAttachment {
       let size = decoratorNode.sizeForDecoratorView(textViewWidth: editor.frontend?.textLayoutWidth ?? CGFloat(0), attributes: attributes)
       bounds = CGRect(x: 0, y: 0, width: size.width, height: size.height)
     }
-    hasDoneSizeLayout = true
+
+    self.bounds = bounds // cache the value so that our LayoutManager can pull it back out later
     return bounds
   }
 
