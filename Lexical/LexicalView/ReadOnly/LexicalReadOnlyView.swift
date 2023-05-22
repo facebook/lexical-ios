@@ -75,11 +75,15 @@ import UIKit
     if let link = attributes[.link] {
       if let link = link as? URL {
         textKitContext.editor.dispatchCommand(type: .linkTapped, payload: link)
+        return
       } else if let link = link as? String {
         if let linkURL = URL(string: link) {
           textKitContext.editor.dispatchCommand(type: .linkTapped, payload: linkURL)
+          return
         }
       }
     }
+
+    textKitContext.editor.dispatchCommand(type: .readOnlyViewTapped, payload: nil)
   }
 }
