@@ -14,6 +14,9 @@
 		0656CF9029D1ED8F009CA08F /* ToolbarPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0656CF8F29D1ED8F009CA08F /* ToolbarPlugin.swift */; };
 		0656CF9929D23743009CA08F /* Lexical in Frameworks */ = {isa = PBXBuildFile; productRef = 0656CF9829D23743009CA08F /* Lexical */; };
 		0656CFA229D48391009CA08F /* LexicalListPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 0656CFA129D48391009CA08F /* LexicalListPlugin */; };
+		069E59DB2A1EBF1700CA4296 /* LexicalHTML in Frameworks */ = {isa = PBXBuildFile; productRef = 069E59DA2A1EBF1700CA4296 /* LexicalHTML */; };
+		069E59DD2A1F726D00CA4296 /* ExportOutputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 069E59DC2A1F726D00CA4296 /* ExportOutputViewController.swift */; };
+		069E59DF2A1F7EFB00CA4296 /* LexicalListHTMLSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 069E59DE2A1F7EFB00CA4296 /* LexicalListHTMLSupport */; };
 		06CB47B429DE0139005AC7BD /* NodeHierarchyViewPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CB47B329DE0139005AC7BD /* NodeHierarchyViewPlugin.swift */; };
 /* End PBXBuildFile section */
 
@@ -26,6 +29,7 @@
 		0656CF8629D1E439009CA08F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0656CF8F29D1ED8F009CA08F /* ToolbarPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarPlugin.swift; sourceTree = "<group>"; };
 		0656CFA029D4837C009CA08F /* lexical-ios */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "lexical-ios"; path = ..; sourceTree = "<group>"; };
+		069E59DC2A1F726D00CA4296 /* ExportOutputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportOutputViewController.swift; sourceTree = "<group>"; };
 		06CB47B329DE0139005AC7BD /* NodeHierarchyViewPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeHierarchyViewPlugin.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -35,6 +39,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0656CFA229D48391009CA08F /* LexicalListPlugin in Frameworks */,
+				069E59DB2A1EBF1700CA4296 /* LexicalHTML in Frameworks */,
+				069E59DF2A1F7EFB00CA4296 /* LexicalListHTMLSupport in Frameworks */,
 				0656CF9929D23743009CA08F /* Lexical in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -65,6 +71,7 @@
 			children = (
 				0656CF7829D1E438009CA08F /* AppDelegate.swift */,
 				0656CF7C29D1E438009CA08F /* ViewController.swift */,
+				069E59DC2A1F726D00CA4296 /* ExportOutputViewController.swift */,
 				0656CF8F29D1ED8F009CA08F /* ToolbarPlugin.swift */,
 				06CB47B329DE0139005AC7BD /* NodeHierarchyViewPlugin.swift */,
 				0656CF8129D1E439009CA08F /* Assets.xcassets */,
@@ -109,6 +116,8 @@
 			packageProductDependencies = (
 				0656CF9829D23743009CA08F /* Lexical */,
 				0656CFA129D48391009CA08F /* LexicalListPlugin */,
+				069E59DA2A1EBF1700CA4296 /* LexicalHTML */,
+				069E59DE2A1F7EFB00CA4296 /* LexicalListHTMLSupport */,
 			);
 			productName = LexicalPlayground;
 			productReference = 0656CF7529D1E438009CA08F /* LexicalPlayground.app */;
@@ -169,6 +178,7 @@
 				0656CF7D29D1E438009CA08F /* ViewController.swift in Sources */,
 				0656CF7929D1E438009CA08F /* AppDelegate.swift in Sources */,
 				0656CF9029D1ED8F009CA08F /* ToolbarPlugin.swift in Sources */,
+				069E59DD2A1F726D00CA4296 /* ExportOutputViewController.swift in Sources */,
 				06CB47B429DE0139005AC7BD /* NodeHierarchyViewPlugin.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -395,6 +405,14 @@
 		0656CFA129D48391009CA08F /* LexicalListPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = LexicalListPlugin;
+		};
+		069E59DA2A1EBF1700CA4296 /* LexicalHTML */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalHTML;
+		};
+		069E59DE2A1F7EFB00CA4296 /* LexicalListHTMLSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalListHTMLSupport;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -90,7 +90,7 @@ public class Editor: NSObject {
 
   // Used for deserialization and registration of nodes. Lexical's built-in nodes are registered
   // by default.
-  internal var registeredNodes: DeserializationMapping = makeDeserializationMap()
+  internal var registeredNodes: [NodeType: Node.Type] = [.root: RootNode.self, .text: TextNode.self, .element: ElementNode.self, .heading: HeadingNode.self, .paragraph: ParagraphNode.self, .quote: QuoteNode.self]
 
   internal var nodeTransforms: [NodeType: [(Int, NodeTransform)]] = [:]
 
@@ -295,12 +295,16 @@ public class Editor: NSObject {
   ///   - constructor: A constructor to deserialise your node from JSON.
   ///
   ///   Node subclasses must be registered before use, in order that Lexical knows how to serialise them etc.
-  public func registerNode(nodeType: NodeType, constructor: @escaping DeserializationConstructor) throws {
+  public func registerNode(nodeType: NodeType, class klass: Node.Type) throws {
     if self.registeredNodes[nodeType] != nil {
       throw LexicalError.invariantViolation("Node type \(nodeType) already registered")
     }
 
-    registeredNodes[nodeType] = constructor
+    registeredNodes[nodeType] = klass
+  }
+
+  public func getRegisteredNodes() -> [NodeType: Node.Type] {
+    return registeredNodes
   }
 
   internal struct CustomDrawingHandlerInfo {
