@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum HeadingTagType: Codable {
+public enum HeadingTagType: String, Codable {
   case h1
   case h2
   case h3
