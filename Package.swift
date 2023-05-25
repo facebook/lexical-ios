@@ -18,21 +18,35 @@ let package = Package(
     .library(
       name: "LexicalListPlugin",
       targets: ["LexicalListPlugin"]),
+    .library(
+      name: "LexicalHTML",
+      targets: ["LexicalHTML"]),
   ],
   dependencies: [
+    .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
   ],
   targets: [
     .target(
       name: "Lexical",
       dependencies: [],
       path: "./Lexical"),
+    .testTarget(
+      name: "LexicalTests",
+      dependencies: ["Lexical"],
+      path: "./LexicalTests"),
+
     .target(
       name: "LexicalListPlugin",
       dependencies: ["Lexical"],
       path: "./Plugins/LexicalListPlugin"),
+
+    .target(
+      name: "LexicalHTML",
+      dependencies: ["Lexical", "SwiftSoup"],
+      path: "./Plugins/LexicalHTML/LexicalHTML"),
     .testTarget(
-      name: "LexicalTests",
-      dependencies: ["Lexical"],
-      path: "./LexicalTests")
+      name: "LexicalHTMLTests",
+      dependencies: ["Lexical", "LexicalHTML", "SwiftSoup"],
+      path: "./Plugins/LexicalHTML/LexicalHTMLTests"),
   ]
 )

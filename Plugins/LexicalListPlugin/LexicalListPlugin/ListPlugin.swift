@@ -22,8 +22,8 @@ open class ListPlugin: Plugin {
   public func setUp(editor: Editor) {
     self.editor = editor
     do {
-      try editor.registerNode(nodeType: NodeType.list, constructor: { decoder in try ListNode(from: decoder) })
-      try editor.registerNode(nodeType: NodeType.listItem, constructor: { decoder in try ListItemNode(from: decoder) })
+      try editor.registerNode(nodeType: NodeType.list, class: ListNode.self)
+      try editor.registerNode(nodeType: NodeType.listItem, class: ListItemNode.self)
 
       _ = editor.registerCommand(type: .insertUnorderedList, listener: { [weak editor] payload in
         guard let editor else { return false }

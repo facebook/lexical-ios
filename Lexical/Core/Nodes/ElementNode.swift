@@ -50,13 +50,11 @@ open class ElementNode: Node {
         let unprocessedContainer = try childrenUnkeyedContainer.nestedContainer(keyedBy: PartialCodingKeys.self)
         let type = try NodeType(rawValue: unprocessedContainer.decode(String.self, forKey: .type))
 
-        guard let constructor = deserializationMap[type] else {
-          throw LexicalError.invariantViolation("\(type) not registered as a serializable node")
-        }
+        let klass = deserializationMap[type] ?? UnknownNode.self
 
         do {
           let decoder = try containerCopy.superDecoder()
-          let decodedNode = try constructor(decoder)
+          let decodedNode = try klass.init(from: decoder)
           childNodes.append(decodedNode)
           self.children.append(decodedNode.key)
         } catch {
@@ -273,9 +271,9 @@ open class ElementNode: Node {
     return false
   }
 
-  func extractWithChild(
+  public func extractWithChild(
     child: Node,
-    selection: RangeSelection?,
+    selection: BaseSelection?,
     destination: Destination) -> Bool {
     return false
   }

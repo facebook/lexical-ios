@@ -9,6 +9,7 @@
 import XCTest
 
 class TestPlugin: Lexical.Plugin {
+
   internal var listenerCount: Int = 0
 
   func setUp(editor: Editor) {
@@ -18,6 +19,9 @@ class TestPlugin: Lexical.Plugin {
   }
 
   func tearDown() {
+  }
+
+  func pluginsLoaded() {
   }
 }
 

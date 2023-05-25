@@ -85,7 +85,7 @@ enum Direction: String, Codable {
   case rtl
 }
 
-enum Destination: Codable {
+public enum Destination: Codable {
   case clone
   case html
 }

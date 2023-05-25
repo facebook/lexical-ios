@@ -59,11 +59,11 @@ public struct SerializedNodeArray: Decodable {
       var containerCopy = container
       let unprocessedContainer = try container.nestedContainer(keyedBy: PartialCodingKeys.self)
       let type = try NodeType(rawValue: unprocessedContainer.decode(String.self, forKey: .type))
-      let constructor = deserializationMap[type] ?? { try UnknownNode(from: $0 ) }
+      let klass = deserializationMap[type] ?? UnknownNode.self
 
       do {
         let decoder = try containerCopy.superDecoder()
-        let decodedNode = try constructor(decoder)
+        let decodedNode = try klass.init(from: decoder)
         nodeArray.append(decodedNode)
       } catch {
         print(error)
