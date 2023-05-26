@@ -320,9 +320,11 @@ public class LexicalView: UIView, Frontend {
   }
 
   /// A convenience method for working out if there is any text in the text view.
-  public lazy var isTextViewEmpty: Bool = {
-    textView.text.lengthAsNSString() == 0
-  }()
+  public var isTextViewEmpty: Bool {
+    get {
+      textView.text.lengthAsNSString() == 0
+    }
+  }
 
   /// A proxy for the underlying UITextView's `isFirstResponder` method
   public var textViewIsFirstResponder: Bool {
