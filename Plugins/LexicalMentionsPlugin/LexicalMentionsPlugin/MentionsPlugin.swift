@@ -48,7 +48,7 @@ open class MentionsPlugin: Plugin {
     unregister = editor.registerUpdateListener(listener: updateListener)
 
     do {
-      try editor.registerNode(nodeType: NodeType.mention, constructor: { decoder in try MentionNode(from: decoder) })
+      try editor.registerNode(nodeType: NodeType.mention, class: MentionNode.self)
     } catch {}
   }
 

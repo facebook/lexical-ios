@@ -8,7 +8,7 @@
 import Foundation
 
 // Leaving commented code for later when these properties/nodes are implemented
-func cloneWithProperties<T: Node>(node: T) throws -> Node {
+public func cloneWithProperties<T: Node>(node: T) throws -> Node {
   let latest = node.getLatest()
   let clone = latest.clone()
   clone.parent = latest.parent

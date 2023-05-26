@@ -71,7 +71,7 @@ class DecoratorNodeTests: XCTestCase {
     let view = createLexicalView()
     let editor = view.editor
 
-    try editor.registerNode(nodeType: NodeType.testNode, constructor: { decoder in try TestDecoratorNode(from: decoder) })
+    try editor.registerNode(nodeType: NodeType.testNode, class: TestDecoratorNode.self)
 
     guard let viewForDecoratorSubviews = view.viewForDecoratorSubviews else {
       XCTFail()
@@ -113,7 +113,7 @@ class DecoratorNodeTests: XCTestCase {
     let view = createLexicalView()
     let editor = view.editor
 
-    try editor.registerNode(nodeType: NodeType.testNode, constructor: { decoder in try TestDecoratorNode(from: decoder) })
+    try editor.registerNode(nodeType: NodeType.testNode, class: TestDecoratorNode.self)
 
     var nodeKey: NodeKey?
 
@@ -159,7 +159,7 @@ class DecoratorNodeTests: XCTestCase {
     let textKitContext = LexicalReadOnlyTextKitContext(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
     let editor = textKitContext.editor
 
-    try editor.registerNode(nodeType: NodeType.testNode, constructor: { decoder in try TestDecoratorNode(from: decoder) })
+    try editor.registerNode(nodeType: NodeType.testNode, class: TestDecoratorNode.self)
 
     var nodeKey: NodeKey?
 

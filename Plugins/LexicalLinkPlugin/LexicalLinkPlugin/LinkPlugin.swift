@@ -32,7 +32,7 @@ open class LinkPlugin: Plugin {
   public func setUp(editor: Editor) {
     self.editor = editor
     do {
-      try editor.registerNode(nodeType: NodeType.link, constructor: { decoder in try LinkNode(from: decoder) })
+      try editor.registerNode(nodeType: NodeType.link, class: LinkNode.self)
     } catch {
       print("\(error)")
     }

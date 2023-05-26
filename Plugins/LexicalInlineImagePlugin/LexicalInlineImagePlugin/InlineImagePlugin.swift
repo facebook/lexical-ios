@@ -17,7 +17,7 @@ open class InlineImagePlugin: Plugin {
     self.editor = editor
 
     do {
-      try editor.registerNode(nodeType: NodeType.image, constructor: { decoder in try ImageNode(from: decoder) })
+      try editor.registerNode(nodeType: NodeType.image, class: ImageNode.self)
     } catch {
       editor.log(.other, .error, "\(error)")
     }

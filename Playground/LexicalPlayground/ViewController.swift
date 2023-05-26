@@ -42,6 +42,9 @@ class ViewController: UIViewController {
     view.addSubview(lexicalView)
     view.addSubview(toolbar)
     view.addSubview(hierarchyView)
+
+    navigationItem.title = "Lexical"
+    setUpExportMenu()
   }
 
   override func viewDidLayoutSubviews() {
@@ -97,5 +100,26 @@ class ViewController: UIViewController {
 
     // install the new editor state into editor
     try? editor.setEditorState(newEditorState)
+  }
+
+  func setUpExportMenu() {
+    let menuItems = [
+      UIAction(title: "Export HTML", handler: { action in
+        self.showExportScreen(.html)
+      }),
+      UIAction(title: "Export JSON", handler: { action in
+        self.showExportScreen(.json)
+      })
+    ]
+    let menu = UIMenu(title: "Export as…", children: menuItems)
+    let barButtonItem = UIBarButtonItem(title: "Export", style: .plain, target: nil, action: nil)
+    barButtonItem.menu = menu
+    navigationItem.rightBarButtonItem = barButtonItem
+  }
+
+  func showExportScreen(_ type: OutputFormat) {
+    guard let editor = lexicalView?.editor else { return }
+    let vc = ExportOutputViewController(editor: editor, format: type)
+    navigationController?.pushViewController(vc, animated: true)
   }
 }

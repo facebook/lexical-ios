@@ -18,21 +18,42 @@ let package = Package(
     .library(
       name: "LexicalListPlugin",
       targets: ["LexicalListPlugin"]),
+    .library(
+      name: "LexicalListHTMLSupport",
+      targets: ["LexicalListHTMLSupport"]),
+    .library(
+      name: "LexicalHTML",
+      targets: ["LexicalHTML"]),
   ],
   dependencies: [
+    .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
   ],
   targets: [
     .target(
       name: "Lexical",
       dependencies: [],
       path: "./Lexical"),
-    .target(
-      name: "LexicalListPlugin",
-      dependencies: ["Lexical"],
-      path: "./Plugins/LexicalListPlugin"),
     .testTarget(
       name: "LexicalTests",
       dependencies: ["Lexical"],
-      path: "./LexicalTests")
+      path: "./LexicalTests"),
+
+    .target(
+      name: "LexicalListPlugin",
+      dependencies: ["Lexical"],
+      path: "./Plugins/LexicalListPlugin/LexicalListPlugin"),
+    .target(
+      name: "LexicalListHTMLSupport",
+      dependencies: ["Lexical", "LexicalListPlugin", "LexicalHTML"],
+      path: "./Plugins/LexicalListPlugin/LexicalListHTMLSupport"),
+
+    .target(
+      name: "LexicalHTML",
+      dependencies: ["Lexical", "SwiftSoup"],
+      path: "./Plugins/LexicalHTML/LexicalHTML"),
+    .testTarget(
+      name: "LexicalHTMLTests",
+      dependencies: ["Lexical", "LexicalHTML", "SwiftSoup"],
+      path: "./Plugins/LexicalHTML/LexicalHTMLTests"),
   ]
 )

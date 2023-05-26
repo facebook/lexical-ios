@@ -27,7 +27,7 @@ public class TablePlugin: Plugin {
     self.editor = editor
 
     do {
-      try editor.registerNode(nodeType: NodeType.table, constructor: { decoder in try TableNode(from: decoder) })
+      try editor.registerNode(nodeType: NodeType.table, class: TableNode.self)
     } catch {
       editor.log(.other, .error, "\(error)")
     }

@@ -18,9 +18,7 @@ open class CodeHighlightPlugin: Plugin {
   public func setUp(editor: Editor) {
     self.editor = editor
     do {
-      try editor.registerNode(nodeType: NodeType.code, constructor: { decoder in try CodeNode(from: decoder) })
-      try editor.registerNode(nodeType: NodeType.linebreak, constructor: { decoder in try LineBreakNode(from: decoder) })
-      try editor.registerNode(nodeType: NodeType.codeHighlight, constructor: { decoder in try CodeHighlightNode(from: decoder) })
+      try editor.registerNode(nodeType: NodeType.codeHighlight, class: CodeHighlightNode.self)
       codeTransform = editor.addNodeTransform(nodeType: NodeType.code, transform: { [weak self] in
         guard
           let strongSelf = self,

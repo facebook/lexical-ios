@@ -33,7 +33,7 @@ open class AutoLinkPlugin: Plugin {
   public func setUp(editor: Editor) {
     self.editor = editor
     do {
-      try editor.registerNode(nodeType: NodeType.autoLink, constructor: { decoder in try AutoLinkNode(from: decoder) })
+      try editor.registerNode(nodeType: NodeType.autoLink, class: AutoLinkNode.self)
       _ = editor.addNodeTransform(nodeType: NodeType.text, transform: { [weak self] in
         guard let strongSelf = self else { return }
 
