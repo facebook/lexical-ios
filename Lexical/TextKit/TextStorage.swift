@@ -121,4 +121,14 @@ public class TextStorage: NSTextStorage {
     edited(.editedAttributes, range: range, changeInLength: 0)
     endEditing()
   }
+
+  public var extraLineFragmentAttributes: [NSAttributedString.Key: Any]? {
+    didSet {
+      beginEditing()
+      if backingAttributedString.length > 0 {
+        edited(.editedAttributes, range: NSRange(location: backingAttributedString.length - 1, length: 1), changeInLength: 0)
+      }
+      endEditing()
+    }
+  }
 }

@@ -30,6 +30,15 @@ public class LayoutManager: NSLayoutManager {
     }
   }
 
+  override public func setExtraLineFragmentRect(
+    _ fragmentRect: CGRect,
+    usedRect: CGRect,
+    textContainer container: NSTextContainer
+  ) {
+    // TODO: modify this based on our own metrics if needed -- @amyworrall
+    super.setExtraLineFragmentRect(fragmentRect, usedRect: usedRect, textContainer: container)
+  }
+
   override public func drawBackground(forGlyphRange drawingGlyphRange: NSRange, at origin: CGPoint) {
     super.drawBackground(forGlyphRange: drawingGlyphRange, at: origin)
     draw(forGlyphRange: drawingGlyphRange, at: origin, handlers: customDrawingBackground)

@@ -199,6 +199,10 @@ internal enum Reconciler {
 
     editor.log(.reconciler, .verbose, "did rangesToAdd: non-empty \(nonEmptyRangesToAddCount)")
 
+    // BLOCK LEVEL ATTRIBUTES
+
+    let lastDescendentAttributes = getRoot()?.getLastChild()?.getAttributedStringAttributes(theme: editor.getTheme())
+
     // TODO: this iteration applies the attributes in an arbitrary order. If we are to handle nesting nodes with these block level attributes
     // we may want to apply them in a deterministic order, and also make them nest additively (i.e. for when two blocks start at the same paragraph)
     var nodesToApplyBlockAttributes: Set<NodeKey> = []
@@ -216,13 +220,12 @@ internal enum Reconciler {
     let rangeCache = reconcilerState.nextRangeCache
     for nodeKey in nodesToApplyBlockAttributes {
       guard let node = getNodeByKey(key: nodeKey),
+            node.isAttached(),
             let cacheItem = rangeCache[nodeKey],
-            cacheItem.range.length > 0, // if there's an empty node at the end of the text, it'll cause problems when we enumerate paragraphs.
-            // Since there's never a need to apply block attribs to an empty string, we just filter them out here.
             let attributes = node.getBlockLevelAttributes(theme: editor.getTheme())
       else { continue }
 
-      AttributeUtils.applyBlockLevelAttributes(attributes, toRange: cacheItem.range, textStorage: textStorage, nodeKey: nodeKey)
+      AttributeUtils.applyBlockLevelAttributes(attributes, cacheItem: cacheItem, textStorage: textStorage, nodeKey: nodeKey, lastDescendentAttributes: lastDescendentAttributes ?? [:])
     }
 
     editor.rangeCache = reconcilerState.nextRangeCache

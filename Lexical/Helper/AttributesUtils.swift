@@ -178,17 +178,59 @@ enum AttributeUtils {
     return nil
   }
 
-  internal static func applyBlockLevelAttributes(_ attributes: BlockLevelAttributes, toRange range: NSRange, textStorage: TextStorage, nodeKey: NodeKey) {
-    var paragraphs: [NSRange] = []
-    textStorage.mutableString.enumerateSubstrings(in: range, options: .byParagraphs) { _, _, enclosingRange, _ in
-      paragraphs.append(enclosingRange)
+  private static func extraLineFragmentIsPresent(_ textStorage: TextStorage) -> Bool {
+    let textAsNSString: NSString = textStorage.string as NSString
+    guard textAsNSString.length > 0 else { return true }
+
+    guard let scalar = Unicode.Scalar(textAsNSString.character(at: textAsNSString.length - 1)) else { return false }
+    if NSCharacterSet.newlines.contains(scalar) { return true }
+    return false
+  }
+
+  private enum BlockParagraphLocation {
+    case range(NSRange, NSRange) // non-enclosing range, enclosing range
+    case extraLineFragment
+  }
+
+  internal static func applyBlockLevelAttributes(_ attributes: BlockLevelAttributes, cacheItem: RangeCacheItem, textStorage: TextStorage, nodeKey: NodeKey, lastDescendentAttributes: [NSAttributedString.Key: Any]) {
+
+    // for more information about the extraLineFragment, see NSLayoutManager docs
+    let extraLineFragmentIsPresent = extraLineFragmentIsPresent(textStorage)
+    let startTouchesExtraLineFragment = (extraLineFragmentIsPresent && cacheItem.range.length == 0 && cacheItem.range.location == textStorage.length)
+    let endTouchesExtraLineFragment = (extraLineFragmentIsPresent && (NSMaxRange(cacheItem.range) - cacheItem.postambleLength) == textStorage.length) // ignore postamble, since postamble terminates the block
+
+    var extraLineFragmentAttributes = (extraLineFragmentIsPresent) ? lastDescendentAttributes : [:]
+
+    var paragraphs: [BlockParagraphLocation] = []
+
+    if startTouchesExtraLineFragment {
+      paragraphs.append(.extraLineFragment)
+    } else {
+      // this time we _don't_ ignore postamble, since we want the applied styles to touch the newlines, and enumerateSubstrings handles trimming newlines anyway
+      textStorage.mutableString.enumerateSubstrings(in: cacheItem.range, options: .byParagraphs) { _, substringRange, enclosingRange, _ in
+        paragraphs.append(.range(substringRange, enclosingRange))
+      }
+      if endTouchesExtraLineFragment {
+        paragraphs.append(.extraLineFragment)
+      }
     }
+
     // first may be the same as last. That's OK!
     guard let first = paragraphs.first, let last = paragraphs.last else {
       return
     }
-    let firstParaStyle = textStorage.attribute(.paragraphStyle, at: first.location, effectiveRange: nil) as? NSParagraphStyle ?? NSParagraphStyle()
-    let spacingBeforeInternal: CGFloat? = textStorage.attribute(.paragraphSpacingBefore_internal, at: first.location, effectiveRange: nil) as? CGFloat
+
+    var firstParaStyle: NSParagraphStyle
+    let spacingBeforeInternal: CGFloat?
+    switch first {
+    case .extraLineFragment:
+      firstParaStyle = extraLineFragmentAttributes[.paragraphStyle] as? NSParagraphStyle ?? NSParagraphStyle()
+      spacingBeforeInternal = extraLineFragmentAttributes[.paragraphSpacingBefore_internal] as? CGFloat
+    case .range(let nonEnclosing, _):
+      firstParaStyle = textStorage.attribute(.paragraphStyle, at: nonEnclosing.location, effectiveRange: nil) as? NSParagraphStyle ?? NSParagraphStyle()
+      spacingBeforeInternal = textStorage.attribute(.paragraphSpacingBefore_internal, at: nonEnclosing.location, effectiveRange: nil) as? CGFloat
+    }
+
     guard let firstMutableParaStyle = firstParaStyle.mutableCopy() as? NSMutableParagraphStyle else {
       return
     }
@@ -196,10 +238,28 @@ enum AttributeUtils {
     spacingBefore += attributes.marginTop
     spacingBefore += attributes.paddingTop
     firstMutableParaStyle.paragraphSpacingBefore = spacingBefore
-    textStorage.addAttribute(.paragraphStyle, value: firstMutableParaStyle, range: first)
 
-    let lastParaStyle = textStorage.attribute(.paragraphStyle, at: last.location, effectiveRange: nil) as? NSParagraphStyle ?? NSParagraphStyle()
-    let spacingInternal: CGFloat? = textStorage.attribute(.paragraphSpacing_internal, at: last.location, effectiveRange: nil) as? CGFloat
+    switch first {
+    case .extraLineFragment:
+      extraLineFragmentAttributes[.paragraphStyle] = firstMutableParaStyle
+    case .range(_, let enclosing):
+      textStorage.addAttribute(.paragraphStyle, value: firstMutableParaStyle, range: enclosing)
+    }
+
+    // Now do the same for 'last'. This may involve reading back out the para style we just set for first, and modifying it further.
+
+    var lastParaStyle: NSParagraphStyle
+    let spacingInternal: CGFloat?
+
+    switch last {
+    case .extraLineFragment:
+      lastParaStyle = extraLineFragmentAttributes[.paragraphStyle] as? NSParagraphStyle ?? NSParagraphStyle()
+      spacingInternal = extraLineFragmentAttributes[.paragraphSpacing_internal] as? CGFloat
+    case .range(let nonEnclosing, _):
+      lastParaStyle = textStorage.attribute(.paragraphStyle, at: nonEnclosing.location, effectiveRange: nil) as? NSParagraphStyle ?? NSParagraphStyle()
+      spacingInternal = textStorage.attribute(.paragraphSpacingBefore_internal, at: nonEnclosing.location, effectiveRange: nil) as? CGFloat
+    }
+
     guard let lastMutableParaStyle = lastParaStyle.mutableCopy() as? NSMutableParagraphStyle else {
       return
     }
@@ -207,10 +267,24 @@ enum AttributeUtils {
     spacingAfter += attributes.marginBottom
     spacingAfter += attributes.paddingBottom
     lastMutableParaStyle.paragraphSpacing = spacingAfter
-    textStorage.addAttribute(.paragraphStyle, value: lastMutableParaStyle, range: last)
+
+    switch last {
+    case .extraLineFragment:
+      extraLineFragmentAttributes[.paragraphStyle] = lastMutableParaStyle
+    case .range(_, let enclosing):
+      textStorage.addAttribute(.paragraphStyle, value: lastMutableParaStyle, range: enclosing)
+    }
+
+    if extraLineFragmentIsPresent {
+      textStorage.extraLineFragmentAttributes = extraLineFragmentAttributes
+    } else {
+      textStorage.extraLineFragmentAttributes = nil
+    }
 
     // see comment on `appliedBlockLevelStyles_internal`. We're only doing this to provide data to our custom drawing routines.
-    textStorage.addAttribute(.appliedBlockLevelStyles_internal, value: attributes, range: first)
+    if !startTouchesExtraLineFragment, case .range(_, let enclosing) = first {
+      textStorage.addAttribute(.appliedBlockLevelStyles_internal, value: attributes, range: enclosing)
+    }
   }
 }
 
