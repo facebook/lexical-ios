@@ -24,6 +24,9 @@ let package = Package(
     .library(
       name: "LexicalHTML",
       targets: ["LexicalHTML"]),
+    .library(
+      name: "SelectableDecoratorNode",
+      targets: ["SelectableDecoratorNode"]),
   ],
   dependencies: [
     .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
@@ -55,5 +58,10 @@ let package = Package(
       name: "LexicalHTMLTests",
       dependencies: ["Lexical", "LexicalHTML", "SwiftSoup"],
       path: "./Plugins/LexicalHTML/LexicalHTMLTests"),
+
+    .target(
+      name: "SelectableDecoratorNode",
+      dependencies: ["Lexical"],
+      path: "./Plugins/SelectableDecoratorNode/SelectableDecoratorNode"),
   ]
 )

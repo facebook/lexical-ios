@@ -32,7 +32,7 @@ func selectPointOnNode(point: Point, node: Node) {
 ///   the current selection does not refer to valid positions in valid nodes. However, there are some
 ///   situations, such as if you're getting the selection when preparing to modify it to be valid using your
 ///   own validity rules, when you just want to fetch the current selection whatever it is.
-public func getSelection(allowInvalidPositions: Bool = false) -> RangeSelection? {
+public func getSelection(allowInvalidPositions: Bool = false) -> BaseSelection? {
   let editorState = getActiveEditorState()
   let selection = editorState?.selection
 
@@ -48,7 +48,7 @@ public func getSelection(allowInvalidPositions: Bool = false) -> RangeSelection?
 
   if let editor = getActiveEditor() {
     do {
-      let selection = try createRangeSelection(editor: editor)
+      let selection = try createSelection(editor: editor)
       editorState?.selection = selection
       return selection
     } catch {
@@ -61,7 +61,12 @@ public func getSelection(allowInvalidPositions: Bool = false) -> RangeSelection?
   return nil
 }
 
-private func sanityCheckSelection(_ selection: RangeSelection) -> Bool {
+private func sanityCheckSelection(_ selection: BaseSelection) -> Bool {
+  guard let selection = selection as? RangeSelection else {
+    // no sanity checking on other selection types yet
+    return true
+  }
+
   let anchor = selection.anchor
   let focus = selection.focus
 
@@ -159,7 +164,10 @@ func editorStateHasDirtySelection(pendingEditorState: EditorState, editor: Edito
 
   // Check if we need to update because of changes in selection
   if let pendingSelection {
-    if pendingSelection.dirty || pendingSelection != currentSelection {
+    if pendingSelection.dirty {
+      return true
+    }
+    if let currentSelection, !pendingSelection.isSelection(currentSelection) {
       return true
     }
   } else if currentSelection != nil {
@@ -235,12 +243,17 @@ func createEmptyRangeSelection() -> RangeSelection {
 /// If a selection gets changed, and requires a update to native iOS selection, it gets marked as "dirty".
 /// If the selection changes, but matches with the existing native selection, then we only need to sync it.
 /// Otherwise, we generally bail out of doing an update to selection during reconciliation unless there are dirty nodes that need reconciling.
-func createRangeSelection(editor: Editor) throws -> RangeSelection? {
+func createSelection(editor: Editor) throws -> BaseSelection? {
   let currentEditorState = editor.getEditorState()
   let lastSelection = currentEditorState.selection
 
-  if lastSelection == nil {
+  guard let lastSelection else {
     let nativeSelection = editor.getNativeSelection()
+
+    if nativeSelection.selectionIsNodeOrObject {
+      // cannot derive selection out of the UI layer in this case!
+      return nil
+    }
 
     let range = nativeSelection.range ?? NSRange(location: 0, length: 0)
 
@@ -248,18 +261,12 @@ func createRangeSelection(editor: Editor) throws -> RangeSelection? {
        let focus = try pointAtStringLocation(range.location + range.length, searchDirection: nativeSelection.affinity, rangeCache: editor.rangeCache) {
       return RangeSelection(anchor: anchor, focus: focus, format: TextFormat())
     }
-  } else {
-    if let lastSelection {
-      let lastAnchor = lastSelection.anchor
-      let lastFocus = lastSelection.focus
-      let anchor = createPoint(key: lastAnchor.key, offset: lastAnchor.offset, type: lastAnchor.type)
-      let focus = createPoint(key: lastFocus.key, offset: lastFocus.offset, type: lastFocus.type)
 
-      return RangeSelection(anchor: anchor, focus: focus, format: lastSelection.format)
-    }
+    return nil
   }
 
-  return nil
+  // we have a last selection. Clone it!
+  return lastSelection.clone()
 }
 
 /// This is used to make a selection when the existing selection is null or should be replaced,

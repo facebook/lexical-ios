@@ -13,7 +13,8 @@ import UIKit
 
 internal func onInsertTextFromUITextView(text: String, editor: Editor, updateMode: UpdateBehaviourModificationMode = UpdateBehaviourModificationMode()) throws {
   try editor.updateWithCustomBehaviour(mode: updateMode) {
-    guard let selection = getSelection() else {
+    guard let selection = getSelection() as? RangeSelection else {
+      // should have a range selection if UITextView is first responder
       editor.log(.UITextView, .error, "Expected a selection here")
       return
     }
@@ -39,21 +40,21 @@ internal func onInsertTextFromUITextView(text: String, editor: Editor, updateMod
 }
 
 internal func onInsertLineBreakFromUITextView(editor: Editor) throws {
-  guard getActiveEditor() != nil, let selection = getSelection() else {
+  guard getActiveEditor() != nil, let selection = getSelection() as? RangeSelection else {
     throw LexicalError.invariantViolation("No editor or selection")
   }
   try selection.insertLineBreak(selectStart: false)
 }
 
 internal func onInsertParagraphFromUITextView(editor: Editor) throws {
-  guard getActiveEditor() != nil, let selection = getSelection() else {
+  guard getActiveEditor() != nil, let selection = getSelection() as? RangeSelection else {
     throw LexicalError.invariantViolation("No editor or selection")
   }
   try selection.insertParagraph()
 }
 
 internal func onRemoveTextFromUITextView(editor: Editor) throws {
-  guard getActiveEditor() != nil, let selection = getSelection() else {
+  guard getActiveEditor() != nil, let selection = getSelection() as? RangeSelection else {
     throw LexicalError.invariantViolation("No editor or selection")
   }
   try selection.removeText()
@@ -62,7 +63,7 @@ internal func onRemoveTextFromUITextView(editor: Editor) throws {
 }
 
 internal func onDeleteBackwardsFromUITextView(editor: Editor) throws {
-  guard let editor = getActiveEditor(), let selection = getSelection() else {
+  guard let editor = getActiveEditor(), let selection = getSelection() as? RangeSelection else {
     throw LexicalError.invariantViolation("No editor or selection")
   }
 
@@ -72,7 +73,7 @@ internal func onDeleteBackwardsFromUITextView(editor: Editor) throws {
 }
 
 internal func onDeleteWordFromUITextView(editor: Editor) throws {
-  guard getActiveEditor() != nil, let selection = getSelection() else {
+  guard getActiveEditor() != nil, let selection = getSelection() as? RangeSelection else {
     throw LexicalError.invariantViolation("No editor or selection")
   }
 
@@ -82,7 +83,7 @@ internal func onDeleteWordFromUITextView(editor: Editor) throws {
 }
 
 internal func onDeleteLineFromUITextView(editor: Editor) throws {
-  guard getActiveEditor() != nil, let selection = getSelection() else {
+  guard getActiveEditor() != nil, let selection = getSelection() as? RangeSelection else {
     throw LexicalError.invariantViolation("No editor or selection")
   }
 
@@ -103,7 +104,7 @@ internal func onCopyFromUITextView(editor: Editor, pasteboard: UIPasteboard) thr
 }
 
 internal func onCutFromUITextView(editor: Editor, pasteboard: UIPasteboard) throws {
-  guard getActiveEditor() != nil, let selection = getSelection() else {
+  guard getActiveEditor() != nil, let selection = getSelection() as? RangeSelection else {
     throw LexicalError.invariantViolation("No editor or selection")
   }
   try setPasteboard(selection: selection, pasteboard: pasteboard)
@@ -113,7 +114,7 @@ internal func onCutFromUITextView(editor: Editor, pasteboard: UIPasteboard) thro
 }
 
 internal func onPasteFromUITextView(editor: Editor, pasteboard: UIPasteboard) throws {
-  guard getActiveEditor() != nil, let selection = getSelection() else {
+  guard getActiveEditor() != nil, let selection = getSelection() as? RangeSelection else {
     throw LexicalError.invariantViolation("No editor or selection")
   }
 
@@ -155,12 +156,23 @@ func checkIfTokenOrCanTextBeInserted(node: TextNode) -> Bool {
   return !node.canInsertTextBefore() || isToken
 }
 
+// triggered by selection change event from the UITextView
 internal func onSelectionChange(editor: Editor) {
   do {
     try editor.updateWithCustomBehaviour(mode: UpdateBehaviourModificationMode(suppressReconcilingSelection: true, suppressSanityCheck: true)) {
       let nativeSelection = editor.getNativeSelection()
-      guard let lexicalSelection = getSelection() else {
+      guard let editorState = getActiveEditorState() else {
         return
+      }
+      if !(getSelection() is RangeSelection) {
+        guard let newSelection = RangeSelection(nativeSelection: nativeSelection) else {
+          return
+        }
+        editorState.selection = newSelection
+      }
+
+      guard let lexicalSelection = getSelection() as? RangeSelection else {
+        return // we should have a range selection by now, so this is unexpected
       }
 
       try lexicalSelection.applyNativeSelection(nativeSelection)

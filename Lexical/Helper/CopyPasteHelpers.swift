@@ -9,7 +9,7 @@ import Foundation
 import MobileCoreServices
 import UIKit
 
-internal func setPasteboard(selection: RangeSelection, pasteboard: UIPasteboard) throws {
+internal func setPasteboard(selection: BaseSelection, pasteboard: UIPasteboard) throws {
   guard let editor = getActiveEditor() else {
     throw LexicalError.invariantViolation("Could not get editor")
   }
@@ -25,8 +25,8 @@ internal func setPasteboard(selection: RangeSelection, pasteboard: UIPasteboard)
 
   pasteboard.items =
     [
-      [(kUTTypeRTF as String): try selection.getRichtext().data(
-        from: NSRange(location: 0, length: selection.getRichtext().length),
+      [(kUTTypeRTF as String): try getAttributedStringFromFrontend().data(
+        from: NSRange(location: 0, length: getAttributedStringFromFrontend().length),
         documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])],
       [LexicalConstants.pasteboardIdentifier: encodedData]
     ]
@@ -191,7 +191,7 @@ func basicInsertStrategy(nodes: [Node], selection: RangeSelection) throws {
 
 func appendNodesToArray(
   editor: Editor,
-  selection: RangeSelection?,
+  selection: BaseSelection?,
   currentNode: Node,
   targetArray: [Node] = []) throws -> (shouldInclude: Bool, outArray: [Node]) {
   var array = targetArray
@@ -249,7 +249,7 @@ func appendNodesToArray(
   return (shouldInclude, array)
 }
 
-public func generateArrayFromSelectedNodes(editor: Editor, selection: RangeSelection?) throws -> (
+public func generateArrayFromSelectedNodes(editor: Editor, selection: BaseSelection?) throws -> (
   namespace: String,
   nodes: [Node]) {
   var nodes: [Node] = []

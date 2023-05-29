@@ -555,23 +555,29 @@ class SelectionTests: XCTestCase {
     view.textView.selectedTextRange = originalRange
 
     try editor.update {
-      let selection = try createRangeSelection(editor: editor)
+      guard let selection = try createSelection(editor: editor) as? RangeSelection else {
+        XCTFail()
+        return
+      }
 
-      XCTAssertEqual(selection?.anchor.offset, 4)
-      XCTAssertEqual(selection?.focus.offset, 11)
-      XCTAssertEqual(selection?.focus.key, "6")
-      XCTAssertEqual(selection?.anchor.key, "2")
+      XCTAssertEqual(selection.anchor.offset, 4)
+      XCTAssertEqual(selection.focus.offset, 11)
+      XCTAssertEqual(selection.focus.key, "6")
+      XCTAssertEqual(selection.anchor.key, "2")
     }
 
     view.textView.selectedTextRange = newRange
 
     try editor.update {
-      let selection = try createRangeSelection(editor: editor)
+      guard let selection = try createSelection(editor: editor) as? RangeSelection else {
+        XCTFail()
+        return
+      }
 
-      XCTAssertEqual(selection?.anchor.offset, 3)
-      XCTAssertEqual(selection?.focus.offset, 3)
-      XCTAssertEqual(selection?.focus.key, "3")
-      XCTAssertEqual(selection?.anchor.key, "3")
+      XCTAssertEqual(selection.anchor.offset, 3)
+      XCTAssertEqual(selection.focus.offset, 3)
+      XCTAssertEqual(selection.focus.key, "3")
+      XCTAssertEqual(selection.anchor.key, "3")
     }
   }
 

@@ -391,7 +391,7 @@ open class ElementNode: Node {
       updatedFocusOffset = focusOffset
     }
 
-    guard let selection else {
+    guard let selection = selection as? RangeSelection else {
       return try makeRangeSelection(
         anchorKey: key,
         anchorOffset: updatedAnchorOffset,

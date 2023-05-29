@@ -395,7 +395,9 @@ public class Editor: NSObject {
           let selection = getSelection()
           if selection != nil {
             try paragraph.select(anchorOffset: nil, focusOffset: nil)
-            selection?.clearFormat()
+            if let selection = selection as? RangeSelection {
+              selection.clearFormat()
+            }
           }
         }
       }
@@ -604,7 +606,7 @@ public class Editor: NSObject {
       self.isUpdating = true
 
       if editorStateWasCloned {
-        pendingEditorState.selection = try createRangeSelection(editor: self)
+        pendingEditorState.selection = try createSelection(editor: self)
       }
 
       do {
@@ -653,7 +655,7 @@ public class Editor: NSObject {
         return
       }
 
-      if let pendingSelection = pendingEditorState.selection {
+      if let pendingSelection = pendingEditorState.selection as? RangeSelection {
         let anchor = pendingEditorState.nodeMap[pendingSelection.anchor.key]
         let focus = pendingEditorState.nodeMap[pendingSelection.focus.key]
         if anchor == nil || focus == nil {
@@ -663,6 +665,10 @@ public class Editor: NSObject {
         selection wasn't moved to another node. Ensure selection changes after removing/replacing a selected node.
         """
           throw LexicalError.invariantViolation(errorString)
+        }
+      } else if let pendingSelection = pendingEditorState.selection as? NodeSelection {
+        if pendingSelection.nodes.isEmpty {
+          pendingEditorState.selection = nil
         }
       }
 

@@ -360,7 +360,7 @@ open class TextNode: Node {
     try writableNode.setText("\(prefixText)\(newText)\(postText)")
 
     let selection = getSelection(allowInvalidPositions: true)
-    if moveSelection, let selection {
+    if moveSelection, let selection = selection as? RangeSelection {
       let newOffset = offset + newText.lengthAsNSString()
       selection.setTextNodeRange(
         anchorNode: writableNode,
@@ -472,7 +472,7 @@ open class TextNode: Node {
       let siblingKey = sibling.key
       let nextTextSize = textSize + partSize
 
-      if let selection {
+      if let selection = selection as? RangeSelection {
         let anchor = selection.anchor
         let focus = selection.focus
 
@@ -515,7 +515,7 @@ open class TextNode: Node {
       writableParent.children.replaceSubrange(insertionIndex...insertionIndex, with: splitNodesKeys)
     }
 
-    if let selection {
+    if let selection = selection as? RangeSelection {
       try updateElementSelectionOnCreateDeleteNode(
         selection: selection,
         parentNode: parent,
@@ -554,6 +554,10 @@ open class TextNode: Node {
         anchorType: .text,
         focusType: .text)
     }
+    guard let selection = selection as? RangeSelection else {
+      return try makeRangeSelection(anchorKey: key, anchorOffset: anchorOffset ?? 0, focusKey: key, focusOffset: focusOffset ?? 0, anchorType: .text, focusType: .text)
+    }
+
     selection.setTextNodeRange(anchorNode: self, anchorOffset: updatedAnchorOffset, focusNode: self, focusOffset: updatedFocusOffset)
 
     return selection
@@ -576,7 +580,7 @@ open class TextNode: Node {
     let targetKey = target.key
     let textLength = text.lengthAsNSString()
     let selection = getSelection()
-    if let selection {
+    if let selection = selection as? RangeSelection {
       let anchor = selection.anchor
       let focus = selection.focus
 

@@ -10,12 +10,13 @@ import UIKit
 
 public class NativeSelection {
 
-  internal init(range: NSRange?, opaqueRange: UITextRange?, affinity: UITextStorageDirection, markedRange: NSRange?, markedOpaqueRange: UITextRange?) {
+  internal init(range: NSRange?, opaqueRange: UITextRange?, affinity: UITextStorageDirection, markedRange: NSRange?, markedOpaqueRange: UITextRange?, selectionIsNodeOrObject: Bool) {
     self.range = range
     self.opaqueRange = opaqueRange
     self.affinity = affinity
     self.markedRange = markedRange
     self.markedOpaqueRange = markedOpaqueRange
+    self.selectionIsNodeOrObject = selectionIsNodeOrObject
   }
 
   internal init() {
@@ -24,6 +25,7 @@ public class NativeSelection {
     self.affinity = .forward
     self.markedRange = nil
     self.markedOpaqueRange = nil
+    self.selectionIsNodeOrObject = false // may reconsider this default later
   }
 
   public convenience init(range: NSRange, affinity: UITextStorageDirection) {
@@ -31,7 +33,8 @@ public class NativeSelection {
               opaqueRange: nil,
               affinity: affinity,
               markedRange: nil,
-              markedOpaqueRange: nil)
+              markedOpaqueRange: nil,
+              selectionIsNodeOrObject: false)
   }
 
   // if nil, there's no selection at all (i.e. no focus). If there's a location but length 0, then
@@ -50,4 +53,8 @@ public class NativeSelection {
   // The opaque range comes straight from the text view; the range (as an NSRange) is calculated by us.
   let markedRange: NSRange?
   let markedOpaqueRange: UITextRange?
+
+  // The selection is something that cannot be represented by a character range. Usually corresponds with
+  // NodeSelection or similar within Lexical.
+  let selectionIsNodeOrObject: Bool
 }

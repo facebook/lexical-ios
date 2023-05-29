@@ -9,6 +9,18 @@ import Foundation
 import UIKit
 
 public class GridSelection: BaseSelection {
+  public func getTextContent() throws -> String {
+    return ""
+  }
+
+  public func insertRawText(_ text: String) {
+    // no-op
+  }
+
+  public func isSelection(_ selection: BaseSelection) -> Bool {
+    return false // TODO
+  }
+
   public var gridKey: NodeKey
   public var anchorCellKey: NodeKey
   public var focusCellKey: NodeKey
@@ -32,5 +44,11 @@ public class GridSelection: BaseSelection {
 
   public func extract() throws -> [Node] {
     return []
+  }
+}
+
+extension GridSelection: CustomDebugStringConvertible {
+  public var debugDescription: String {
+    return "Grid Selection"
   }
 }

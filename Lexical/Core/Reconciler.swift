@@ -550,8 +550,8 @@ internal enum Reconciler {
   }
 
   private static func reconcileSelection(
-    prevSelection: RangeSelection?,
-    nextSelection: RangeSelection?,
+    prevSelection: BaseSelection?,
+    nextSelection: BaseSelection?,
     editor: Editor) throws {
     guard let nextSelection else {
       if let prevSelection {
@@ -564,6 +564,8 @@ internal enum Reconciler {
 
       return
     }
+
+      // TODO: if node selection, go tell decorator nodes to select themselves!
 
     try editor.frontend?.updateNativeSelection(from: nextSelection)
   }

@@ -87,16 +87,24 @@ public class TextStorage: NSTextStorage {
       guard let editor, let frontend = editor.frontend else { return }
 
       let nativeSelection = NativeSelection(range: range, affinity: .forward)
-      var updatedSelection: RangeSelection?
       try editor.update {
-        guard let selection = getSelection() else {
-          return // expected lexical selection
+        guard let editorState = getActiveEditorState() else {
+          return
+        }
+        if !(getSelection() is RangeSelection) {
+          guard let newSelection = RangeSelection(nativeSelection: nativeSelection) else {
+            return
+          }
+          editorState.selection = newSelection
+        }
+
+        guard let selection = getSelection() as? RangeSelection else {
+          return // we should have a range selection by now, so this is unexpected
         }
         try selection.applyNativeSelection(nativeSelection)
         try selection.insertText(str)
-        updatedSelection = getSelection()
       }
-      guard let updatedSelection else {
+      guard let updatedSelection = getSelection() as? RangeSelection else {
         return
       }
       try editor.getEditorState().read {

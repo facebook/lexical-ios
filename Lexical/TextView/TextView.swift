@@ -239,7 +239,7 @@ class TextView: UITextView {
     do {
       // set composition key
       try editor.read {
-        guard let selection = getSelection() else {
+        guard let selection = getSelection() as? RangeSelection else {
           editor.log(.TextView, .error, "Could not get selection in setMarkedTextInternal()")
           throw LexicalError.invariantViolation("should have selection when starting marked text")
         }

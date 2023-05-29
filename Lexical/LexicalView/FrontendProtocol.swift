@@ -34,7 +34,7 @@ internal protocol Frontend: AnyObject {
   func moveNativeSelection(type: NativeSelectionModificationType, direction: UITextStorageDirection, granularity: UITextGranularity)
   func unmarkTextWithoutUpdate()
   func presentDeveloperFacingError(message: String)
-  func updateNativeSelection(from selection: RangeSelection) throws
+  func updateNativeSelection(from selection: BaseSelection) throws
   func setMarkedTextFromReconciler(_ markedText: NSAttributedString, selectedRange: NSRange)
   func resetSelectedRange()
   func showPlaceholderText()
