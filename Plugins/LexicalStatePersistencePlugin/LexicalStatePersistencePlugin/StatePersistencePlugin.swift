@@ -56,7 +56,7 @@ open class StatePersistencePlugin: Plugin {
         try editor.clearEditor()
       }
 
-      guard let selection = getSelection() else {
+      guard let selection = try getSelection() else {
         throw LexicalError.internal("Could not get selection")
       }
 

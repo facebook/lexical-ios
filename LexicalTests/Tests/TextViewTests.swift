@@ -134,12 +134,15 @@ class TextViewTests: XCTestCase {
       XCTAssertEqual(newTextNode.getTextPart(), "Hey")
     }
 
-    let selection = textView.editor.getEditorState().selection
-    XCTAssertEqual(selection?.anchor.key, "3")
-    XCTAssertEqual(selection?.focus.key, "3")
-    XCTAssertEqual(selection?.anchor.offset, 3)
-    XCTAssertEqual(selection?.focus.offset, 3)
-    XCTAssertEqual(selection?.anchor.type, SelectionType.text)
+    guard let selection = textView.editor.getEditorState().selection as? RangeSelection else {
+      XCTFail("Expected range selection")
+      return
+    }
+    XCTAssertEqual(selection.anchor.key, "3")
+    XCTAssertEqual(selection.focus.key, "3")
+    XCTAssertEqual(selection.anchor.offset, 3)
+    XCTAssertEqual(selection.focus.offset, 3)
+    XCTAssertEqual(selection.anchor.type, SelectionType.text)
   }
 
   // Test disabled due to iOS 16 UIPasteboard restrictions. I can't figure out a workaround right now. @amyworrall
@@ -209,7 +212,7 @@ class TextViewTests: XCTestCase {
     let focus = createPoint(key: "1", offset: 11, type: .text)
     textView.editor.getEditorState().selection = RangeSelection(anchor: anchor, focus: focus, format: TextFormat())
 
-    guard let selection = textView.editor.getEditorState().selection else {
+    guard let selection = textView.editor.getEditorState().selection as? RangeSelection else {
       XCTFail("Need selection")
       return
     }
@@ -239,7 +242,7 @@ class TextViewTests: XCTestCase {
     let focus = createPoint(key: "1", offset: 11, type: .text)
     textView.editor.getEditorState().selection = RangeSelection(anchor: anchor, focus: focus, format: TextFormat())
 
-    guard let selection = textView.editor.getEditorState().selection else {
+    guard let selection = textView.editor.getEditorState().selection as? RangeSelection else {
       XCTFail("Need selection")
       return
     }
@@ -272,7 +275,7 @@ class TextViewTests: XCTestCase {
     let focus = createPoint(key: "1", offset: 11, type: .text)
     textView.editor.getEditorState().selection = RangeSelection(anchor: anchor, focus: focus, format: TextFormat())
 
-    guard let selection = textView.editor.getEditorState().selection else {
+    guard let selection = textView.editor.getEditorState().selection as? RangeSelection else {
       XCTFail("Need selection")
       return
     }
@@ -316,7 +319,7 @@ class TextViewTests: XCTestCase {
     textView.showPlaceholderText()
 
     if let label = textView.subviews.first(where: { $0 is UILabel }) as? UILabel {
-      XCTAssertTrue(label.isHidden)
+      XCTAssertTrue(label.isHidden, "\(label)")
     }
   }
 
@@ -347,7 +350,7 @@ class TextViewTests: XCTestCase {
     textView.insertText("world")
     let nodeMap = textView.editor.getEditorState().nodeMap
 
-    guard let selection = textView.editor.getEditorState().selection else {
+    guard let selection = textView.editor.getEditorState().selection as? RangeSelection else {
       XCTFail("Need selection")
       return
     }

@@ -261,7 +261,7 @@ internal class LexicalReadOnlySizeCache {
     // no-op
   }
 
-  func updateNativeSelection(from selection: RangeSelection) throws {
+  func updateNativeSelection(from selection: BaseSelection) throws {
     // no-op
   }
 

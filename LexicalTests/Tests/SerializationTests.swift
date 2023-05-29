@@ -92,7 +92,7 @@ class SerializationTests: XCTestCase {
         return
       }
 
-      guard let selection = getSelection() else {
+      guard let selection = try getSelection() as? RangeSelection else {
         XCTFail("Could not get selection")
         return
       }
@@ -152,7 +152,7 @@ class SerializationTests: XCTestCase {
         return
       }
 
-      guard let selection = getSelection() else {
+      guard let selection = try getSelection() as? RangeSelection else {
         XCTFail("Could not get selection")
         return
       }

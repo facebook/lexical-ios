@@ -73,7 +73,7 @@ open class LinkPlugin: Plugin {
   }
 
   func toggleLink(url: String?) throws {
-    guard let selection = getSelection() else { return }
+    guard let selection = try getSelection() else { return }
     let nodes = try selection.extract()
 
     guard let url else {

@@ -378,7 +378,7 @@ open class ElementNode: Node {
   public func select(anchorOffset: Int?, focusOffset: Int?) throws -> RangeSelection {
     try errorOnReadOnly()
 
-    let selection = getSelection()
+    let selection = try getSelection()
     let childrenCount = getChildrenSize()
     var updatedAnchorOffset = childrenCount
     var updatedFocusOffset = childrenCount
@@ -391,7 +391,7 @@ open class ElementNode: Node {
       updatedFocusOffset = focusOffset
     }
 
-    guard let selection else {
+    guard let selection = selection as? RangeSelection else {
       return try makeRangeSelection(
         anchorKey: key,
         anchorOffset: updatedAnchorOffset,

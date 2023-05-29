@@ -322,152 +322,8 @@ func checkSelectionIsOnlyLinebreak(selection: RangeSelection) throws -> Bool {
   return nodes.count == 1 && nodes.contains(where: { $0 is LineBreakNode })
 }
 
-public func wrapLeafNodesInElements(
-  selection: RangeSelection,
-  createElement: () -> ElementNode,
-  wrappingElement: ElementNode?) throws {
-
-  let nodes = try selection.getNodes()
-
-  // Check to see if selection is only a linebreak node (for changing paragraph style post-linebreak)
-  // This is a divergence from lexical web when changing paragraph styles at a linebreak.
-  // Lexical web will go to the parent ElementNode and change all children, while
-  // Lexical iOS removes the removes the trailing linebreak and inserts a new parent ElementNode of the
-  // chosen type.
-  let linebreakPresent = try checkSelectionIsOnlyLinebreak(selection: selection)
-
-  if linebreakPresent {
-    // Get node and create new node of selected paragraph type, insert new node,
-    // then remove linebreak node, and update selection
-    let node = try selection.focus.getNode()
-    let element = createElement()
-    try node.insertAfter(nodeToInsert: element)
-    try (node as? ElementNode)?.getLastChild()?.remove()
-    selection.anchor.updatePoint(key: element.key, offset: 0, type: .element)
-    selection.focus.updatePoint(key: element.key, offset: 0, type: .element)
-  } else {
-    if nodes.isEmpty {
-      let anchorNode = try selection.anchor.getNode()
-      let target = selection.anchor.type == .text ? try anchorNode.getParentOrThrow() : anchorNode
-      guard let target = target as? ElementNode else { return }
-
-      let children = target.getChildren()
-      var element = createElement()
-      try children.forEach({ try element.append([$0]) })
-
-      if wrappingElement != nil {
-        try wrappingElement?.append([element])
-        if let wrappingElement {
-          element = wrappingElement
-        }
-      }
-
-      try target.replace(replaceWith: element)
-
-      return
-    }
-
-    let firstNode = nodes[0]
-    var elementMapping = [NodeKey: ElementNode]()
-    var elements = [ElementNode]()
-
-    // The below logic is to find the right target for us to either insertAfter/insertBefore/append
-    // the corresponding elements to. This is made more complicated due to nested structures.
-    var target: Node? = isElementNode(node: firstNode) ? firstNode : try firstNode.getParentOrThrow()
-    while target != nil {
-      if let prevSibling = target?.getPreviousSibling() {
-        target = prevSibling
-        break
-      }
-
-      target = try target?.getParentOrThrow()
-      if isRootNode(node: target) {
-        break
-      }
-    }
-
-    var emptyElements = [NodeKey]()
-    // Find any top level empty elements
-    nodes.forEach { node in
-      if let node = node as? ElementNode, node.children.isEmpty {
-        emptyElements.append(node.key)
-      }
-    }
-
-    var movedLeafNodes = Set<NodeKey>()
-    // Move out all leaf nodes into our elements array. If we find a top level empty element, also
-    // move make an element for that.
-    try nodes.forEach { node in
-      if let parent = node.getParent(), isLeafNode(node), !movedLeafNodes.contains(node.key) {
-        let parentKey = parent.key
-
-        if elementMapping[parentKey] == nil {
-          let targetElement = createElement()
-          elements.append(targetElement)
-          elementMapping[parentKey] = targetElement
-
-          // Move node and its siblings to the new element
-          try parent.getChildren().forEach { child in
-            try targetElement.append([child])
-            movedLeafNodes.insert(child.key)
-          }
-
-          try removeParentEmptyElements(startingNode: parent)
-        }
-      } else if emptyElements.contains(node.key) {
-        elements.append(createElement())
-        try node.remove()
-      }
-    }
-
-    if let wrappingElement {
-      try elements.forEach({ try wrappingElement.append([$0]) })
-    }
-
-    // If our target is the root, let's see if we can re-adjust so that the target is the first child instead.
-    if isRootNode(node: target) {
-      guard var target = target as? ElementNode else { return }
-
-      let firstChild = target.getFirstChild()
-
-      if let firstChild {
-        if let elementNode = firstChild as? ElementNode {
-          target = elementNode
-        }
-
-        if let wrappingElement {
-          try firstChild.insertBefore(nodeToInsert: wrappingElement)
-        } else {
-          for element in elements {
-            try firstChild.insertBefore(nodeToInsert: element)
-          }
-        }
-      } else {
-        if let wrappingElement {
-          try target.append([wrappingElement])
-        } else {
-          try elements.forEach({ try target.append([$0]) })
-        }
-      }
-    } else {
-      guard let target else {
-        return
-      }
-
-      if let wrappingElement {
-        try target.insertAfter(nodeToInsert: wrappingElement)
-      } else {
-        elements.reverse()
-        try elements.forEach({ try target.insertAfter(nodeToInsert: $0) })
-      }
-    }
-  }
-
-  selection.dirty = true
-}
-
-public func sliceSelectedTextNodeContent(selection: RangeSelection, textNode: TextNode) throws -> TextNode {
-  if try textNode.isSelected() && !textNode.isSegmented() && !textNode.isToken() {
+public func sliceSelectedTextNodeContent(selection: BaseSelection, textNode: TextNode) throws -> TextNode {
+  if try textNode.isSelected(), !textNode.isSegmented(), !textNode.isToken(), let selection = selection as? RangeSelection {
     // && ($isRangeSelection(selection) || $isGridSelection(selection)){
     let anchorNode = try selection.anchor.getNode()
     let focusNode = try selection.focus.getNode()
@@ -634,12 +490,14 @@ public func hasAncestor(
 public func maybeMoveChildrenSelectionToParent(
   parentNode: Node,
   offset: Int = 0
-) throws -> RangeSelection? {
+) throws -> BaseSelection? {
   if offset != 0 {
     throw LexicalError.invariantViolation("TODO")
   }
-  guard let selection = getSelection() else {
-    return nil
+  let selection = try getSelection()
+  guard let selection = selection as? RangeSelection, let parentNode = parentNode as? ElementNode else {
+    // Only works on range selection
+    return selection
   }
   let anchorNode = try selection.anchor.getNode()
   let focusNode = try selection.focus.getNode()
@@ -650,4 +508,31 @@ public func maybeMoveChildrenSelectionToParent(
     selection.focus.updatePoint(key: parentNode.getKey(), offset: 0, type: .element)
   }
   return selection
+}
+
+public func getAttributedStringFromFrontend() throws -> NSAttributedString {
+  // @alexmattice - replace this with a version driven off a depth first search
+  guard let editor = getActiveEditor() else { return NSAttributedString(string: "") }
+
+  let selection = editor.getNativeSelection()
+
+  if let range = selection.range, let textStorage = editor.textStorage {
+    return textStorage.attributedSubstring(from: range)
+  } else {
+    return NSAttributedString(string: "")
+  }
+}
+
+public func removeFromParent(node: Node) throws {
+  guard let writableParent = try node.getParent()?.getWritable() else {
+    return
+  }
+
+  internallyMarkSiblingsAsDirty(node: node, status: .userInitiated)
+
+  writableParent.children.removeAll { childKey in
+    childKey == node.getKey()
+  }
+
+  internallyMarkNodeAsDirty(node: writableParent)
 }

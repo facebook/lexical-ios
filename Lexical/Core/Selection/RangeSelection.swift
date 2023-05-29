@@ -10,6 +10,7 @@ import UIKit
 
 public class RangeSelection: BaseSelection {
 
+
   public var anchor: Point
   public var focus: Point
   public var dirty: Bool
@@ -22,6 +23,9 @@ public class RangeSelection: BaseSelection {
     self.focus = focus
     self.dirty = false
     self.format = format
+
+    anchor.selection = self
+    focus.selection = self
   }
 
   // MARK: - Public
@@ -474,7 +478,8 @@ public class RangeSelection: BaseSelection {
     }
   }
 
-  public func insertNodes(nodes: [Node], selectStart: Bool) throws -> Bool {
+  @discardableResult
+  public func insertNodes(nodes: [Node], selectStart: Bool = false) throws -> Bool {
     if !isCollapsed() {
       try removeText()
     }
@@ -696,19 +701,6 @@ public class RangeSelection: BaseSelection {
       return textStorage.attributedSubstring(from: range).string
     } else {
       return ""
-    }
-  }
-
-  public func getRichtext() throws -> NSAttributedString {
-    // @alexmattice - replace this with a version driven off a depth first search
-    guard let editor = getActiveEditor() else { return NSAttributedString(string: "") }
-
-    let selection = editor.getNativeSelection()
-
-    if let range = selection.range, let textStorage = editor.textStorage {
-      return textStorage.attributedSubstring(from: range)
-    } else {
-      return NSAttributedString(string: "")
     }
   }
 
@@ -954,6 +946,24 @@ public class RangeSelection: BaseSelection {
     }
   }
 
+  init?(nativeSelection: NativeSelection) {
+    guard let range = nativeSelection.range, let editor = getActiveEditor(), !nativeSelection.selectionIsNodeOrObject else { return nil }
+    let affinity = range.length == 0 ? .backward : nativeSelection.affinity
+
+    let anchorOffset = affinity == .forward ? range.location : range.location + range.length
+    let focusOffset = affinity == .forward ? range.location + range.length : range.location
+
+    guard let anchor = try? pointAtStringLocation(anchorOffset, searchDirection: affinity, rangeCache: editor.rangeCache),
+       let focus = try? pointAtStringLocation(focusOffset, searchDirection: affinity, rangeCache: editor.rangeCache) else {
+      return nil
+    }
+
+    self.anchor = anchor
+    self.focus = focus
+    self.dirty = false
+    self.format = TextFormat()
+  }
+
   internal func formatText(formatType: TextFormatType) throws {
     if isCollapsed() {
       toggleFormat(type: formatType)
@@ -1128,6 +1138,32 @@ public class RangeSelection: BaseSelection {
     focus.offset = anchorOffset
     focus.type = anchorType
   }
+
+  public func insertRawText(_ text: String) throws {
+    let parts = text.split(whereSeparator: \.isNewline)
+    if parts.count == 1 {
+      try insertText(text)
+      return
+    }
+
+    var nodesToInsert: [Node] = []
+    for (i, part) in parts.enumerated() {
+      let textNode = TextNode(text: String(part))
+      nodesToInsert.append(textNode)
+      if i < parts.count - 1 {
+        nodesToInsert.append(LineBreakNode())
+      }
+    }
+    try insertNodes(nodes: nodesToInsert)
+  }
+
+  public func isSelection(_ selection: BaseSelection) -> Bool {
+    guard let selection = selection as? RangeSelection else {
+      return false
+    }
+    return anchor == selection.anchor && focus == selection.focus && format == selection.format
+  }
+
 }
 
 extension RangeSelection: Equatable {

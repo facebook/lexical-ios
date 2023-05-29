@@ -67,7 +67,12 @@ class CodeNodeTests: XCTestCase {
         return
       }
 
-      let newNode = try codeNode.insertNewAfter(selection: editorState.selection)
+      guard let selection = editorState.selection as? RangeSelection else {
+        XCTFail("Expected range selection")
+        return
+      }
+
+      let newNode = try codeNode.insertNewAfter(selection: selection)
       XCTAssertNotNil(newNode)
       XCTAssertEqual(newNode?.parent, codeNode.parent)
       XCTAssertEqual(newNode?.type, NodeType.paragraph)

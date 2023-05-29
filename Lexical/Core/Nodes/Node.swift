@@ -535,10 +535,11 @@ open class Node: Codable {
       return
     }
 
+    // if the selection is in one of the node to remove's children, move it into the node to remove.
     let selection = try maybeMoveChildrenSelectionToParent(parentNode: nodeToRemove)
 
     var selectionMoved = false
-    if let selection, restoreSelection {
+    if let selection = selection as? RangeSelection, restoreSelection {
       let anchor = selection.anchor
       let focus = selection.focus
       if anchor.key == key {
@@ -561,7 +562,7 @@ open class Node: Codable {
     let writableNodeToRemove = try nodeToRemove.getWritable()
     writableNodeToRemove.parent = nil
 
-    if let selection, restoreSelection && !selectionMoved {
+    if let selection = selection as? RangeSelection, restoreSelection && !selectionMoved {
       try updateElementSelectionOnCreateDeleteNode(
         selection: selection,
         parentNode: parent,
@@ -582,21 +583,15 @@ open class Node: Codable {
     let writableSelf = try getWritable()
     let writableNodeToInsert = try nodeToInsert.getWritable()
     let oldParent = writableNodeToInsert.getParent()
-    let selection = getSelection()
+    let selection = try getSelection()
 
     var elementAnchorSelectionOnNode = false
     var elementFocusSelectionOnNode = false
 
     if let oldParent {
-      let writableParent = try oldParent.getWritable()
+      try removeFromParent(node: writableNodeToInsert)
 
-      guard let index = writableParent.children.firstIndex(where: { $0 == writableNodeToInsert.key }) else {
-        throw LexicalError.invariantViolation("Node is not a child of its parent")
-      }
-
-      internallyMarkSiblingsAsDirty(node: writableNodeToInsert, status: .userInitiated)
-
-      if let selection,
+      if let selection = selection as? RangeSelection,
          let oldIndex = nodeToInsert.getIndexWithinParent() {
         let oldParentKey = oldParent.key
         elementAnchorSelectionOnNode = selection.anchor.type == .element &&
@@ -607,7 +602,6 @@ open class Node: Codable {
           selection.focus.offset == oldIndex + 1
       }
 
-      writableParent.children.remove(at: index)
     }
 
     let writableParent = try getParentOrThrow().getWritable()
@@ -621,7 +615,7 @@ open class Node: Codable {
     writableParent.children.insert(insertKey, at: index + 1)
     internallyMarkSiblingsAsDirty(node: writableNodeToInsert, status: .userInitiated)
 
-    if let selection {
+    if let selection = selection as? RangeSelection {
       try updateElementSelectionOnCreateDeleteNode(
         selection: selection,
         parentNode: writableParent,
@@ -675,7 +669,7 @@ open class Node: Codable {
 
     internallyMarkSiblingsAsDirty(node: writableNodeToInsert, status: .userInitiated)
 
-    if let selection = getSelection(), let index {
+    if let selection = try getSelection() as? RangeSelection, let index {
       try updateElementSelectionOnCreateDeleteNode(
         selection: selection,
         parentNode: writableParent,
@@ -728,7 +722,7 @@ open class Node: Codable {
       try writableReplaceWith.append(selfElement.getChildren())
     }
 
-    if let selection = getSelection() {
+    if let selection = try getSelection() as? RangeSelection { // TODO: the logic here differs from web. Web clones the selection further up. Should make iOS match.
       let anchor = selection.anchor
       let focus = selection.focus
 
@@ -822,7 +816,7 @@ extension Node: Equatable {
 
   /// Returns true if this node is contained within the provided Selection., false otherwise. Relies on the algorithms implemented in ``BaseSelection/getNodes()`` to determine what's included.
   public func isSelected() throws -> Bool {
-    guard let selection = getSelection() else {
+    guard let selection = try getSelection() else {
       return false
     }
 
@@ -833,7 +827,7 @@ extension Node: Equatable {
     }
     // For inline images inside of element nodes.
     // Without this change the image will be selected if the cursor is before or after it.
-    if // selection is RangeSelection &&
+    if let selection = selection as? RangeSelection,
       selection.anchor.type == .element &&
         selection.focus.type == .element &&
         selection.anchor.key == selection.focus.key &&

@@ -16,7 +16,7 @@ internal let kRootNodeKey = "root"
 public class EditorState: NSObject {
 
   internal var nodeMap: [NodeKey: Node] = [:]
-  public var selection: RangeSelection?
+  public var selection: BaseSelection?
 
   override init() {
     let rootNode = RootNode()
@@ -77,7 +77,16 @@ public class EditorState: NSObject {
       isEqual = isEqual && (lhs.nodeMap[element.key] == element.value)
     }
 
-    return isEqual && (lhs.selection == rhs.selection)
+    let selectionEqual: Bool
+    if let lhsSelection = lhs.selection, let rhsSelection = rhs.selection {
+      selectionEqual = lhsSelection.isSelection(rhsSelection)
+    } else if lhs.selection == nil && rhs.selection == nil {
+      selectionEqual = true
+    } else {
+      selectionEqual = false
+    }
+
+    return isEqual && selectionEqual
   }
 
   static func createEmptyEditorState() -> EditorState {

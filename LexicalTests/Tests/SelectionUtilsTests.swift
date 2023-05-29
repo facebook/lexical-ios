@@ -302,12 +302,14 @@ class SelectionUtilsTests: XCTestCase {
     view.textView.selectedRange = NSRange(location: 0, length: 5)
 
     try editor.update {
-      let selection = editor.testing_getPendingEditorState()?.selection
-      XCTAssertNotNil(selection)
-      XCTAssertEqual(selection?.anchor.key, "1")
-      XCTAssertEqual(selection?.anchor.offset, 0)
-      XCTAssertEqual(selection?.focus.key, "1")
-      XCTAssertEqual(selection?.focus.offset, 5)
+      guard let selection = editor.testing_getPendingEditorState()?.selection as? RangeSelection else {
+        XCTFail("Expected range selection")
+        return
+      }
+      XCTAssertEqual(selection.anchor.key, "1")
+      XCTAssertEqual(selection.anchor.offset, 0)
+      XCTAssertEqual(selection.focus.key, "1")
+      XCTAssertEqual(selection.focus.offset, 5)
     }
   }
 
@@ -482,14 +484,18 @@ class SelectionUtilsTests: XCTestCase {
         anchorType: .text,
         focusType: .text)
 
-      XCTAssertNotNil(editor.testing_getPendingEditorState()?.selection)
+      guard let selection = editor.testing_getPendingEditorState()?.selection as? RangeSelection else {
+        XCTFail("Expected range selection")
+        return
+      }
+
       XCTAssertEqual(newSelection.anchor.key, "1")
-      XCTAssertEqual(editor.testing_getPendingEditorState()?.selection?.anchor.key, "1")
-      XCTAssertEqual(editor.testing_getPendingEditorState()?.selection?.focus.key, "1")
-      XCTAssertEqual(editor.testing_getPendingEditorState()?.selection?.anchor.offset, 0)
-      XCTAssertEqual(editor.testing_getPendingEditorState()?.selection?.focus.offset, 5)
-      XCTAssertEqual(editor.testing_getPendingEditorState()?.selection?.anchor.type, SelectionType.text)
-      XCTAssertEqual(editor.testing_getPendingEditorState()?.selection?.focus.type, SelectionType.text)
+      XCTAssertEqual(selection.anchor.key, "1")
+      XCTAssertEqual(selection.focus.key, "1")
+      XCTAssertEqual(selection.anchor.offset, 0)
+      XCTAssertEqual(selection.focus.offset, 5)
+      XCTAssertEqual(selection.anchor.type, SelectionType.text)
+      XCTAssertEqual(selection.focus.type, SelectionType.text)
     }
   }
 
@@ -523,13 +529,13 @@ class SelectionUtilsTests: XCTestCase {
         focusType: .text
       )
 
-      XCTAssertTrue(editor.getEditorState().selection == newSelection2)
+      XCTAssertTrue(editor.getEditorState().selection?.isSelection(newSelection2) ?? false)
 
       var textFormat = TextFormat()
       textFormat.bold = true
       newSelection2.format = textFormat
 
-      XCTAssertFalse(editor.getEditorState().selection == newSelection2)
+      XCTAssertFalse(editor.getEditorState().selection?.isSelection(newSelection2) ?? false)
     }
   }
 

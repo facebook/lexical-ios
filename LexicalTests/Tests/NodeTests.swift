@@ -1567,8 +1567,11 @@ class NodeTests: XCTestCase {
       }
 
       let newHeadingNode = createHeadingNode(headingTag: .h1) // key 3
-      let selection = editorState.selection
-      let anchorNode = try selection?.anchor.getNode()
+      guard let selection = editorState.selection as? RangeSelection else {
+        XCTFail("Expected range selection")
+        return
+      }
+      let anchorNode = try selection.anchor.getNode()
       if let paragraph = anchorNode as? ElementNode {
         try paragraph.replace(replaceWith: newHeadingNode)
       }
@@ -1632,7 +1635,13 @@ class NodeTests: XCTestCase {
     }
 
     try editor.update {
-      try formatLargeHeading(editor: editor)
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("Expected range selection")
+        return
+      }
+      setBlocksType(selection: selection) {
+        createHeadingNode(headingTag: .h1)
+      }
     }
 
     // verify
@@ -1665,7 +1674,9 @@ class NodeTests: XCTestCase {
         format: TextFormat())
       editorState.selection = selection
 
-      try formatSmallHeading(editor: editor)
+      setBlocksType(selection: selection) {
+        createHeadingNode(headingTag: .h1)
+      }
     }
 
     try editor.read {
@@ -1914,19 +1925,19 @@ class NodeTests: XCTestCase {
       let rootNode = editor.getEditorState().getRootNode()
       try rootNode?.append([paragraphNode])
 
-      let selection = try textNode2.select(anchorOffset: 1, focusOffset: 1)
+      let selection = try textNode2.select(anchorOffset: 3, focusOffset: 3)
       let mergedSibling = try textNode2.mergeWithSibling(target: textNode)
       XCTAssert(mergedSibling.getTextPart() == "hello world ")
       XCTAssert(mergedSibling.key == textNode2.key)
-      XCTAssert(selection.anchor.offset == 1)
-      XCTAssert(selection.focus.offset == 1)
+      XCTAssertEqual(selection.anchor.offset, 9)
+      XCTAssertEqual(selection.focus.offset, 9)
 
       let selection1 = try textNode3.select(anchorOffset: 0, focusOffset: 0)
       let mergedSibling1 = try textNode3.mergeWithSibling(target: textNode2)
       XCTAssert(mergedSibling1.getTextPart() == "hello world welcome")
       XCTAssert(mergedSibling1.key == textNode3.key)
-      XCTAssert(selection1.anchor.offset == 0)
-      XCTAssert(selection1.focus.offset == 0)
+      XCTAssertEqual(selection1.anchor.offset, 12)
+      XCTAssertEqual(selection1.focus.offset, 12)
     }
   }
 
