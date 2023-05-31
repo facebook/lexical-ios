@@ -19,11 +19,13 @@ public class Point {
   public var key: NodeKey
   public var offset: Int
   public var type: SelectionType
+  internal weak var selection: BaseSelection?
 
   public init(key: NodeKey, offset: Int, type: SelectionType) {
     self.key = key
     self.offset = offset
     self.type = type
+    self.selection = nil
   }
 
   func isBefore(point b: Point) throws -> Bool {
@@ -69,13 +71,7 @@ public class Point {
     self.type = type
 
     if !isReadOnlyMode() {
-      // Must allow invalid positions, as the selection is only being fetched
-      // to possibly mark it as dirty: we don't want to force regenerate this selection
-      // during this operation.
-      guard let selection = getSelection(allowInvalidPositions: true)
-      else { return }
-
-      if selection.anchor == self || selection.focus == self {
+      if let selection {
         selection.dirty = true
       }
     }

@@ -80,7 +80,7 @@ open class MentionsPlugin: Plugin {
     var text: String?
 
     try activeEditorState.read {
-      guard let selection = getSelection() else {
+      guard let selection = try getSelection() as? RangeSelection else {
         return
       }
 
@@ -189,7 +189,7 @@ open class MentionsPlugin: Plugin {
     }
 
     try editor.update {
-      guard let selection = getSelection() else { return }
+      guard let selection = try getSelection() as? RangeSelection else { return }
 
       let anchor = selection.anchor
 

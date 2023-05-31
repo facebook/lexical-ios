@@ -133,10 +133,13 @@ public func updateChildrenListItemValue(
  */
 public func insertList(editor: Editor, listType: ListType) throws {
   try editor.update {
-    guard let selection = getSelection() else {
+    guard let selection = try getSelection() else {
       throw LexicalError.invariantViolation("no selection")
     }
 
+    guard let selection = selection as? RangeSelection else {
+      return
+    }
     let nodes = try selection.getNodes()
     let anchor = selection.anchor
     let anchorNode = try anchor.getNode()

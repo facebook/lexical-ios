@@ -127,7 +127,7 @@ public class ToolbarPlugin: Plugin {
   }
 
   private func updateToolbar() {
-    if let selection = getSelection() {
+    if let selection = try? getSelection() as? RangeSelection {
       guard let anchorNode = try? selection.anchor.getNode() else { return }
 
       var element =
@@ -220,7 +220,7 @@ public class ToolbarPlugin: Plugin {
 
   private func setBlock(creationFunc: () -> ElementNode) {
     try? editor?.update {
-      if let selection = getSelection() {
+      if let selection = try getSelection() as? RangeSelection {
         setBlocksType(selection: selection, createElement: creationFunc)
       }
     }

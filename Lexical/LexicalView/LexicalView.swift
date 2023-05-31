@@ -52,6 +52,7 @@ public class LexicalView: UIView, Frontend {
   }
 
   let textView: TextView
+  let responderForNodeSelection: ResponderForNodeSelection
 
   public init(editorConfig: EditorConfig, featureFlags: FeatureFlags, placeholderText: LexicalPlaceholderText? = nil) {
     self.textView = TextView(editorConfig: editorConfig, featureFlags: featureFlags)
@@ -59,6 +60,11 @@ public class LexicalView: UIView, Frontend {
     self.textView.clipsToBounds = true
     self.textView.accessibilityTraits = .staticText
     self.placeholderText = placeholderText
+
+    guard let textStorage = textView.textStorage as? TextStorage else {
+      fatalError()
+    }
+    self.responderForNodeSelection = ResponderForNodeSelection(editor: textView.editor, textStorage: textStorage)
 
     super.init(frame: .zero)
 
@@ -103,6 +109,10 @@ public class LexicalView: UIView, Frontend {
   }
 
   var nativeSelection: NativeSelection {
+    if responderForNodeSelection.isFirstResponder {
+      return NativeSelection(range: nil, opaqueRange: nil, affinity: .forward, markedRange: nil, markedOpaqueRange: nil, selectionIsNodeOrObject: true)
+    }
+
     let selectionNSRange = textView.selectedRange
     let selectionOpaqueRange = textView.selectedTextRange
     let selectionAffinity = textView.selectionAffinity
@@ -118,7 +128,7 @@ public class LexicalView: UIView, Frontend {
           length: markedEnd - markedStart)
       }
     }
-    return NativeSelection(range: selectionNSRange, opaqueRange: selectionOpaqueRange, affinity: selectionAffinity, markedRange: markedNSRange, markedOpaqueRange: markedOpaqueRange)
+    return NativeSelection(range: selectionNSRange, opaqueRange: selectionOpaqueRange, affinity: selectionAffinity, markedRange: markedNSRange, markedOpaqueRange: markedOpaqueRange, selectionIsNodeOrObject: false)
   }
 
   var isUpdatingNativeSelection: Bool {
@@ -180,7 +190,12 @@ public class LexicalView: UIView, Frontend {
     textView.presentDeveloperFacingError(message: message)
   }
 
-  func updateNativeSelection(from selection: RangeSelection) throws {
+  func updateNativeSelection(from selection: BaseSelection) throws {
+    guard let selection = selection as? RangeSelection else {
+      // we don't have a range selection.
+      responderForNodeSelection.becomeFirstResponder()
+      return
+    }
     try textView.updateNativeSelection(from: selection)
   }
 
@@ -473,7 +488,7 @@ extension LexicalView: LexicalTextViewDelegate {
 
     do {
       try editor.read {
-        selection = getSelection()
+        selection = try getSelection() as? RangeSelection ?? createEmptyRangeSelection()
         try selection?.applySelectionRange(characterRange, affinity: .forward)
       }
     } catch {

@@ -359,8 +359,8 @@ open class TextNode: Node {
 
     try writableNode.setText("\(prefixText)\(newText)\(postText)")
 
-    let selection = getSelection(allowInvalidPositions: true)
-    if moveSelection, let selection {
+    let selection = try getSelection(allowInvalidPositions: true)
+    if moveSelection, let selection = selection as? RangeSelection {
       let newOffset = offset + newText.lengthAsNSString()
       selection.setTextNodeRange(
         anchorNode: writableNode,
@@ -457,7 +457,7 @@ open class TextNode: Node {
       writableNode.text = firstPart
     }
     // Handle selection
-    let selection = getSelection()
+    let selection = try getSelection()
 
     // Then handle all other parts
     var splitNodes = [writableNode]
@@ -472,7 +472,7 @@ open class TextNode: Node {
       let siblingKey = sibling.key
       let nextTextSize = textSize + partSize
 
-      if let selection {
+      if let selection = selection as? RangeSelection {
         let anchor = selection.anchor
         let focus = selection.focus
 
@@ -515,7 +515,7 @@ open class TextNode: Node {
       writableParent.children.replaceSubrange(insertionIndex...insertionIndex, with: splitNodesKeys)
     }
 
-    if let selection {
+    if let selection = selection as? RangeSelection {
       try updateElementSelectionOnCreateDeleteNode(
         selection: selection,
         parentNode: parent,
@@ -532,7 +532,7 @@ open class TextNode: Node {
   @discardableResult
   public func select(anchorOffset: Int?, focusOffset: Int?) throws -> RangeSelection {
     try errorOnReadOnly()
-    let selection = getSelection()
+    let selection = try getSelection()
     let text = getTextPart()
 
     let lastOffset = text.lengthAsNSString()
@@ -554,6 +554,10 @@ open class TextNode: Node {
         anchorType: .text,
         focusType: .text)
     }
+    guard let selection = selection as? RangeSelection else {
+      return try makeRangeSelection(anchorKey: key, anchorOffset: anchorOffset ?? 0, focusKey: key, focusOffset: focusOffset ?? 0, anchorType: .text, focusType: .text)
+    }
+
     selection.setTextNodeRange(anchorNode: self, anchorOffset: updatedAnchorOffset, focusNode: self, focusOffset: updatedFocusOffset)
 
     return selection
@@ -575,26 +579,26 @@ open class TextNode: Node {
 
     let targetKey = target.key
     let textLength = text.lengthAsNSString()
-    let selection = getSelection()
-    if let selection {
+    let selection = try getSelection()
+    if let selection = selection as? RangeSelection {
       let anchor = selection.anchor
       let focus = selection.focus
 
-      if anchor.key == targetKey {
-        adjustPointOffsetForMergedSibling(point: anchor,
-                                          isBefore: isBefore,
-                                          key: key,
-                                          target: target,
-                                          textLength: textLength)
-        selection.dirty = true
-      }
-      if focus.key == targetKey {
-        adjustPointOffsetForMergedSibling(point: focus,
-                                          isBefore: isBefore,
-                                          key: key,
-                                          target: target,
-                                          textLength: textLength)
-        selection.dirty = true
+      for point in [anchor, focus] {
+        if point.key == targetKey {
+          // The Point was inside the now removed node
+          adjustPointOffsetForMergedSibling(point: point,
+                                            isBefore: isBefore,
+                                            key: key,
+                                            target: target,
+                                            textLength: textLength)
+          selection.dirty = true
+        } else if point.key == self.key && point.type == .text && isBefore {
+          // The Point is in self, and it's type text, and we're being merged with a previous sibling.
+          // So we need to adjust the point's offset to accommodate.
+          point.offset += target.getTextPartSize()
+          selection.dirty = true
+        }
       }
     }
     let newText = isBefore ? target.text + text : text + target.text

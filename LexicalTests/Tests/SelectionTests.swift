@@ -10,6 +10,34 @@ import XCTest
 
 class SelectionTests: XCTestCase {
 
+  var view: LexicalView?
+  var editor: Editor {
+    get {
+      guard let editor = view?.editor else {
+        XCTFail("Editor unexpectedly nil")
+        fatalError()
+      }
+      return editor
+    }
+  }
+
+  override func setUp() {
+    view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
+  }
+
+  override func tearDown() {
+    view = nil
+  }
+
+  func getSelectionAssumingRangeSelection() -> RangeSelection {
+    let selection = try? getSelection()
+    guard let selection = selection as? RangeSelection else {
+      XCTFail("expected range selection, got \(String(describing: selection))")
+      fatalError()
+    }
+    return selection
+  }
+
   func testCloneSelection() throws {
     let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
     let editor = view.editor
@@ -311,55 +339,47 @@ class SelectionTests: XCTestCase {
     var nativeSelection = NativeSelection(range: NSRange(location: 0, length: 8), affinity: .forward)
 
     try editor.update {
-      try editor.testing_getPendingEditorState()?.selection?.applyNativeSelection(nativeSelection)
-      if let newSelection = editor.testing_getPendingEditorState()?.selection {
-        XCTAssertNotNil(newSelection)
-        XCTAssertEqual(newSelection.anchor.key, "1")
-        XCTAssertEqual(newSelection.focus.key, "2")
-        XCTAssertEqual(newSelection.anchor.offset, 0)
-        XCTAssertEqual(newSelection.focus.offset, 2)
-        XCTAssertEqual(newSelection.anchor.type, SelectionType.text)
-        XCTAssertEqual(newSelection.focus.type, SelectionType.text)
-      }
+      try getSelectionAssumingRangeSelection().applyNativeSelection(nativeSelection)
+      let newSelection = getSelectionAssumingRangeSelection()
+      XCTAssertEqual(newSelection.anchor.key, "1")
+      XCTAssertEqual(newSelection.focus.key, "2")
+      XCTAssertEqual(newSelection.anchor.offset, 0)
+      XCTAssertEqual(newSelection.focus.offset, 2)
+      XCTAssertEqual(newSelection.anchor.type, SelectionType.text)
+      XCTAssertEqual(newSelection.focus.type, SelectionType.text)
 
       nativeSelection = NativeSelection(range: NSRange(location: 3, length: 0), affinity: .forward)
 
-      try editor.testing_getPendingEditorState()?.selection?.applyNativeSelection(nativeSelection)
-      if let newSelection = editor.testing_getPendingEditorState()?.selection {
-        XCTAssertNotNil(newSelection)
-        XCTAssertEqual(newSelection.anchor.key, "1")
-        XCTAssertEqual(newSelection.focus.key, "1")
-        XCTAssertEqual(newSelection.anchor.offset, 3)
-        XCTAssertEqual(newSelection.focus.offset, 3)
-        XCTAssertEqual(newSelection.anchor.type, SelectionType.text)
-        XCTAssertEqual(newSelection.focus.type, SelectionType.text)
-      }
+      try getSelectionAssumingRangeSelection().applyNativeSelection(nativeSelection)
+      let newSelection2 = getSelectionAssumingRangeSelection()
+      XCTAssertEqual(newSelection2.anchor.key, "1")
+      XCTAssertEqual(newSelection2.focus.key, "1")
+      XCTAssertEqual(newSelection2.anchor.offset, 3)
+      XCTAssertEqual(newSelection2.focus.offset, 3)
+      XCTAssertEqual(newSelection2.anchor.type, SelectionType.text)
+      XCTAssertEqual(newSelection2.focus.type, SelectionType.text)
 
       nativeSelection = NativeSelection(range: NSRange(location: 5, length: 2), affinity: .forward)
 
-      try editor.testing_getPendingEditorState()?.selection?.applyNativeSelection(nativeSelection)
-      if let newSelection = editor.testing_getPendingEditorState()?.selection {
-        XCTAssertNotNil(newSelection)
-        XCTAssertEqual(newSelection.anchor.key, "1")
-        XCTAssertEqual(newSelection.focus.key, "2")
-        XCTAssertEqual(newSelection.anchor.offset, 5)
-        XCTAssertEqual(newSelection.focus.offset, 1)
-        XCTAssertEqual(newSelection.anchor.type, SelectionType.text)
-        XCTAssertEqual(newSelection.focus.type, SelectionType.text)
-      }
+      try getSelectionAssumingRangeSelection().applyNativeSelection(nativeSelection)
+      let newSelection3 = getSelectionAssumingRangeSelection()
+      XCTAssertEqual(newSelection3.anchor.key, "1")
+      XCTAssertEqual(newSelection3.focus.key, "2")
+      XCTAssertEqual(newSelection3.anchor.offset, 5)
+      XCTAssertEqual(newSelection3.focus.offset, 1)
+      XCTAssertEqual(newSelection3.anchor.type, SelectionType.text)
+      XCTAssertEqual(newSelection3.focus.type, SelectionType.text)
 
       nativeSelection = NativeSelection(range: NSRange(location: 4, length: 6), affinity: .forward)
 
-      try editor.testing_getPendingEditorState()?.selection?.applyNativeSelection(nativeSelection)
-      if let newSelection = editor.testing_getPendingEditorState()?.selection {
-        XCTAssertNotNil(newSelection)
-        XCTAssertEqual(newSelection.anchor.key, "1")
-        XCTAssertEqual(newSelection.focus.key, "2")
-        XCTAssertEqual(newSelection.anchor.offset, 4)
-        XCTAssertEqual(newSelection.focus.offset, 4)
-        XCTAssertEqual(newSelection.anchor.type, SelectionType.text)
-        XCTAssertEqual(newSelection.focus.type, SelectionType.text)
-      }
+      try getSelectionAssumingRangeSelection().applyNativeSelection(nativeSelection)
+      let newSelection4 = getSelectionAssumingRangeSelection()
+      XCTAssertEqual(newSelection4.anchor.key, "1")
+      XCTAssertEqual(newSelection4.focus.key, "2")
+      XCTAssertEqual(newSelection4.anchor.offset, 4)
+      XCTAssertEqual(newSelection4.focus.offset, 4)
+      XCTAssertEqual(newSelection4.anchor.type, SelectionType.text)
+      XCTAssertEqual(newSelection4.focus.type, SelectionType.text)
     }
   }
 
@@ -555,23 +575,29 @@ class SelectionTests: XCTestCase {
     view.textView.selectedTextRange = originalRange
 
     try editor.update {
-      let selection = try createRangeSelection(editor: editor)
+      guard let selection = try createSelection(editor: editor) as? RangeSelection else {
+        XCTFail()
+        return
+      }
 
-      XCTAssertEqual(selection?.anchor.offset, 4)
-      XCTAssertEqual(selection?.focus.offset, 11)
-      XCTAssertEqual(selection?.focus.key, "6")
-      XCTAssertEqual(selection?.anchor.key, "2")
+      XCTAssertEqual(selection.anchor.offset, 4)
+      XCTAssertEqual(selection.focus.offset, 11)
+      XCTAssertEqual(selection.focus.key, "6")
+      XCTAssertEqual(selection.anchor.key, "2")
     }
 
     view.textView.selectedTextRange = newRange
 
     try editor.update {
-      let selection = try createRangeSelection(editor: editor)
+      guard let selection = try createSelection(editor: editor) as? RangeSelection else {
+        XCTFail()
+        return
+      }
 
-      XCTAssertEqual(selection?.anchor.offset, 3)
-      XCTAssertEqual(selection?.focus.offset, 3)
-      XCTAssertEqual(selection?.focus.key, "3")
-      XCTAssertEqual(selection?.anchor.key, "3")
+      XCTAssertEqual(selection.anchor.offset, 3)
+      XCTAssertEqual(selection.focus.offset, 3)
+      XCTAssertEqual(selection.focus.key, "3")
+      XCTAssertEqual(selection.anchor.key, "3")
     }
   }
 
@@ -716,10 +742,7 @@ class SelectionTests: XCTestCase {
     let editor = view.editor
 
     try editor.update {
-      guard var selection = getActiveEditorState()?.selection else {
-        XCTFail("Failed to get selection")
-        return
-      }
+      var selection = getSelectionAssumingRangeSelection()
 
       try selection.insertText("I am testing to verify format updates!!")
       XCTAssertEqual(editor.testing_getPendingEditorState()?.nodeMap.count, 3)
@@ -758,9 +781,9 @@ class SelectionTests: XCTestCase {
 
     try editor.update {
       try updateTextFormat(type: .italic, editor: editor)
+      XCTAssertEqual(getSelectionAssumingRangeSelection().format.italic, true)
+      XCTAssertEqual(getSelectionAssumingRangeSelection().format.bold, true)
     }
-    XCTAssertEqual(editor.getEditorState().selection?.format.italic, true)
-    XCTAssertEqual(editor.getEditorState().selection?.format.bold, true)
   }
 
   func testFormatTextAcrossMultipleParagraphs() throws {
@@ -768,10 +791,7 @@ class SelectionTests: XCTestCase {
     let editor = view.editor
 
     try editor.update {
-      guard var selection = getSelection() else {
-        XCTFail("Failed to get selection")
-        return
-      }
+      var selection = getSelectionAssumingRangeSelection()
 
       try selection.insertText("Hello!")
       XCTAssertEqual(editor.testing_getPendingEditorState()?.nodeMap.count, 3, "Expected pending node map to have 3 nodes")
@@ -840,10 +860,7 @@ class SelectionTests: XCTestCase {
       let startPoint = createPoint(key: textNode.key, offset: 0, type: .text)
       let endPoint = createPoint(key: textNode.key, offset: 1, type: .text)
 
-      guard let selection = getSelection() else {
-        XCTFail("No selection found")
-        return
-      }
+      let selection = getSelectionAssumingRangeSelection()
 
       selection.anchor = startPoint
       selection.focus = endPoint
@@ -857,10 +874,7 @@ class SelectionTests: XCTestCase {
     let editor = view.editor
 
     try editor.update {
-      guard let selection = getActiveEditorState()?.selection else {
-        XCTFail("Failed to get selection")
-        return
-      }
+      let selection = getSelectionAssumingRangeSelection()
 
       try selection.insertText("Hello!")
       try selection.insertParagraph()
@@ -874,10 +888,7 @@ class SelectionTests: XCTestCase {
     // In a future diff when this is not driven off the text storage, the range selection should
     // be tested in the same read/update loop.
     try editor.update {
-      guard let selection = getActiveEditorState()?.selection else {
-        XCTFail("Failed to get selection")
-        return
-      }
+      let selection = getSelectionAssumingRangeSelection()
 
       XCTAssertNotNil(try selection.getPlaintext())
       XCTAssertNoThrow(try selection.getPlaintext())
@@ -893,10 +904,7 @@ class SelectionTests: XCTestCase {
     let editor = view.editor
 
     try editor.update {
-      guard var selection = getActiveEditorState()?.selection else {
-        XCTFail("Failed to get selection")
-        return
-      }
+      var selection = getSelectionAssumingRangeSelection()
 
       try selection.insertText("I am testing to verify format updates!!")
       XCTAssertEqual(editor.testing_getPendingEditorState()?.nodeMap.count, 3)
@@ -913,10 +921,7 @@ class SelectionTests: XCTestCase {
 
     // make "ing to verify" underlined
     try editor.update {
-      guard var selection = getActiveEditorState()?.selection else {
-        XCTFail("Failed to get selection")
-        return
-      }
+      var selection = getSelectionAssumingRangeSelection()
 
       let start = createPoint(key: "3", offset: 4, type: .text)
       let end = createPoint(key: "4", offset: 7, type: .text)
@@ -970,10 +975,7 @@ class SelectionTests: XCTestCase {
 
     // make the whole selection bold
     try editor.update {
-      guard var selection = getActiveEditorState()?.selection else {
-        XCTFail("Failed to get selection")
-        return
-      }
+      var selection = getSelectionAssumingRangeSelection()
 
       let start = createPoint(key: "6", offset: 0, type: .text)
       let end = createPoint(key: "4", offset: 7, type: .text)
@@ -1085,7 +1087,7 @@ class SelectionTests: XCTestCase {
     }
 
     try editor.update {
-      guard let selection = getSelection() else { return }
+      let selection = getSelectionAssumingRangeSelection()
 
       XCTAssertEqual(selection.anchor.key, "5")
       XCTAssertEqual(selection.focus.key, "5")
@@ -1120,31 +1122,27 @@ class SelectionTests: XCTestCase {
     var nativeSelection = NativeSelection(range: NSRange(location: 10, length: 10), affinity: .backward)
 
     try editor.update {
-      try editor.testing_getPendingEditorState()?.selection?.applyNativeSelection(nativeSelection)
-      if let newSelection = editor.testing_getPendingEditorState()?.selection {
-        XCTAssertNotNil(newSelection)
-        XCTAssertEqual(newSelection.anchor.key, "3")
-        XCTAssertEqual(newSelection.focus.key, "2")
-        XCTAssertEqual(newSelection.anchor.offset, 8)
-        XCTAssertEqual(newSelection.focus.offset, 4)
-        XCTAssertEqual(newSelection.anchor.type, SelectionType.text)
-        XCTAssertEqual(newSelection.focus.type, SelectionType.text)
-      }
+      try getSelectionAssumingRangeSelection().applyNativeSelection(nativeSelection)
+      let newSelection = getSelectionAssumingRangeSelection()
+      XCTAssertEqual(newSelection.anchor.key, "3")
+      XCTAssertEqual(newSelection.focus.key, "2")
+      XCTAssertEqual(newSelection.anchor.offset, 8)
+      XCTAssertEqual(newSelection.focus.offset, 4)
+      XCTAssertEqual(newSelection.anchor.type, SelectionType.text)
+      XCTAssertEqual(newSelection.focus.type, SelectionType.text)
     }
 
     nativeSelection = NativeSelection(range: NSRange(location: 26, length: 30), affinity: .backward)
 
     try editor.update {
-      try editor.testing_getPendingEditorState()?.selection?.applyNativeSelection(nativeSelection)
-      if let newSelection = editor.testing_getPendingEditorState()?.selection {
-        XCTAssertNotNil(newSelection)
-        XCTAssertEqual(newSelection.anchor.key, "6")
-        XCTAssertEqual(newSelection.focus.key, "3")
-        XCTAssertEqual(newSelection.anchor.offset, 4)
-        XCTAssertEqual(newSelection.focus.offset, 14)
-        XCTAssertEqual(newSelection.anchor.type, SelectionType.text)
-        XCTAssertEqual(newSelection.focus.type, SelectionType.text)
-      }
+      try getSelectionAssumingRangeSelection().applyNativeSelection(nativeSelection)
+      let newSelection = getSelectionAssumingRangeSelection()
+      XCTAssertEqual(newSelection.anchor.key, "6")
+      XCTAssertEqual(newSelection.focus.key, "3")
+      XCTAssertEqual(newSelection.anchor.offset, 4)
+      XCTAssertEqual(newSelection.focus.offset, 14)
+      XCTAssertEqual(newSelection.anchor.type, SelectionType.text)
+      XCTAssertEqual(newSelection.focus.type, SelectionType.text)
     }
   }
 

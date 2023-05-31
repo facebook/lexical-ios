@@ -88,7 +88,7 @@ try editor.update {
   guard let root = getRoot() else { /* ... */ }
 
   // Get the selection from the EditorState
-  guard let selection = getSelection() else { /* ... */ }
+  guard let selection = try getSelection() else { /* ... */ }
 
   // Create a new ParagraphNode
   let paragraphNode = ParagraphNode()

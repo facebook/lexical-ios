@@ -286,6 +286,11 @@ func getChangeType(
     throw LexicalError.internal("Failed to find selection")
   }
 
+  guard let nextSelection = nextSelection as? RangeSelection,
+        let prevSelection = prevSelection as? RangeSelection else {
+    return .other
+  }
+
   if !prevSelection.isCollapsed() || !nextSelection.isCollapsed() {
     return .other
   }

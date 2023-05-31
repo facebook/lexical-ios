@@ -18,7 +18,10 @@ class UtilsTests: XCTestCase {
       return
     }
 
-    let selection = getSelection()
+    guard let selection = editorState.selection as? RangeSelection else {
+      XCTFail("Expected range selection")
+      return
+    }
 
     XCTAssertEqual(rootNode.children.count, 1, "Expected 1 child")
     XCTAssertEqual(rootNode.children[0], "0")
@@ -27,12 +30,12 @@ class UtilsTests: XCTestCase {
 
     XCTAssertEqual(paragraphNode.parent, kRootNodeKey)
     XCTAssertNotNil(selection)
-    XCTAssertEqual(selection?.anchor.key, "0")
-    XCTAssertEqual(selection?.focus.key, "0")
-    XCTAssertEqual(selection?.anchor.type, SelectionType.element)
-    XCTAssertEqual(selection?.focus.type, SelectionType.element)
-    XCTAssertEqual(selection?.anchor.offset, 0)
-    XCTAssertEqual(selection?.focus.offset, 0)
+    XCTAssertEqual(selection.anchor.key, "0")
+    XCTAssertEqual(selection.focus.key, "0")
+    XCTAssertEqual(selection.anchor.type, SelectionType.element)
+    XCTAssertEqual(selection.focus.type, SelectionType.element)
+    XCTAssertEqual(selection.anchor.offset, 0)
+    XCTAssertEqual(selection.focus.offset, 0)
   }
 
   func testDefaultClearEditor() throws {
@@ -58,16 +61,22 @@ class UtilsTests: XCTestCase {
   func testSelectionAfterInsertText() throws {
     let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
     try onInsertTextFromUITextView(text: "Hello", editor: view.editor)
-    let selection = view.editor.getEditorState().selection
-    XCTAssertEqual(selection?.anchor.offset, 5, "Selection offset should be 5")
+    guard let selection = view.editor.getEditorState().selection as? RangeSelection else {
+      XCTFail("Expected range selection")
+      return
+    }
+    XCTAssertEqual(selection.anchor.offset, 5, "Selection offset should be 5")
   }
 
   func testGetSelectionAfterInsertText() throws {
     let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
     try onInsertTextFromUITextView(text: "Hello", editor: view.editor)
     try view.editor.read {
-      let selection = getSelection()
-      XCTAssertEqual(selection?.anchor.offset, 5, "Selection offset should be 5")
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("Expected range selection")
+        return
+      }
+      XCTAssertEqual(selection.anchor.offset, 5, "Selection offset should be 5")
     }
   }
 
@@ -86,21 +95,32 @@ class UtilsTests: XCTestCase {
     let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
 
     try view.editor.update {
-      let selection = getSelection()
-      try selection?.formatText(formatType: .bold)
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("Expected range selection")
+        return
+      }
+      try selection.formatText(formatType: .bold)
     }
 
     try onInsertTextFromUITextView(text: "Hello", editor: view.editor)
     var selection: RangeSelection?
     try? view.editor.read {
-      selection = getSelection()
+      guard let newSelection = try getSelection() as? RangeSelection else {
+        XCTFail("Expected range selection")
+        return
+      }
+      selection = newSelection
     }
     XCTAssertEqual(selection?.format.bold, true)
 
     try view.textView.defaultClearEditor()
 
     try? view.editor.read {
-      selection = getSelection()
+      guard let newSelection = try getSelection() as? RangeSelection else {
+        XCTFail("Expected range selection")
+        return
+      }
+      selection = newSelection
     }
     print("updatedSelection: \(selection.debugDescription)")
     XCTAssertEqual(selection?.format.bold, false)

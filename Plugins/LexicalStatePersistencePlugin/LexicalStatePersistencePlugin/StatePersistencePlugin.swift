@@ -56,8 +56,8 @@ open class StatePersistencePlugin: Plugin {
         try editor.clearEditor()
       }
 
-      guard let selection = getSelection() else {
-        throw LexicalError.internal("Could not get selection")
+      guard let selection = try getSelection() as? RangeSelection else {
+        throw LexicalError.internal("Could not get selection; TODO: support non-range-selections here")
       }
 
       _ = try insertGeneratedNodes(editor: editor, nodes: rootNode.getChildren(), selection: selection)

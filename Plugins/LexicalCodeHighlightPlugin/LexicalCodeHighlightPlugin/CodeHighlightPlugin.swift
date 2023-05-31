@@ -117,7 +117,7 @@ open class CodeHighlightPlugin: Plugin {
   // Wrapping update function into selection retainer, that tries to keep cursor at the same
   // position as before.
   func updateAndRetainSelection(node: CodeNode, updateFn: () throws -> Bool) throws {
-    guard let selection = getSelection() else {
+    guard let selection = try getSelection() as? RangeSelection else {
       return
     }
 

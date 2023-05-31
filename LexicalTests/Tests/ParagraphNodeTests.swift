@@ -36,7 +36,12 @@ class ParagraphNodeTests: XCTestCase {
         return
       }
 
-      let newNode = try paragraphNode.insertNewAfter(selection: editorState.selection)
+      guard let selection = editorState.selection as? RangeSelection else {
+        XCTFail("Expected range selection")
+        return
+      }
+
+      let newNode = try paragraphNode.insertNewAfter(selection: selection)
       XCTAssertNotNil(newNode)
       XCTAssertEqual(newNode?.parent, paragraphNode.parent)
       XCTAssertEqual(newNode?.type, paragraphNode.type)
