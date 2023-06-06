@@ -9,6 +9,7 @@ import Foundation
 import Lexical
 import LexicalListPlugin
 import UIKit
+import LexicalLinkPlugin
 
 public class ToolbarPlugin: Plugin {
   private var _toolbar: UIToolbar
@@ -31,6 +32,30 @@ public class ToolbarPlugin: Plugin {
       if let self {
         self.updateToolbar()
       }
+    }
+
+    _ = editor.registerCommand(type: .linkTapped) { [weak self] payload in
+      if let self, let payload = payload as? URL, let rangeSelection = try? getSelection() as? RangeSelection, let startSearch = try? self.getSelectedNode(selection: rangeSelection) {
+
+        guard let link = getNearestNodeOfType(node: startSearch, type: .link) else {
+          return false
+        }
+
+        guard let element = link.getParent() else {
+          return false
+        }
+        var newSelection: RangeSelection?
+        if let index = link.getIndexWithinParent() {
+          newSelection = try? element.select(anchorOffset: index, focusOffset: index + 1)
+        }
+        guard let selection = newSelection else {
+          return false
+        }
+
+        _ = self.showLinkActionSheet(url: payload.absoluteString, selection: selection)
+        return true
+      }
+      return false // shouldn't happen!
     }
   }
 
@@ -123,7 +148,7 @@ public class ToolbarPlugin: Plugin {
                                          action: #selector(decreaseIndent))
     self.decreaseIndentButton = link
 
-    toolbar.items = [/* undo, redo, */ paragraph, bold, italic, underline, strikethrough, inlineCode /*, link */, decreaseIndent, increaseIndent]
+    toolbar.items = [/* undo, redo, */ paragraph, bold, italic, underline, strikethrough, inlineCode, link, decreaseIndent, increaseIndent]
   }
 
   private func updateToolbar() {
@@ -177,6 +202,20 @@ public class ToolbarPlugin: Plugin {
       underlineButton?.isSelected = selection.hasFormat(type: .underline)
       strikethroughButton?.isSelected = selection.hasFormat(type: .strikethrough)
       inlineCodeButton?.isSelected = selection.hasFormat(type: .code)
+
+      // Update links
+      do {
+        let selectedNode = try getSelectedNode(selection: selection)
+        let selectedNodeParent = selectedNode.getParent()
+        if selectedNode is LinkNode || selectedNodeParent is LinkNode {
+          linkButton?.isSelected = true
+        } else {
+          linkButton?.isSelected = false
+        }
+      } catch {
+        print("Error getting the selected Node: \(error.localizedDescription)")
+      }
+
     }
   }
 
@@ -253,6 +292,7 @@ public class ToolbarPlugin: Plugin {
     editor?.dispatchCommand(type: .formatText, payload: TextFormatType.code)
   }
   @objc private func link() {
+    showLinkEditor()
   }
   @objc private func increaseIndent() {
     editor?.dispatchCommand(type: .indentContent, payload: nil)
@@ -260,4 +300,131 @@ public class ToolbarPlugin: Plugin {
   @objc private func decreaseIndent() {
     editor?.dispatchCommand(type: .outdentContent, payload: nil)
   }
+
+  // MARK: - Link handling
+
+  internal func showLinkEditor() {
+    guard let editor else { return }
+    do {
+      try editor.read {
+        guard let selection = try getSelection() as? RangeSelection else { return }
+
+        let node = try getSelectedNode(selection: selection)
+        if let node = node as? LinkNode {
+          _ = showLinkActionSheet(url: node.getURL(), selection: selection)
+        } else if let parent = node.getParent() as? LinkNode {
+          _ = showLinkActionSheet(url: parent.getURL(), selection: selection)
+        } else {
+          let urlString = "https://"
+          showAlert(url: urlString, isEdit: false)
+        }
+      }
+    } catch {
+      print("Error getting the selected node: \(error.localizedDescription)")
+    }
+  }
+
+  internal func getSelectedNode(selection: RangeSelection) throws -> Node {
+    let anchor = selection.anchor
+    let focus = selection.focus
+
+    let anchorNode = try selection.anchor.getNode()
+    let focusNode = try selection.focus.getNode()
+
+    if anchorNode == focusNode {
+      return anchorNode
+    }
+
+    let isBackward = try selection.isBackward()
+    if isBackward {
+      return try focus.isAtNodeEnd() ? anchorNode : focusNode
+    } else {
+      return try anchor.isAtNodeEnd() ? focusNode : anchorNode
+    }
+  }
+
+
+  func showAlert(url: String?, isEdit: Bool, selection: RangeSelection? = nil) {
+    guard let url, let editor else { return }
+
+    var originalSelection: RangeSelection?
+
+    do {
+      try editor.read {
+        originalSelection = try getSelection() as? RangeSelection
+      }
+    } catch {
+      print("Error: \(error.localizedDescription)")
+    }
+
+    let title = isEdit ? "Edit Link" : "Link"
+    let alertController = UIAlertController(title: title, message: nil, preferredStyle: .alert)
+    let doneAction = UIAlertAction(title: "Done", style: .default) { [weak self, weak alertController] action in
+      guard let strongSelf = self else { return }
+
+      if let textField = alertController?.textFields?.first, let originalSelection {
+
+        let updateSelection = isEdit ? selection : originalSelection
+        strongSelf.editor?.dispatchCommand(type: .link, payload: LinkPayload(urlString: textField.text ?? "", originalSelection: updateSelection))
+      }
+    }
+
+    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+
+    alertController.addTextField { textField in
+      textField.layer.cornerRadius = 20
+      textField.text = url
+    }
+
+    alertController.addAction(doneAction)
+    alertController.addAction(cancelAction)
+
+    viewControllerForPresentation?.present(alertController, animated: true)
+  }
+
+  public func showLinkActionSheet(url: String, selection: RangeSelection?) -> Bool {
+    let actionSheet = UIAlertController(title: "Link Action", message: nil, preferredStyle: .actionSheet)
+
+    let removeLinkAction = UIAlertAction(title: "Remove Link", style: .default) { [weak self] action in
+      guard let strongSelf = self else { return }
+
+      strongSelf.editor?.dispatchCommand(type: .link, payload: LinkPayload(urlString: nil, originalSelection: selection))
+    }
+
+    let visitLinkAction = UIAlertAction(title: "Visit Link", style: .default) { [weak self] action in
+      guard let strongSelf = self else { return }
+      guard let url = URL(string: url) else { return }
+
+      if UIApplication.shared.canOpenURL(url) {
+        UIApplication.shared.open(url)
+      } else {
+        let title = "Error"
+        let message = "Invalid URL"
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okButton = UIAlertAction(title: "OK", style: .cancel)
+        alertController.addAction(okButton)
+
+        strongSelf.viewControllerForPresentation?.present(alertController, animated: true)
+      }
+    }
+
+    let editLinkAction = UIAlertAction(title: "Edit Link", style: .default) { [weak self] action in
+      guard let strongSelf = self else { return }
+      guard let url = URL(string: url) else { return }
+
+      strongSelf.showAlert(url: url.absoluteString, isEdit: true, selection: selection)
+    }
+
+    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+
+    actionSheet.addAction(removeLinkAction)
+    actionSheet.addAction(visitLinkAction)
+    actionSheet.addAction(editLinkAction)
+    actionSheet.addAction(cancelAction)
+
+    viewControllerForPresentation?.present(actionSheet, animated: true)
+
+    return false
+  }
+
 }

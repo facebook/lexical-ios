@@ -405,6 +405,21 @@ extension TextView: UITextViewDelegate {
   }
 
   public func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+
+    let nativeSelection = NativeSelection(range: characterRange, affinity: .backward)
+    try? editor.update {
+      guard let selection = try getSelection() as? RangeSelection else {
+        // TODO: cope with non range selections. Should just make a range selection here
+        return
+      }
+      try selection.applyNativeSelection(nativeSelection)
+    }
+    let handledByLexical = self.editor.dispatchCommand(type: .linkTapped, payload: URL)
+
+    if handledByLexical {
+      return false
+    }
+
     if !isEditable {
       return true
     }

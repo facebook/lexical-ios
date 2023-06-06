@@ -11,6 +11,7 @@ import UIKit
 
 extension CommandType {
   public static let link = CommandType(rawValue: "link")
+  public static let removeLink = CommandType(rawValue: "removeLink")
 }
 
 public struct LinkPayload {
@@ -44,6 +45,15 @@ open class LinkPlugin: Plugin {
       else { return false }
 
       strongSelf.insertLink(linkPayload: linkPayload, editor: editor)
+      return true
+    })
+
+    _ = editor.registerCommand(type: .removeLink, listener: { [weak self] _ in
+      guard let strongSelf = self,
+            let editor = strongSelf.editor
+      else { return false }
+
+      strongSelf.insertLink(linkPayload: nil, editor: editor)
       return true
     })
   }

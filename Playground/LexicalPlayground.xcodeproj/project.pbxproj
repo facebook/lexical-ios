@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0630DC162A2F624D009EB23B /* LexicalLinkPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 0630DC152A2F624D009EB23B /* LexicalLinkPlugin */; };
 		0656CF7929D1E438009CA08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0656CF7829D1E438009CA08F /* AppDelegate.swift */; };
 		0656CF7D29D1E438009CA08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0656CF7C29D1E438009CA08F /* ViewController.swift */; };
 		0656CF8229D1E439009CA08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0656CF8129D1E439009CA08F /* Assets.xcassets */; };
@@ -41,6 +42,7 @@
 				0656CFA229D48391009CA08F /* LexicalListPlugin in Frameworks */,
 				069E59DB2A1EBF1700CA4296 /* LexicalHTML in Frameworks */,
 				069E59DF2A1F7EFB00CA4296 /* LexicalListHTMLSupport in Frameworks */,
+				0630DC162A2F624D009EB23B /* LexicalLinkPlugin in Frameworks */,
 				0656CF9929D23743009CA08F /* Lexical in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -118,6 +120,7 @@
 				0656CFA129D48391009CA08F /* LexicalListPlugin */,
 				069E59DA2A1EBF1700CA4296 /* LexicalHTML */,
 				069E59DE2A1F7EFB00CA4296 /* LexicalListHTMLSupport */,
+				0630DC152A2F624D009EB23B /* LexicalLinkPlugin */,
 			);
 			productName = LexicalPlayground;
 			productReference = 0656CF7529D1E438009CA08F /* LexicalPlayground.app */;
@@ -394,6 +397,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		0630DC152A2F624D009EB23B /* LexicalLinkPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalLinkPlugin;
+		};
 		0656CF9529D2373C009CA08F /* Lexical */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Lexical;
