@@ -8,6 +8,7 @@
 import Foundation
 import Lexical
 import LexicalListPlugin
+import LexicalInlineImagePlugin
 import UIKit
 
 public class ToolbarPlugin: Plugin {
@@ -58,6 +59,7 @@ public class ToolbarPlugin: Plugin {
   var linkButton: UIBarButtonItem?
   var increaseIndentButton: UIBarButtonItem?
   var decreaseIndentButton: UIBarButtonItem?
+  var insertImageButton: UIBarButtonItem?
 
   private func setUpToolbar() {
     let undo = UIBarButtonItem(image: UIImage(systemName: "arrow.uturn.backward"),
@@ -115,15 +117,18 @@ public class ToolbarPlugin: Plugin {
                                          style: .plain,
                                          target: self,
                                          action: #selector(increaseIndent))
-    self.increaseIndentButton = link
+    self.increaseIndentButton = increaseIndent
 
     let decreaseIndent = UIBarButtonItem(image: UIImage(systemName: "decrease.indent"),
                                          style: .plain,
                                          target: self,
                                          action: #selector(decreaseIndent))
-    self.decreaseIndentButton = link
+    self.decreaseIndentButton = decreaseIndent
 
-    toolbar.items = [/* undo, redo, */ paragraph, bold, italic, underline, strikethrough, inlineCode /*, link */, decreaseIndent, increaseIndent]
+    let insertImage = UIBarButtonItem(image: UIImage(systemName: "photo"), menu: self.imageMenu)
+    self.insertImageButton = insertImage
+
+    toolbar.items = [/* undo, redo, */ paragraph, bold, italic, underline, strikethrough, inlineCode /*, link */, decreaseIndent, increaseIndent, insertImage]
   }
 
   private func updateToolbar() {
@@ -218,6 +223,14 @@ public class ToolbarPlugin: Plugin {
     ]
   }
 
+  private var imageMenuItems: [UIAction] {
+    return [
+      UIAction(title: "Insert Sample Image", image: UIImage(systemName: "photo"), handler: { [weak self] (_) in
+        self?.insertSampleImage()
+      }),
+    ]
+  }
+
   private func setBlock(creationFunc: () -> ElementNode) {
     try? editor?.update {
       if let selection = try getSelection() as? RangeSelection {
@@ -228,6 +241,10 @@ public class ToolbarPlugin: Plugin {
 
   private var paragraphMenu: UIMenu {
     return UIMenu(title: "Paragraph Style", image: nil, identifier: nil, options: [], children: self.paragraphMenuItems)
+  }
+
+  private var imageMenu: UIMenu {
+    return UIMenu(title: "Insert Image", image: nil, identifier: nil, options: [], children: self.imageMenuItems)
   }
 
   // MARK: - Button actions
@@ -259,5 +276,17 @@ public class ToolbarPlugin: Plugin {
   }
   @objc private func decreaseIndent() {
     editor?.dispatchCommand(type: .outdentContent, payload: nil)
+  }
+
+  private func insertSampleImage() {
+    guard let url = Bundle.main.url(forResource: "lexical-logo", withExtension: "png") else {
+      return
+    }
+    try? editor?.update {
+      let imageNode = ImageNode(url: url.absoluteString, size: CGSize(width: 300, height: 300), sourceID: "")
+      if let selection = try getSelection() {
+        _ = try selection.insertNodes(nodes: [imageNode], selectStart: false)
+      }
+    }
   }
 }
