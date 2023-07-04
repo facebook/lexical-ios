@@ -45,6 +45,11 @@ public class GridSelection: BaseSelection {
   public func extract() throws -> [Node] {
     return []
   }
+
+  public func insertNodes(nodes: [Node], selectStart: Bool = false) throws -> Bool {
+    // TODO
+    return false
+  }
 }
 
 extension GridSelection: CustomDebugStringConvertible {

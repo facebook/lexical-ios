@@ -713,25 +713,41 @@ public class RangeSelection: BaseSelection {
     let anchorOffset = anchor.offset
     var currentElement: ElementNode
     var nodesToMove = [Node]()
+    var siblingsToMove = [Node]()
 
     if anchor.type == .text {
       guard let anchorNode = try anchor.getNode() as? TextNode else { return }
 
       nodesToMove = anchorNode.getNextSiblings().reversed()
       currentElement = try anchorNode.getParentOrThrow()
+      let isInline = currentElement.isInline()
+      let textContentLength = isInline ? currentElement.getTextContentSize() : anchorNode.getTextContentSize()
 
       if anchorOffset == 0 {
         nodesToMove.append(anchorNode)
-      } else if anchorOffset != anchorNode.getTextPartSize() {
-        let splitNodes = try anchorNode.splitText(splitOffsets: [anchorOffset])
-        if splitNodes.count >= 2 {
-          nodesToMove.append(splitNodes[1])
+      } else {
+        if isInline {
+          // For inline nodes, we want to move all the siblings to the new paragraph
+          // if selection is at the end, we just move the siblings. Otherwise, we also
+          // split the text node and add that and it's siblings below.
+          siblingsToMove = currentElement.getNextSiblings()
+        }
+        if anchorOffset != textContentLength && (!isInline || anchorOffset != textContentLength) {
+          let splitNodes = try anchorNode.splitText(splitOffsets: [anchorOffset])
+          if splitNodes.count >= 2 {
+            nodesToMove.append(splitNodes[1])
+          }
         }
       }
-    } else {
-      guard let anchorNode = try anchor.getNode() as? ElementNode else { return }
 
-      currentElement = anchorNode
+    } else {
+      let newCurrentElement = try anchor.getNode() as? ElementNode
+      guard let newCurrentElement else {
+        getActiveEditor()?.log(.editor, .error, "Expected an element node")
+        return
+      }
+      currentElement = newCurrentElement
+
       if let elementNode = currentElement as? RootNode {
         let paragraph = createParagraphNode()
         try paragraph.select(anchorOffset: nil, focusOffset: nil)
@@ -750,37 +766,59 @@ public class RangeSelection: BaseSelection {
       nodesToMove.reverse()
     }
 
+    let nodesToMoveLength = nodesToMove.count
+    if anchorOffset == 0 && nodesToMoveLength > 0 && currentElement.isInline() {
+      let parent = try currentElement.getParentOrThrow()
+      let newElement = try parent.insertNewAfter(selection: self)
+      if let newElement = newElement as? ElementNode {
+        let children = parent.getChildren()
+        for child in children {
+          try newElement.append([child])
+        }
+      }
+      return
+    }
+
     let newElement = try currentElement.insertNewAfter(selection: self)
     if newElement == nil {
       // Handle as a line break insertion
       try insertLineBreak(selectStart: false)
     } else if let newElement = newElement as? ElementNode {
-      // move the new element to be before the current element
-      if anchorOffset == 0 && nodesToMove.count > 0 {
+      // If we're at the beginning of the current element, move the new element to be before the current element
+      let currentElementFirstChild = currentElement.getFirstChild()
+      let anchorNode = try anchor.getNode()
+      let isBeginning = anchorOffset == 0 && (currentElement == anchorNode || (currentElementFirstChild == anchorNode))
+      if isBeginning && nodesToMoveLength > 0 {
         try currentElement.insertBefore(nodeToInsert: newElement)
         return
       }
 
       var firstChild: Node?
-      for nodeToMove in nodesToMove {
-        if firstChild == nil {
-          try newElement.append([nodeToMove])
-        } else {
-          _ = try firstChild?.insertBefore(nodeToInsert: nodeToMove)
-        }
+      let siblingsToMoveLength = siblingsToMove.count
+      let parent = try newElement.getParentOrThrow()
 
-        firstChild = nodeToMove
+      // For inline elements, we append the siblings to the parent.
+      if siblingsToMoveLength > 0 {
+        for sibling in siblingsToMove {
+          try parent.append([sibling])
+        }
+      }
+      if nodesToMoveLength != 0 {
+        for nodeToMove in nodesToMove {
+          if let firstChild {
+            try firstChild.insertBefore(nodeToInsert: nodeToMove)
+          } else {
+            try newElement.append([nodeToMove])
+          }
+          firstChild = nodeToMove
+        }
       }
 
-      if !newElement.canBeEmpty(), newElement.getChildrenSize() == 0 {
+      if !newElement.canBeEmpty() && newElement.getChildrenSize() == 0 {
         try newElement.selectPrevious(anchorOffset: nil, focusOffset: nil)
         try newElement.remove()
       } else {
-        let newSelection = try newElement.selectStart()
-        anchor = newSelection.anchor
-        focus = newSelection.focus
-        dirty = newSelection.dirty
-        format = newSelection.format
+        _ = try newElement.selectStart()
       }
     }
   }
