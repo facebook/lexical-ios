@@ -4,6 +4,10 @@ Lexical for iOS is an extensible text rendering and editing framework written in
 
 ## Topics
 
+### Releases
+
+- <doc:Changelog>
+
 ### Articles
 
 - <doc:Introduction>
