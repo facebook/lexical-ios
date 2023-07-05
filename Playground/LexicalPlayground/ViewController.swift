@@ -7,6 +7,7 @@
 
 import Lexical
 import LexicalLinkPlugin
+import LexicalInlineImagePlugin
 import LexicalListPlugin
 import UIKit
 
@@ -28,6 +29,7 @@ class ViewController: UIViewController {
     let hierarchyView = hierarchyPlugin.hierarchyView
 
     let listPlugin = ListPlugin()
+    let imagePlugin = InlineImagePlugin()
 
     let linkPlugin = LinkPlugin()
 
@@ -37,7 +39,7 @@ class ViewController: UIViewController {
       .foregroundColor: UIColor.systemBlue,
     ]
 
-    let editorConfig = EditorConfig(theme: theme, plugins: [toolbarPlugin, listPlugin, hierarchyPlugin, linkPlugin])
+    let editorConfig = EditorConfig(theme: theme, plugins: [toolbarPlugin, listPlugin, hierarchyPlugin, imagePlugin, linkPlugin])
     let lexicalView = LexicalView(editorConfig: editorConfig, featureFlags: FeatureFlags())
 
     linkPlugin.lexicalView = lexicalView

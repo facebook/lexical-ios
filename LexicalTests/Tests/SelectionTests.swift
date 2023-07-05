@@ -458,19 +458,26 @@ class SelectionTests: XCTestCase {
       XCTAssertEqual(selection.focus.offset, 0)
       XCTAssertEqual(selection.anchor.type, SelectionType.text)
       XCTAssertEqual(selection.focus.type, SelectionType.text)
-      XCTAssertEqual(paragraphNode.children.count, 2, "paragraphNode should not have any children")
+      XCTAssertEqual(paragraphNode.children.count, 2, "paragraphNode should have 2 children")
       if let newParagraphNode = getNodeByKey(key: insertedParaKey) as? ParagraphNode {
-        XCTAssertEqual(newParagraphNode.children.count, 0, "newParagraphNode should have 2 children")
+        XCTAssertEqual(newParagraphNode.children.count, 0, "newParagraphNode should have 0 children")
         XCTAssertEqual(newParagraphNode.parent, "root")
       }
 
-      startPoint = createPoint(key: textNode.key, offset: 6, type: .text)
+      // we now have an empty paragraph before the paragraph saying "hello worldagain"
+
+      startPoint = createPoint(key: textNode.key, offset: 6, type: .text) // just before "world"
       endPoint = createPoint(key: textNode.key, offset: 6, type: .text)
       selection = RangeSelection(anchor: startPoint, focus: endPoint, format: TextFormat())
 
       // inserts a paragraph(key 6)
       try selection.insertParagraph()
       let nextInsertedParaKey: NodeKey = "\(Int(editor.keyCounter) - 1)"
+
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail()
+        return
+      }
 
       XCTAssertEqual(selection.anchor.offset, 0)
       XCTAssertEqual(selection.focus.offset, 0)

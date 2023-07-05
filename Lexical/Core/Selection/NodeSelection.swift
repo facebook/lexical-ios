@@ -74,6 +74,11 @@ public class NodeSelection: BaseSelection {
     }
     return nodes == selection.nodes
   }
+
+  public func insertNodes(nodes: [Node], selectStart: Bool = false) throws -> Bool {
+    // TODO
+    return false
+  }
 }
 
 extension NodeSelection: CustomDebugStringConvertible {

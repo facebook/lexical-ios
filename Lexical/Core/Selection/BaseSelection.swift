@@ -15,4 +15,5 @@ public protocol BaseSelection: AnyObject, CustomDebugStringConvertible {
   func getTextContent() throws -> String
   func insertRawText(_ text: String) throws
   func isSelection(_ selection: BaseSelection) -> Bool
+  func insertNodes(nodes: [Node], selectStart: Bool) throws -> Bool
 }
