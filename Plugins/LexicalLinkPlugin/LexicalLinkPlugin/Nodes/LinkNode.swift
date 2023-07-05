@@ -9,7 +9,7 @@ import Lexical
 import UIKit
 
 extension NodeType {
-  static let link = NodeType(rawValue: "link")
+  public static let link = NodeType(rawValue: "link")
 }
 
 open class LinkNode: ElementNode {

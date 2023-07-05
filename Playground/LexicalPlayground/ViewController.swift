@@ -6,6 +6,7 @@
  */
 
 import Lexical
+import LexicalLinkPlugin
 import LexicalListPlugin
 import UIKit
 
@@ -28,10 +29,18 @@ class ViewController: UIViewController {
 
     let listPlugin = ListPlugin()
 
+    let linkPlugin = LinkPlugin()
+
     let theme = Theme()
     theme.indentSize = 40.0
-    let editorConfig = EditorConfig(theme: theme, plugins: [toolbarPlugin, listPlugin, hierarchyPlugin])
+    theme.link = [
+      .foregroundColor: UIColor.systemBlue,
+    ]
+
+    let editorConfig = EditorConfig(theme: theme, plugins: [toolbarPlugin, listPlugin, hierarchyPlugin, linkPlugin])
     let lexicalView = LexicalView(editorConfig: editorConfig, featureFlags: FeatureFlags())
+
+    linkPlugin.lexicalView = lexicalView
 
     self.lexicalView = lexicalView
     self.toolbar = toolbar

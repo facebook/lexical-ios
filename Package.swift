@@ -24,6 +24,9 @@ let package = Package(
     .library(
       name: "LexicalHTML",
       targets: ["LexicalHTML"]),
+    .library(
+      name: "LexicalLinkPlugin",
+      targets: ["LexicalLinkPlugin"]),
   ],
   dependencies: [
     .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
@@ -55,5 +58,14 @@ let package = Package(
       name: "LexicalHTMLTests",
       dependencies: ["Lexical", "LexicalHTML", "SwiftSoup"],
       path: "./Plugins/LexicalHTML/LexicalHTMLTests"),
+
+    .target(
+      name: "LexicalLinkPlugin",
+      dependencies: ["Lexical"],
+      path: "./Plugins/LexicalLinkPlugin/LexicalLinkPlugin"),
+    .testTarget(
+      name: "LexicalLinkPluginTests",
+      dependencies: ["Lexical", "LexicalLinkPlugin"],
+      path: "./Plugins/LexicalLinkPlugin/LexicalLinkPluginTests"),
   ]
 )
