@@ -6,7 +6,9 @@ An extensible text editor/renderer written in Swift, built on top of TextKit, an
 
 Lexical iOS is used in multiple apps at Meta, including rendering feed posts that contain inline images in Workplace iOS.
 
-As of March 2023, the date of our initial open source release, Lexical iOS should be treated as an unsupported preview version. We have not established a version numbering or release cadence yet; it is expected our first 'release' will be numbered 0.1.
+Lexical iOS is in pre-release with no guarantee of support.
+
+For changes between versions, see the [Lexical iOS Changelog](https://github.com/facebook/lexical-ios/blob/main/Lexical/Documentation.docc/Changelog.md).
 
 ## Playground
 
@@ -19,12 +21,12 @@ The playground app contains the code for a rich text toolbar. While this is not 
 This playground app is very new, and many more features will come in time!
 
 ## Requirements
-Lexical iOS is written in Swift, and targets iOS 13 and above.
+Lexical iOS is written in Swift, and targets iOS 13 and above. (Note that the Playground app requires at least iOS 14, due to use of UIKit features such as UIMenu.)
 
 ## Building Lexical
 We provide a Swift package file that is sufficient to build Lexical core. Add this as a dependency of your app to use Lexical.
 
-The plugins included in this repository do not yet have package files. (This is because we use a different build system internally at Meta. Adding these would be an easy PR if you want to start contributing to Lexical!)
+Some plugins included in this repository do not yet have package files. (This is because we use a different build system internally at Meta. Adding these would be an easy PR if you want to start contributing to Lexical!)
 
 ## Using Lexical in your app
 For editable text with Lexical, instantiate a `LexicalView`. To configure it with plugins and a theme, you can create an `EditorConfig` to pass in to the `LexicalView`'s initialiser.
@@ -37,7 +39,7 @@ For more information, see the documentation.
 Read [the Lexical iOS documentation](https://facebook.github.io/lexical-ios/documentation/lexical/). 
 
 ## Join the Lexical community
-Feel free to join us at [our Discord server](https://discord.gg/KmG4wQnnD9), where you can talk with the Lexical team and other users.
+Join us at [our Discord server](https://discord.gg/KmG4wQnnD9), where you can talk with the Lexical team and other users.
 
 See the [CONTRIBUTING](CONTRIBUTING.md) file for how to help out.
 
