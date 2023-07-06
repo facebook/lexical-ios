@@ -6,8 +6,8 @@
  */
 
 import Lexical
-import LexicalLinkPlugin
 import LexicalInlineImagePlugin
+import LexicalLinkPlugin
 import LexicalListPlugin
 import UIKit
 
