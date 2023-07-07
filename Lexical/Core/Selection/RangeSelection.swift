@@ -63,16 +63,16 @@ public class RangeSelection: BaseSelection {
     if let elementNode = firstNode as? ElementNode, let descendent = elementNode.getDescendantByIndex(index: startOffset) {
       firstNode = descendent
     }
-    if let elementNode = lastNode as? ElementNode {
-      var lastNodeDescendant = elementNode.getDescendantByIndex(index: endOffset)
+    if let lastNodeUnwrapped = lastNode as? ElementNode {
+      var lastNodeDescendant = lastNodeUnwrapped.getDescendantByIndex(index: endOffset)
       // We don't want to over-select, as node selection infers the child before
       // the last descendant, not including that descendant.
       if let lastNodeDescendantUnwrapped = lastNodeDescendant,
          lastNodeDescendantUnwrapped != firstNode,
-         elementNode.getChildAtIndex(index: endOffset) == lastNodeDescendant {
+         lastNodeUnwrapped.getChildAtIndex(index: endOffset) == lastNodeDescendantUnwrapped {
         lastNodeDescendant = lastNodeDescendantUnwrapped.getPreviousSibling()
       }
-      lastNode = lastNodeDescendant ?? lastNode
+      lastNode = lastNodeDescendant ?? lastNodeUnwrapped
     }
     if firstNode == lastNode {
       if let firstNode = firstNode as? ElementNode, firstNode.getChildrenSize() > 0 {
@@ -705,7 +705,7 @@ public class RangeSelection: BaseSelection {
 
   // MARK: - Internal
 
-  internal func insertParagraph() throws {
+  public func insertParagraph() throws {
     if !isCollapsed() {
       try removeText()
     }
@@ -841,7 +841,7 @@ public class RangeSelection: BaseSelection {
     }
   }
 
-  internal func deleteCharacter(isBackwards: Bool) throws {
+  public func deleteCharacter(isBackwards: Bool) throws {
     if isCollapsed() {
       let node = try anchor.getNode()
 

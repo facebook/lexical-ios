@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 
 public class GridSelection: BaseSelection {
+
   public func getTextContent() throws -> String {
     return ""
   }
@@ -49,6 +50,30 @@ public class GridSelection: BaseSelection {
   public func insertNodes(nodes: [Node], selectStart: Bool = false) throws -> Bool {
     // TODO
     return false
+  }
+
+  public func deleteCharacter(isBackwards: Bool) throws {
+    // TODO
+  }
+
+  public func deleteWord(isBackwards: Bool) throws {
+    // TODO
+  }
+
+  public func deleteLine(isBackwards: Bool) throws {
+    // TODO
+  }
+
+  public func insertParagraph() throws {
+    // TODO
+  }
+
+  public func insertLineBreak(selectStart: Bool) throws {
+    // TODO
+  }
+
+  public func insertText(_ text: String) throws {
+    // TODO
   }
 }
 

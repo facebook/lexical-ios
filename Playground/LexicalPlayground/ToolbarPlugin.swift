@@ -11,6 +11,7 @@ import LexicalInlineImagePlugin
 import LexicalLinkPlugin
 import LexicalListPlugin
 import UIKit
+import SelectableDecoratorNode
 
 public class ToolbarPlugin: Plugin {
   private var _toolbar: UIToolbar
@@ -266,6 +267,9 @@ public class ToolbarPlugin: Plugin {
       UIAction(title: "Insert Sample Image", image: UIImage(systemName: "photo"), handler: { [weak self] (_) in
         self?.insertSampleImage()
       }),
+      UIAction(title: "Insert Selectable Image", image: UIImage(systemName: "photo"), handler: { [weak self] (_) in
+        self?.insertSelectableImage()
+      }),
     ]
   }
 
@@ -323,6 +327,18 @@ public class ToolbarPlugin: Plugin {
     }
     try? editor?.update {
       let imageNode = ImageNode(url: url.absoluteString, size: CGSize(width: 300, height: 300), sourceID: "")
+      if let selection = try getSelection() {
+        _ = try selection.insertNodes(nodes: [imageNode], selectStart: false)
+      }
+    }
+  }
+
+  private func insertSelectableImage() {
+    guard let url = Bundle.main.url(forResource: "lexical-logo", withExtension: "png") else {
+      return
+    }
+    try? editor?.update {
+      let imageNode = SelectableImageNode(url: url.absoluteString, size: CGSize(width: 300, height: 300), sourceID: "")
       if let selection = try getSelection() {
         _ = try selection.insertNodes(nodes: [imageNode], selectStart: false)
       }
