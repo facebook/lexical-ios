@@ -371,6 +371,14 @@ class TextView: UITextView {
   private func hidePlaceholderLabel() {
     placeholderLabel.isHidden = true
   }
+
+  override func becomeFirstResponder() -> Bool {
+    let r = super.becomeFirstResponder()
+    if r == true {
+      onSelectionChange(editor: editor)
+    }
+    return r
+  }
 }
 
 extension TextView: UITextViewDelegate {

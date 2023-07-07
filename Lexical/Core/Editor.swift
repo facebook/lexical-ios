@@ -221,7 +221,9 @@ public class Editor: NSObject {
 
   // MARK: - Registration
 
-  public func registerErrorListener(listener: @escaping ErrorListener) -> () -> Void {
+  public typealias RemovalHandler = () -> Void
+
+  public func registerErrorListener(listener: @escaping ErrorListener) -> RemovalHandler {
     let uuid = UUID()
 
     self.listeners.errors[uuid] = listener
@@ -235,7 +237,7 @@ public class Editor: NSObject {
   /// Registers a closure to be run whenever the ``EditorState`` changes.
   /// - Parameter listener: The code to run when the ``EditorState`` changes.
   /// - Returns: A closure to remove the update listener
-  public func registerUpdateListener(listener: @escaping UpdateListener) -> () -> Void {
+  public func registerUpdateListener(listener: @escaping UpdateListener) -> RemovalHandler {
     let uuid = UUID()
     self.listeners.update[uuid] = listener
     return { [weak self] in
@@ -247,7 +249,7 @@ public class Editor: NSObject {
   /// Registers a closure to be run whenever the reconciled text content changes.
   /// - Parameter listener: The code to run when the text content changes
   /// - Returns: A closure to remove the text content listener
-  public func registerTextContentListener(listener: @escaping TextContentListener) -> () -> Void {
+  public func registerTextContentListener(listener: @escaping TextContentListener) -> RemovalHandler {
     let uuid = UUID()
 
     self.listeners.textContent[uuid] = listener
@@ -264,7 +266,7 @@ public class Editor: NSObject {
   ///   - listener: The code to run when the command is dispatched.
   ///   - priority: The priority for your handler. Higher priority handlers run before lower priority handlers.
   /// - Returns: A closure to remove the command handler.
-  public func registerCommand(type: CommandType, listener: @escaping CommandListener, priority: CommandPriority = CommandPriority.Editor) -> () -> Void {
+  public func registerCommand(type: CommandType, listener: @escaping CommandListener, priority: CommandPriority = CommandPriority.Editor) -> RemovalHandler {
     let uuid = UUID()
 
     if self.commands[type] == nil {
