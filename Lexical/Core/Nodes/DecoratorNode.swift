@@ -40,7 +40,7 @@ import UIKit
 
  - ``createView()``
  - ``decorate(view:)``
- - ``sizeForDecoratorView(textViewWidth:)``
+ - ``sizeForDecoratorView(textViewWidth:attributes:)``
 
  ### Optional methods to override
 

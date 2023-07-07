@@ -455,6 +455,11 @@ func transferStartingElementPointToTextPoint(start: Point, end: Point, format: T
     try element.append([target])
   } else {
     placementNode = try placementNode?.insertBefore(nodeToInsert: target)
+    // fix the end point offset if it refers to the same element as start,
+    // as we've now inserted another element before it.
+    if end.type == .element && end.key == start.key {
+      end.updatePoint(key: end.key, offset: end.offset + 1, type: .element)
+    }
   }
 
   if start == end {

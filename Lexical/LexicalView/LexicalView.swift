@@ -64,7 +64,7 @@ public class LexicalView: UIView, Frontend {
     guard let textStorage = textView.textStorage as? TextStorage else {
       fatalError()
     }
-    self.responderForNodeSelection = ResponderForNodeSelection(editor: textView.editor, textStorage: textStorage)
+    self.responderForNodeSelection = ResponderForNodeSelection(editor: textView.editor, textStorage: textStorage, nextResponder: textView)
 
     super.init(frame: .zero)
 

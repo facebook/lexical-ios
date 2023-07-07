@@ -30,6 +30,9 @@ let package = Package(
     .library(
       name: "LexicalInlineImagePlugin",
       targets: ["LexicalInlineImagePlugin"]),
+    .library(
+      name: "SelectableDecoratorNode",
+      targets: ["SelectableDecoratorNode"]),
   ],
   dependencies: [
     .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
@@ -73,11 +76,16 @@ let package = Package(
 
     .target(
       name: "LexicalInlineImagePlugin",
-      dependencies: ["Lexical"],
+      dependencies: ["Lexical", "SelectableDecoratorNode"],
       path: "./Plugins/LexicalInlineImagePlugin/LexicalInlineImagePlugin"),
     .testTarget(
       name: "LexicalInlineImagePluginTests",
       dependencies: ["Lexical", "LexicalInlineImagePlugin"],
       path: "./Plugins/LexicalInlineImagePlugin/LexicalInlineImagePluginTests"),
+
+    .target(
+      name: "SelectableDecoratorNode",
+      dependencies: ["Lexical"],
+      path: "./Plugins/SelectableDecoratorNode/SelectableDecoratorNode"),
   ]
 )

@@ -25,6 +25,7 @@ Lexical for iOS is an extensible text rendering and editing framework written in
 - ``Editor``
 - ``EditorState``
 - ``EditorConfig``
+- ``BaseSelection``
 - ``RangeSelection``
 - ``Theme``
 - ``Plugin``
@@ -68,6 +69,7 @@ Lexical for iOS is an extensible text rendering and editing framework written in
 
 - ``BaseSelection``
 - ``SelectionType``
+- ``RangeSelection``
 - ``NodeSelection``
 - ``GridSelection``
 - ``Point``
