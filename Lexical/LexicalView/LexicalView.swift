@@ -64,7 +64,7 @@ public class LexicalView: UIView, Frontend {
     guard let textStorage = textView.textStorage as? TextStorage else {
       fatalError()
     }
-    self.responderForNodeSelection = ResponderForNodeSelection(editor: textView.editor, textStorage: textStorage)
+    self.responderForNodeSelection = ResponderForNodeSelection(editor: textView.editor, textStorage: textStorage, nextResponder: textView)
 
     super.init(frame: .zero)
 
@@ -193,7 +193,7 @@ public class LexicalView: UIView, Frontend {
   func updateNativeSelection(from selection: BaseSelection) throws {
     guard let selection = selection as? RangeSelection else {
       // we don't have a range selection.
-      responderForNodeSelection.becomeFirstResponder()
+      _ = responderForNodeSelection.becomeFirstResponder()
       return
     }
     try textView.updateNativeSelection(from: selection)
@@ -391,7 +391,7 @@ public class LexicalView: UIView, Frontend {
   }
 
   public func textViewBecomeFirstResponder() {
-    textView.becomeFirstResponder()
+    _ = textView.becomeFirstResponder()
   }
 
   public func textViewResignFirstResponder() {
@@ -460,7 +460,7 @@ public class LexicalView: UIView, Frontend {
     UIView.performWithoutAnimation {
       textView.resignFirstResponder()
       textView.inputView = paragraphMenu
-      textView.becomeFirstResponder()
+      _ = textView.becomeFirstResponder()
     }
   }
 
@@ -468,7 +468,7 @@ public class LexicalView: UIView, Frontend {
     UIView.performWithoutAnimation {
       textView.resignFirstResponder()
       textView.inputView = nil
-      textView.becomeFirstResponder()
+      _ = textView.becomeFirstResponder()
     }
   }
 

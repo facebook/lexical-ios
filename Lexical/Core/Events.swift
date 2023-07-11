@@ -13,20 +13,19 @@ import UIKit
 
 internal func onInsertTextFromUITextView(text: String, editor: Editor, updateMode: UpdateBehaviourModificationMode = UpdateBehaviourModificationMode()) throws {
   try editor.updateWithCustomBehaviour(mode: updateMode) {
-    guard let selection = try getSelection() as? RangeSelection else {
-      // should have a range selection if UITextView is first responder
+    guard let selection = try getSelection() else {
       editor.log(.UITextView, .error, "Expected a selection here")
       return
     }
 
-    if let markedTextOperation = updateMode.markedTextOperation, markedTextOperation.createMarkedText == true {
+    if let markedTextOperation = updateMode.markedTextOperation, markedTextOperation.createMarkedText == true, let rangeSelection = selection as? RangeSelection {
       // Here we special case STARTING or UPDATING a marked text operation.
-      try selection.applySelectionRange(markedTextOperation.selectionRangeToReplace, affinity: .forward)
-    } else if let markedRange = editor.getNativeSelection().markedRange {
+      try rangeSelection.applySelectionRange(markedTextOperation.selectionRangeToReplace, affinity: .forward)
+    } else if let markedRange = editor.getNativeSelection().markedRange, let rangeSelection = selection as? RangeSelection {
       // Here we special case ENDING a marked text operation by replacing all the marked text with the incoming text.
       // This is usually used by hardware keyboards e.g. when typing e-acute. Software keyboards such as Japanese
       // do not seem to use this way of ending marked text.
-      try selection.applySelectionRange(markedRange, affinity: .forward)
+      try rangeSelection.applySelectionRange(markedRange, affinity: .forward)
     }
 
     if text == "\n" || text == "\u{2029}" {
@@ -63,7 +62,7 @@ internal func onRemoveTextFromUITextView(editor: Editor) throws {
 }
 
 internal func onDeleteBackwardsFromUITextView(editor: Editor) throws {
-  guard let editor = getActiveEditor(), let selection = try getSelection() as? RangeSelection else {
+  guard let editor = getActiveEditor(), let selection = try getSelection() else {
     throw LexicalError.invariantViolation("No editor or selection")
   }
 

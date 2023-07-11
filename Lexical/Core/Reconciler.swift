@@ -253,7 +253,13 @@ internal enum Reconciler {
       return
     }
 
-    if shouldReconcileSelection && (needsUpdate || nextSelection == nil) {
+    var selectionsAreDifferent = false
+    if let nextSelection, let currentSelection {
+      let isSame = nextSelection.isSelection(currentSelection)
+      selectionsAreDifferent = !isSame
+    }
+
+    if shouldReconcileSelection && (needsUpdate || nextSelection == nil || selectionsAreDifferent) {
       try reconcileSelection(prevSelection: currentSelection, nextSelection: nextSelection, editor: editor)
     }
   }

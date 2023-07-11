@@ -12,10 +12,12 @@ class ResponderForNodeSelection: UIResponder, UIKeyInput {
 
   private weak var editor: Editor?
   private weak var textStorage: TextStorage?
+  private weak var textView: UIResponder?
 
-  init(editor: Editor, textStorage: TextStorage) {
+  init(editor: Editor, textStorage: TextStorage, nextResponder: UIResponder) {
     self.editor = editor
     self.textStorage = textStorage
+    self.textView = nextResponder
   }
 
   var hasText: Bool {
@@ -33,5 +35,15 @@ class ResponderForNodeSelection: UIResponder, UIKeyInput {
 
   func deleteBackward() {
     editor?.dispatchCommand(type: .deleteCharacter, payload: true)
+  }
+
+  override var canBecomeFirstResponder: Bool {
+    return true
+  }
+
+  override var next: UIResponder? {
+    get {
+      textView
+    }
   }
 }
