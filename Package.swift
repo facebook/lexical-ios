@@ -33,6 +33,9 @@ let package = Package(
     .library(
       name: "SelectableDecoratorNode",
       targets: ["SelectableDecoratorNode"]),
+    .library(
+      name: "EditorHistoryPlugin",
+      targets: ["EditorHistoryPlugin"]),
   ],
   dependencies: [
     .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
@@ -87,5 +90,14 @@ let package = Package(
       name: "SelectableDecoratorNode",
       dependencies: ["Lexical"],
       path: "./Plugins/SelectableDecoratorNode/SelectableDecoratorNode"),
+
+    .target(
+      name: "EditorHistoryPlugin",
+      dependencies: ["Lexical"],
+      path: "./Plugins/EditorHistoryPlugin/EditorHistoryPlugin"),
+    .testTarget(
+      name: "EditorHistoryPluginTests",
+      dependencies: ["Lexical", "EditorHistoryPlugin"],
+      path: "./Plugins/EditorHistoryPlugin/EditorHistoryPluginTests"),
   ]
 )
