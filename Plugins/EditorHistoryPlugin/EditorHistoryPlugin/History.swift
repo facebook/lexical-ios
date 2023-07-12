@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import Lexical
 
 enum MergeAction {
   case historyMerge
@@ -114,7 +115,7 @@ public class EditorHistory {
          let undoSelection = historyStateEntry.undoSelection {
         try editor.setEditorState(historyStateEntry.editorState.clone(selection: undoSelection))
         historyStateEntry.editor = editor
-        editor.frontend?.showPlaceholderText()
+        editor.dispatchCommand(type: .updatePlaceholderVisibility)
       }
     } catch {
       editor.log(.other, .warning, "undo: Failed to setEditorState: \(error.localizedDescription)")
@@ -142,7 +143,7 @@ public class EditorHistory {
 
     do {
       try editor.setEditorState(historyStateEntry.editorState.clone(selection: historyStateEntry.undoSelection))
-      editor.frontend?.showPlaceholderText()
+      editor.dispatchCommand(type: .updatePlaceholderVisibility)
     } catch {
       editor.log(.other, .warning, "redo: Failed to setEditorState: \(error.localizedDescription)")
     }
@@ -236,13 +237,21 @@ public class HistoryState {
     self.redoStack = redoStack
     self.undoStack = undoStack
   }
+
+  public func undoStackCount() -> Int {
+    return undoStack.count
+  }
+
+  public func redoStackCount() -> Int {
+    return redoStack.count
+  }
 }
 
 func getDirtyNodes(
   editorState: EditorState,
   dirtyLeavesSet: DirtyNodeMap) -> [Node] {
   let dirtyLeaves = dirtyLeavesSet
-  let nodeMap = editorState.nodeMap
+  let nodeMap = editorState.getNodeMap()
   var nodes: [Node] = []
 
   for (dirtyLeafKey, cause) in dirtyLeaves {
@@ -303,13 +312,13 @@ func getChangeType(
   // Catching the case when inserting new text node into an element (e.g. first char in paragraph/list),
   // or after existing node.
   if dirtyNodes.count > 1 {
-    let nextNodeMap = nextEditorState.nodeMap
+    let nextNodeMap = nextEditorState.getNodeMap()
 
     let prevAnchorNode = nextNodeMap[prevSelection.anchor.key]
 
     if let nextAnchorNode = nextNodeMap[nextSelection.anchor.key] as? TextNode,
        (prevAnchorNode != nil),
-       !prevEditorState.nodeMap.keys.contains(nextAnchorNode.key),
+       !prevEditorState.getNodeMap().keys.contains(nextAnchorNode.key),
        nextAnchorNode.getTextPartSize() == 1,
        nextSelection.anchor.offset == 1 {
       return .insertCharacterAfterSelection
@@ -318,7 +327,7 @@ func getChangeType(
   }
 
   let nextDirtyNode = dirtyNodes[0]
-  let prevDirtyNode = prevEditorState.nodeMap[nextDirtyNode.key]
+  let prevDirtyNode = prevEditorState.getNodeMap()[nextDirtyNode.key]
 
   if !isTextNode(prevDirtyNode) || !isTextNode(nextDirtyNode) {
     return .other
@@ -331,7 +340,7 @@ func getChangeType(
     throw LexicalError.internal("prev/nextDirtyNode is not TextNode")
   }
 
-  if prevDirtyNode.mode != nextDirtyNode.mode {
+  if prevDirtyNode.getMode_dangerousPropertyAccess() != nextDirtyNode.getMode_dangerousPropertyAccess() {
     return .other
   }
 

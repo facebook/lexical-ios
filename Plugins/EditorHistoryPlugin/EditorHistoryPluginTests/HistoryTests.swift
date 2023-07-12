@@ -6,11 +6,13 @@
  */
 
 @testable import Lexical
+@testable import EditorHistoryPlugin
 import XCTest
 
 class HistoryTests: XCTestCase {
 
   var view: LexicalView?
+  var historyPlugin: EditorHistoryPlugin?
   var editor: Editor {
     get {
       guard let editor = view?.editor else {
@@ -21,30 +23,21 @@ class HistoryTests: XCTestCase {
     }
   }
 
-  override func setUp() {
-    view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
-    addListeners()
+  var editorHistory: EditorHistory {
+    get {
+      guard let historyPlugin, let editorHistory = historyPlugin.editorHistory else {
+        XCTFail("historyPlugin unexpectedly nil")
+        fatalError()
+      }
+      return editorHistory
+    }
   }
 
-  private func addListeners() {
-    guard let view else { XCTFail(); return }
+  override func setUp() {
+    let historyPlugin = EditorHistoryPlugin()
+    self.historyPlugin = historyPlugin
 
-    _ = view.editor.registerUpdateListener(listener: { (activeEditorState, previousEditorState, dirtyNodes) in
-      view.editorHistory.applyChange(
-        editorState: activeEditorState,
-        prevEditorState: previousEditorState,
-        dirtyNodes: dirtyNodes)
-    })
-
-    _ = view.editor.registerCommand(type: .undo, listener: { payload in
-      view.editorHistory.applyCommand(type: .undo)
-      return true
-    })
-
-    _ = view.editor.registerCommand(type: .redo, listener: { payload in
-      view.editorHistory.applyCommand(type: .redo)
-      return true
-    })
+    view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: [historyPlugin]), featureFlags: FeatureFlags())
   }
 
   override func tearDown() {
