@@ -399,7 +399,7 @@ extension TextView: UITextViewDelegate {
 
   public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
     hidePlaceholderLabel()
-    if let lexicalDelegate = lexicalDelegate {
+    if let lexicalDelegate {
       return lexicalDelegate.textViewShouldChangeText(self, range: range, replacementText: text)
     }
 

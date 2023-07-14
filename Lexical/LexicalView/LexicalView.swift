@@ -507,7 +507,7 @@ extension LexicalView: LexicalTextViewDelegate {
   }
 
   func textViewShouldChangeText(_ textView: UITextView, range: NSRange, replacementText text: String) -> Bool {
-    if let delegate = delegate {
+    if let delegate {
       return delegate.textViewShouldChangeText(self, range: range, replacementText: text)
     }
     
