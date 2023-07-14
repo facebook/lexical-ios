@@ -11,7 +11,7 @@ import UIKit
 protocol LexicalTextViewDelegate: NSObjectProtocol {
   func textViewDidBeginEditing(textView: TextView)
   func textViewDidEndEditing(textView: TextView)
-  func textViewShouldChangeText(_ textView: UITextView, range: NSRange, replacementText text: String)
+  func textViewShouldChangeText(_ textView: UITextView, range: NSRange, replacementText text: String) -> Bool
   func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool
 }
 
@@ -399,7 +399,9 @@ extension TextView: UITextViewDelegate {
 
   public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
     hidePlaceholderLabel()
-    lexicalDelegate?.textViewShouldChangeText(self, range: range, replacementText: text)
+    if let lexicalDelegate = lexicalDelegate {
+      return lexicalDelegate.textViewShouldChangeText(self, range: range, replacementText: text)
+    }
 
     return true
   }
