@@ -97,7 +97,7 @@ open class Node: Codable {
   }
 
   // Returns the length of the text part (as UTF 16 codepoints). Note that all string lengths within Lexical work using UTF 16 codepoints, because that is what TextKit uses.
-  func getTextPartSize() -> Int {
+  public func getTextPartSize() -> Int {
     return getTextPart().lengthAsNSString()
   }
 

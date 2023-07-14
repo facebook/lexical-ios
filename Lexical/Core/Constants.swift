@@ -114,8 +114,6 @@ public struct CommandType: RawRepresentable, Hashable {
   public static let deleteWord = CommandType(rawValue: "deleteWord")
   public static let deleteLine = CommandType(rawValue: "deleteLine")
   public static let formatText = CommandType(rawValue: "formatText")
-  public static let undo = CommandType(rawValue: "undo")
-  public static let redo = CommandType(rawValue: "redo")
   public static let keyArrowRight = CommandType(rawValue: "keyArrowRight")
   public static let keyArrowLeft = CommandType(rawValue: "keyArrowLeft")
   public static let keyArrowUp = CommandType(rawValue: "keyArrowUp")
@@ -125,14 +123,13 @@ public struct CommandType: RawRepresentable, Hashable {
   public static let keyEscape = CommandType(rawValue: "keyEscape")
   public static let keyDelete = CommandType(rawValue: "keyDelete")
   public static let keyTab = CommandType(rawValue: "keyTab")
-  public static let canUndo = CommandType(rawValue: "canUndo")
-  public static let canRedo = CommandType(rawValue: "canRedo")
   public static let clearEditor = CommandType(rawValue: "clearEditor")
   public static let linkTapped = CommandType(rawValue: "linkTapped")
   public static let truncationIndicatorTapped = CommandType(rawValue: "truncationIndicatorTapped")
   public static let readOnlyViewTapped = CommandType(rawValue: "readOnlyViewTapped")
   public static let indentContent = CommandType(rawValue: "indentContent")
   public static let outdentContent = CommandType(rawValue: "outdentContent")
+  public static let updatePlaceholderVisibility = CommandType(rawValue: "updatePlaceholderVisibility")
 }
 
 @objc public enum CommandPriority: Int {

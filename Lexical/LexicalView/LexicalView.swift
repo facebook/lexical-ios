@@ -251,16 +251,6 @@ public class LexicalView: UIView, Frontend {
     }
   }
 
-  /// Provides access to the ``EditorHistory`` instance for this LexicalView, for the purposes
-  /// of applying commands to it (e.g. when setting up undo/redo listeners).
-  ///
-  /// This is an area that probably needs a refactor. Currently LexicalView provides a default ``EditorHistory``, but
-  /// does not hook up the undo/redo/clear commands to it. This results in boilerplate code for any app wishing to
-  /// provide undo/redo support. This could be improved!
-  public lazy var editorHistory: EditorHistory = {
-    EditorHistory(editor: self.textView.editor, externalHistoryState: createEmptyHistoryState())
-  }()
-
   /// Configure the placeholder text shown by this Lexical view when there is no text.
   ///
   /// This needs a refactor. Currently the LexicalView supports setting the placeholder text as part of the initialiser, which

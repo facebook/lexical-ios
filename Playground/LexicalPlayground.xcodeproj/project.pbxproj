@@ -16,6 +16,7 @@
 		0656CF9929D23743009CA08F /* Lexical in Frameworks */ = {isa = PBXBuildFile; productRef = 0656CF9829D23743009CA08F /* Lexical */; };
 		0656CFA229D48391009CA08F /* LexicalListPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 0656CFA129D48391009CA08F /* LexicalListPlugin */; };
 		065B5C862A22291C003A38DB /* SelectableDecoratorNode in Frameworks */ = {isa = PBXBuildFile; productRef = 065B5C852A22291C003A38DB /* SelectableDecoratorNode */; };
+		065F9DF72A5EC1D600C95087 /* EditorHistoryPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 065F9DF62A5EC1D600C95087 /* EditorHistoryPlugin */; };
 		069E59DB2A1EBF1700CA4296 /* LexicalHTML in Frameworks */ = {isa = PBXBuildFile; productRef = 069E59DA2A1EBF1700CA4296 /* LexicalHTML */; };
 		069E59DD2A1F726D00CA4296 /* ExportOutputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 069E59DC2A1F726D00CA4296 /* ExportOutputViewController.swift */; };
 		069E59DF2A1F7EFB00CA4296 /* LexicalListHTMLSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 069E59DE2A1F7EFB00CA4296 /* LexicalListHTMLSupport */; };
@@ -46,6 +47,7 @@
 				0656CFA229D48391009CA08F /* LexicalListPlugin in Frameworks */,
 				065B5C862A22291C003A38DB /* SelectableDecoratorNode in Frameworks */,
 				069E59DB2A1EBF1700CA4296 /* LexicalHTML in Frameworks */,
+				065F9DF72A5EC1D600C95087 /* EditorHistoryPlugin in Frameworks */,
 				069E59DF2A1F7EFB00CA4296 /* LexicalListHTMLSupport in Frameworks */,
 				0630DC162A2F624D009EB23B /* LexicalLinkPlugin in Frameworks */,
 				0656CF9929D23743009CA08F /* Lexical in Frameworks */,
@@ -130,6 +132,7 @@
 				0630DC152A2F624D009EB23B /* LexicalLinkPlugin */,
 				06F7CF932A542E4E0024CD5A /* LexicalInlineImagePlugin */,
 				065B5C852A22291C003A38DB /* SelectableDecoratorNode */,
+				065F9DF62A5EC1D600C95087 /* EditorHistoryPlugin */,
 			);
 			productName = LexicalPlayground;
 			productReference = 0656CF7529D1E438009CA08F /* LexicalPlayground.app */;
@@ -426,6 +429,10 @@
 		065B5C852A22291C003A38DB /* SelectableDecoratorNode */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SelectableDecoratorNode;
+		};
+		065F9DF62A5EC1D600C95087 /* EditorHistoryPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = EditorHistoryPlugin;
 		};
 		069E59DA2A1EBF1700CA4296 /* LexicalHTML */ = {
 			isa = XCSwiftPackageProductDependency;

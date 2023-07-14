@@ -254,6 +254,10 @@ open class TextNode: Node {
     return self.text
   }
 
+  public func getMode_dangerousPropertyAccess() -> Mode {
+    return self.mode
+  }
+
   public func setBold(_ isBold: Bool) throws {
     try errorOnReadOnly()
     try getWritable().format.bold = isBold

@@ -394,4 +394,9 @@ public func registerRichText(editor: Editor) {
     }
     return true
   })
+
+  _ = editor.registerCommand(type: .updatePlaceholderVisibility) { payload in
+    editor.frontend?.showPlaceholderText()
+    return true
+  }
 }

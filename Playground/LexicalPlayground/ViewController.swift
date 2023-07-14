@@ -5,13 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import EditorHistoryPlugin
 import Lexical
 import LexicalInlineImagePlugin
 import LexicalLinkPlugin
 import LexicalListPlugin
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UIToolbarDelegate {
 
   var lexicalView: LexicalView?
   weak var toolbar: UIToolbar?
@@ -22,8 +23,10 @@ class ViewController: UIViewController {
     super.viewDidLoad()
     view.backgroundColor = .systemBackground
 
-    let toolbarPlugin = ToolbarPlugin(viewControllerForPresentation: self)
+    let editorHistoryPlugin = EditorHistoryPlugin()
+    let toolbarPlugin = ToolbarPlugin(viewControllerForPresentation: self, historyPlugin: editorHistoryPlugin)
     let toolbar = toolbarPlugin.toolbar
+    toolbar.delegate = self
 
     let hierarchyPlugin = NodeHierarchyViewPlugin()
     let hierarchyView = hierarchyPlugin.hierarchyView
@@ -39,7 +42,7 @@ class ViewController: UIViewController {
       .foregroundColor: UIColor.systemBlue,
     ]
 
-    let editorConfig = EditorConfig(theme: theme, plugins: [toolbarPlugin, listPlugin, hierarchyPlugin, imagePlugin, linkPlugin])
+    let editorConfig = EditorConfig(theme: theme, plugins: [toolbarPlugin, listPlugin, hierarchyPlugin, imagePlugin, linkPlugin, editorHistoryPlugin])
     let lexicalView = LexicalView(editorConfig: editorConfig, featureFlags: FeatureFlags())
 
     linkPlugin.lexicalView = lexicalView
@@ -132,5 +135,9 @@ class ViewController: UIViewController {
     guard let editor = lexicalView?.editor else { return }
     let vc = ExportOutputViewController(editor: editor, format: type)
     navigationController?.pushViewController(vc, animated: true)
+  }
+
+  func position(for bar: UIBarPositioning) -> UIBarPosition {
+    return .top
   }
 }
