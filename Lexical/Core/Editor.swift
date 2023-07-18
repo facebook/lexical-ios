@@ -799,7 +799,7 @@ public class Editor: NSObject {
       for nodeKey in nodesToProcess where nodeKey != compositionKey && nodeKey != rootNode.key {
         guard
           let node = getNodeByKey(key: nodeKey),
-          let transforms = nodeTransforms[node.type],
+          let transforms = nodeTransforms[type(of: node).type],
           node.isAttached()
         else {
           continue

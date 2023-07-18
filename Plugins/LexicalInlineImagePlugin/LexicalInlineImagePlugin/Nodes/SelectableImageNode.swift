@@ -20,25 +20,24 @@ public class SelectableImageNode: SelectableDecoratorNode {
   var size = CGSize.zero
   var sourceID: String = ""
 
+  open override class var type: NodeType {
+    .selectableImage
+  }
+
   public required init(url: String, size: CGSize, sourceID: String, key: NodeKey? = nil) {
     super.init(key)
 
     self.url = URL(string: url)
     self.size = size
-    self.type = NodeType.image
     self.sourceID = sourceID
   }
 
   required init(_ key: NodeKey? = nil) {
     super.init(key)
-
-    self.type = NodeType.image
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-
-    self.type = NodeType.image
   }
 
   override public func encode(to encoder: Encoder) throws {

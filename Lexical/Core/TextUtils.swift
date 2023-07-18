@@ -41,7 +41,7 @@ internal func canShowPlaceholder(isComposing: Bool) -> Bool {
   for childNode in children {
     guard let childNode = childNode as? ElementNode else { return true }
 
-    if childNode.type != NodeType.paragraph {
+    if type(of: childNode).type != NodeType.paragraph {
       return false
     }
 

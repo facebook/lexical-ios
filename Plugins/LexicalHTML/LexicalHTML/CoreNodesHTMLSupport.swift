@@ -92,7 +92,7 @@ extension Lexical.HeadingNode: NodeHTMLSupport {
   }
 
   public func exportDOM(editor: Lexical.Editor) throws -> DOMExportOutput {
-    let tag = self.getTag().rawValue
+    let tag = self.tag.rawValue
     let dom = SwiftSoup.Element(Tag(tag), "")
     return (after: nil, element: dom)
   }

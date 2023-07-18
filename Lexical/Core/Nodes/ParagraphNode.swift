@@ -8,19 +8,20 @@
 import UIKit
 
 public class ParagraphNode: ElementNode {
+  open override class var type: NodeType {
+    .paragraph
+  }
+
   override public init() {
     super.init()
-    self.type = NodeType.paragraph
   }
 
   override required init(_ key: NodeKey?) {
     super.init(key)
-    self.type = NodeType.paragraph
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-    self.type = NodeType.paragraph
   }
 
   override public func encode(to encoder: Encoder) throws {

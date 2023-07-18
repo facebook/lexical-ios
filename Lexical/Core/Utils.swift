@@ -271,9 +271,9 @@ public func getNodeHierarchy(editorState: EditorState?) throws -> String {
         } else {
           formatString = ""
         }
-        description.append("\(indentation)(\(node.key)) \(node.type.rawValue) \"\(textNode.getTextPart())\" \(formatString)")
+        description.append("\(indentation)(\(node.key)) \(type(of: node).type.rawValue) \"\(textNode.getTextPart())\" \(formatString)")
       } else {
-        description.append("\(indentation)(\(node.key)) \(node.type.rawValue)")
+        description.append("\(indentation)(\(node.key)) \(type(of: node).type.rawValue)")
       }
 
       if let elementNode = node as? ElementNode {
@@ -283,7 +283,7 @@ public func getNodeHierarchy(editorState: EditorState?) throws -> String {
     } while !currentNodes.isEmpty
 
     hierarchyString = description.joined(separator: "\n")
-    cacheString = sortedNodeMap.map({ node in "\(node.key): \(node.value.type)" }).joined(separator: ", ")
+    cacheString = sortedNodeMap.map({ node in "\(node.key): \(type(of: node.value).type)" }).joined(separator: ", ")
   }
 
   return "Tree:\n\(hierarchyString)\nCache:\n\(cacheString)"
@@ -463,7 +463,7 @@ public func getNearestNodeOfType<T: ElementNode>(
   var parent: Node? = node
 
   while let unwrappedParent = parent {
-    if unwrappedParent.type == type, let typedParent = unwrappedParent as? T {
+    if unwrappedParent.getType() == type, let typedParent = unwrappedParent as? T {
       return typedParent as T
     }
 
