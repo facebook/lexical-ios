@@ -17,7 +17,7 @@ import UIKit
 public protocol LexicalViewDelegate: NSObjectProtocol {
   func textViewDidBeginEditing(textView: LexicalView)
   func textViewDidEndEditing(textView: LexicalView)
-  func textViewShouldChangeText(_ textView: LexicalView, range: NSRange, replacementText text: String)
+  func textViewShouldChangeText(_ textView: LexicalView, range: NSRange, replacementText text: String) -> Bool
   func textView(_ textView: LexicalView, shouldInteractWith URL: URL, in selection: RangeSelection?, interaction: UITextItemInteraction) -> Bool
 }
 
@@ -496,7 +496,11 @@ extension LexicalView: LexicalTextViewDelegate {
     delegate?.textViewDidEndEditing(textView: self)
   }
 
-  func textViewShouldChangeText(_ textView: UITextView, range: NSRange, replacementText text: String) {
-    delegate?.textViewShouldChangeText(self, range: range, replacementText: text)
+  func textViewShouldChangeText(_ textView: UITextView, range: NSRange, replacementText text: String) -> Bool {
+    if let delegate {
+      return delegate.textViewShouldChangeText(self, range: range, replacementText: text)
+    }
+    
+    return true
   }
 }
