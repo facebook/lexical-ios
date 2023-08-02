@@ -412,6 +412,11 @@ open class TextNode: Node {
     return node.style
   }
 
+  public func setStyle(_ style: String) throws {
+    let writable = try getWritable()
+    writable.style = style
+  }
+
   public func splitText(splitOffsets: [Int]) throws -> [TextNode] {
     try errorOnReadOnly()
     let textContent = getTextPart() as NSString
