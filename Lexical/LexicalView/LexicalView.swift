@@ -500,7 +500,7 @@ extension LexicalView: LexicalTextViewDelegate {
     if let delegate {
       return delegate.textViewShouldChangeText(self, range: range, replacementText: text)
     }
-    
+
     return true
   }
 }
