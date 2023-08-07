@@ -223,11 +223,6 @@ public func isTokenOrInertOrSegmented(_ node: TextNode?) -> Bool {
   return isTokenOrInert(node) || node.isSegmented()
 }
 
-public func isTokenOrSegmented(_ node: TextNode?) -> Bool {
-  guard let node else { return false }
-  return node.isToken() || node.isSegmented()
-}
-
 public func getRoot() -> RootNode? {
   guard let editorState = getActiveEditorState(),
         let rootNode = editorState.nodeMap[kRootNodeKey] as? RootNode
@@ -540,61 +535,4 @@ public func removeFromParent(node: Node) throws {
   }
 
   internallyMarkNodeAsDirty(node: writableParent)
-}
-
-private func resolveElement(
-  element: ElementNode,
-  isBackward: Bool,
-  focusOffset: Int
-) -> Node? {
-  let parent = element.getParent()
-  var offset = focusOffset
-  var block = element
-  if let parent {
-    if isBackward, focusOffset == 0, let indexWithinParent = block.getIndexWithinParent() {
-      offset = indexWithinParent
-      block = parent
-    } else if !isBackward, focusOffset == block.getChildrenSize(), let indexWithinParent = block.getIndexWithinParent() {
-      offset = indexWithinParent + 1
-      block = parent
-    }
-  }
-  return block.getChildAtIndex(index: isBackward ? offset - 1 : offset)
-}
-
-public func getAdjacentNode(
-  focus: Point,
-  isBackward: Bool
-) throws -> Node? {
-  let focusOffset = focus.offset
-  if focus.type == .element, let focusElement = try focus.getNode() as? ElementNode {
-    return resolveElement(element: focusElement, isBackward: isBackward, focusOffset: focusOffset)
-  } else {
-    let focusNode = try focus.getNode()
-    if
-      (isBackward && focusOffset == 0) ||
-        (!isBackward && focusOffset == focusNode.getTextContentSize())
-    {
-      let possibleNode = isBackward
-        ? focusNode.getPreviousSibling()
-        : focusNode.getNextSibling()
-
-      guard let possibleNode else {
-        return resolveElement(
-          element: try focusNode.getParentOrThrow(),
-          isBackward: isBackward,
-          focusOffset: (focusNode.getIndexWithinParent() ?? 0) + (isBackward ? 0 : 1)
-        )
-      }
-      return possibleNode
-    }
-  }
-  return nil
-}
-
-public func setSelection(_ selection: BaseSelection?) throws {
-  try errorOnReadOnly()
-  let editorState = getActiveEditorState()
-  selection?.dirty = true
-  editorState?.selection = selection
 }

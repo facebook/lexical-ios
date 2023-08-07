@@ -14,7 +14,6 @@ public class RangeSelection: BaseSelection {
   public var focus: Point
   public var dirty: Bool
   public var format: TextFormat
-  public var style: String // TODO: add style support to iOS
 
   // MARK: - Init
 
@@ -23,7 +22,6 @@ public class RangeSelection: BaseSelection {
     self.focus = focus
     self.dirty = false
     self.format = format
-    self.style = ""
 
     anchor.selection = self
     focus.selection = self
@@ -244,15 +242,12 @@ public class RangeSelection: BaseSelection {
   public func insertText(_ text: String) throws {
     let anchor = anchor
     let focus = focus
-    let anchorIsBefore = try anchor.isBefore(point: focus)
-    let isBefore = isCollapsed() || anchorIsBefore
-    let format = format
-    let style = style
+    let isBefore = try isCollapsed() || anchor.isBefore(point: focus)
 
     if isBefore && anchor.type == .element {
-      try transferStartingElementPointToTextPoint(start: anchor, end: focus, format: format, style: style)
+      try transferStartingElementPointToTextPoint(start: anchor, end: focus, format: format)
     } else if !isBefore && focus.type == .element {
-      try transferStartingElementPointToTextPoint(start: focus, end: anchor, format: format, style: style)
+      try transferStartingElementPointToTextPoint(start: focus, end: anchor, format: format)
     }
 
     let selectedNodes = try getNodes()
@@ -261,123 +256,89 @@ public class RangeSelection: BaseSelection {
     let endPoint = isBefore ? focus : anchor
     let startOffset = firstPoint.offset
     let endOffset = endPoint.offset
-    guard var firstNode = selectedNodes.first as? TextNode else {
+
+    guard var firstNode = selectedNodes[0] as? TextNode else {
       throw LexicalError.invariantViolation("insertText: first node is not a text node")
     }
 
     let firstNodeText = firstNode.getTextPart()
     let firstNodeTextLength = firstNodeText.lengthAsNSString()
     let firstNodeParent = try firstNode.getParentOrThrow()
-    var lastNode = selectedNodes.last
 
-    if isCollapsed() &&
-        startOffset == firstNodeTextLength &&
-        (firstNode.isSegmented() ||
-          firstNode.isToken() ||
-          !firstNode.canInsertTextAfter() ||
-          (!firstNodeParent.canInsertTextAfter() && firstNode.getNextSibling() == nil)) {
+    if isCollapsed() && startOffset == firstNodeTextLength &&
+        (firstNode.isSegmented() || firstNode.isToken() || !firstNode.canInsertTextAfter() || !firstNodeParent.canInsertTextAfter()) {
       var nextSibling = firstNode.getNextSibling() as? TextNode
-      if nextSibling == nil ||
-          !(nextSibling?.canInsertTextBefore() ?? true) ||
-          isTokenOrSegmented(nextSibling) {
-        nextSibling = TextNode()
-        if let nextSibling {
-          try nextSibling.setFormat(format: format)
-          if !firstNodeParent.canInsertTextAfter() {
-            try firstNodeParent.insertAfter(nodeToInsert: nextSibling)
-          } else {
-            try firstNode.insertAfter(nodeToInsert: nextSibling)
-          }
+      if !isTextNode(nextSibling) || isTokenOrInertOrSegmented(nextSibling) {
+        nextSibling = createTextNode(text: "")
+        guard let nextSibling else {
+          return
+        }
+        if !firstNodeParent.canInsertTextAfter() {
+          _ = try firstNodeParent.insertAfter(nodeToInsert: nextSibling)
+        } else {
+          _ = try firstNode.insertAfter(nodeToInsert: nextSibling)
         }
       }
-      if let nextSibling {
-        try nextSibling.select(anchorOffset: 0, focusOffset: 0)
-        firstNode = nextSibling
+      guard let nextSibling else {
+        return
       }
-      if text.lengthAsNSString() > 0 {
+      _ = try nextSibling.select(anchorOffset: 0, focusOffset: 0)
+      firstNode = nextSibling
+      if text != "" {
         try insertText(text)
         return
       }
-    } else if isCollapsed() &&
-                startOffset == 0 &&
-                (firstNode.isSegmented() ||
-                  firstNode.isToken() ||
-                  !firstNode.canInsertTextBefore() ||
-                  (!firstNodeParent.canInsertTextBefore() && firstNode.getPreviousSibling() == nil)) {
+    } else if isCollapsed() && startOffset == 0 &&
+                (firstNode.isSegmented() || firstNode.isToken() || !firstNode.canInsertTextBefore() || !firstNodeParent.canInsertTextBefore()) {
       var prevSibling = firstNode.getPreviousSibling() as? TextNode
-      if prevSibling == nil || isTokenOrSegmented(prevSibling) {
-        prevSibling = TextNode()
-        if let prevSibling {
-          try prevSibling.setFormat(format: format)
-          if !firstNodeParent.canInsertTextBefore() {
-            try firstNodeParent.insertBefore(nodeToInsert: prevSibling)
-          } else {
-            try firstNode.insertBefore(nodeToInsert: prevSibling)
-          }
+      if !isTextNode(prevSibling ) || isTokenOrInertOrSegmented(prevSibling) {
+        prevSibling = createTextNode(text: "")
+        guard let prevSibling else {
+          return
+        }
+        if !firstNodeParent.canInsertTextBefore() {
+          _ = try firstNodeParent.insertBefore(nodeToInsert: prevSibling)
+        } else {
+          _ = try firstNode.insertBefore(nodeToInsert: prevSibling)
         }
       }
-      if let prevSibling {
-        try prevSibling.select(anchorOffset: nil, focusOffset: nil)
-        firstNode = prevSibling
+      guard let prevSibling else {
+        return
       }
-      if text.lengthAsNSString() > 0 {
+      _ = try prevSibling.select(anchorOffset: nil, focusOffset: nil)
+      firstNode = prevSibling
+      if text != "" {
         try insertText(text)
         return
       }
     } else if firstNode.isSegmented() && startOffset != firstNodeTextLength {
-      let textNode = TextNode(text: firstNode.getTextPart())
-      try textNode.setFormat(format: format)
-      try firstNode.replace(replaceWith: textNode)
+      let textNode = createTextNode(text: firstNode.getTextContent(includeInert: false, includeDirectionless: true))
+      _ = try firstNode.replace(replaceWith: textNode)
       firstNode = textNode
-    } else if !isCollapsed() && text.lengthAsNSString() > 0 {
-      // When the firstNode or lastNode parents are elements that
-      // do not allow text to be inserted before or after, we first
-      // clear the content. Then we normalize selection, then insert
-      // the new content.
-      let lastNodeParent = lastNode?.getParent()
-
-      if !firstNodeParent.canInsertTextBefore() ||
-          !firstNodeParent.canInsertTextAfter() ||
-          (lastNodeParent != nil &&
-            (!(lastNodeParent?.canInsertTextBefore() ?? true) ||
-              !(lastNodeParent?.canInsertTextAfter() ?? true))) {
-        try insertText("")
-        try normalizeSelectionPointsForBoundaries(anchor: self.anchor, focus: self.focus, lastSelection: nil)
-        try insertText(text)
-        return
-      }
     }
 
     if selectedNodesLength == 1 {
-      if firstNode.isToken() {
-        let textNode = TextNode(text: text)
-        try textNode.select(anchorOffset: nil, focusOffset: nil)
-        try firstNode.replace(replaceWith: textNode)
+      if isTokenOrInert(firstNode) {
+        try firstNode.remove()
         return
       }
       let firstNodeFormat = firstNode.getFormat()
-      let firstNodeStyle = firstNode.getStyle()
 
-      if startOffset == endOffset && (firstNodeFormat != format || firstNodeStyle != style) {
-        if firstNode.getTextPart().lengthAsNSString() == 0 {
-          try firstNode.setFormat(format: format)
-          try firstNode.setStyle(style)
+      if startOffset == endOffset && firstNodeFormat != format {
+        if firstNode.getTextPart().isEmpty {
+          firstNode = try firstNode.setFormat(format: format)
         } else {
-          let textNode = TextNode(text: text)
-          try textNode.setFormat(format: format)
-          try textNode.setStyle(style)
-          try textNode.select(anchorOffset: nil, focusOffset: nil)
+          var textNode = createTextNode(text: text)
+          textNode = try textNode.setFormat(format: format)
+          _ = try textNode.select(anchorOffset: nil, focusOffset: nil)
           if startOffset == 0 {
-            try firstNode.insertBefore(nodeToInsert: textNode)
+            _ = try firstNode.insertBefore(nodeToInsert: textNode)
           } else {
-            if let targetNode = try firstNode.splitText(splitOffsets: [startOffset]).first {
-              try targetNode.insertAfter(nodeToInsert: textNode)
+            let targetNodeArray = try firstNode.splitText(splitOffsets: [startOffset])
+            guard let targetNode = targetNodeArray.first else {
+              throw LexicalError.invariantViolation("insertText: splitText returned no node")
             }
-          }
-          // When composing, we need to adjust the anchor offset so that
-          // we correctly replace that right range.
-          if textNode.isComposing() && self.anchor.type == .text {
-            self.anchor.offset -= text.lengthAsNSString()
+            try targetNode.insertAfter(nodeToInsert: textNode)
           }
           return
         }
@@ -385,144 +346,132 @@ public class RangeSelection: BaseSelection {
       let delCount = endOffset - startOffset
 
       firstNode = try firstNode.spliceText(offset: startOffset, delCount: delCount, newText: text, moveSelection: true)
-      if firstNode.getTextPart().lengthAsNSString() == 0 {
+
+      if firstNode.getTextPart().isEmpty {
         try firstNode.remove()
-      } else if self.anchor.type == .text {
-        if firstNode.isComposing() {
-          // When composing, we need to adjust the anchor offset so that
-          // we correctly replace that right range.
-          self.anchor.offset -= text.lengthAsNSString()
-        } else {
-          self.format = firstNodeFormat
-          self.style = firstNodeStyle
-        }
+      } else if firstNode.isComposing() && anchor.type == .text {
+        anchor.offset -= text.lengthAsNSString()
       }
     } else {
-      var markedNodeKeysForKeep = Set(firstNode.getParentKeys()).union(lastNode?.getParentKeys() ?? [])
+      let lastIndex = selectedNodesLength - 1
+      var lastNode = selectedNodes[lastIndex]
+      var markedNodeKeysForKeep: Set<String> = Set(firstNode.getParentKeys())
+      lastNode.getParentKeys().forEach({ markedNodeKeysForKeep.insert($0) })
 
-      // We have to get the parent elements before the next section,
-      // as in that section we might mutate the lastNode.
-      let firstElement = try firstNode.getParentOrThrow()
-      var lastElement: ElementNode? = lastNode is ElementNode ? lastNode as? ElementNode : try lastNode?.getParentOrThrow()
-      var lastElementChild = lastNode
-
-      // If the last element is inline, we should instead look at getting
-      // the nodes of its parent, rather than itself. This behavior will
-      // then better match how text node insertions work. We will need to
-      // also update the last element's child accordingly as we do this.
-      if firstElement != lastElement && (lastElement?.isInline() ?? false) {
-        // Keep traversing till we have a non-inline element parent.
-        repeat {
-          lastElementChild = lastElement
-          lastElement = try lastElement?.getParentOrThrow()
-        } while lastElement?.isInline() ?? false
+      // First node is a TextNode, so we're getting a new "firstNode" from the start of selectedNodes
+      let firstElement: ElementNode
+      if let elementNode = selectedNodes[0] as? ElementNode {
+        firstElement = elementNode
+      } else {
+        firstElement = try firstNode.getParentOrThrow()
       }
 
+      let lastElement: ElementNode = try (lastNode as? ElementNode ?? lastNode.getParentOrThrow())
+
       // Handle mutations to the last node.
-      if (endPoint.type == .text && (endOffset != 0 || (lastNode?.getTextContent().lengthAsNSString() == 0))) ||
-          (endPoint.type == .element && lastNode?.getIndexWithinParent() ?? 0 < endOffset) {
-        if let lastNodeAsTextNode = lastNode as? TextNode,
-           !lastNodeAsTextNode.isToken(),
-           endOffset != lastNodeAsTextNode.getTextContentSize() {
-          if lastNodeAsTextNode.isSegmented() {
-            let textNode = TextNode(text: lastNodeAsTextNode.getTextPart())
-            try lastNodeAsTextNode.replace(replaceWith: textNode)
-            lastNode = textNode
-          }
-          if let lastNodeAsTextNode = lastNode as? TextNode {
-            lastNode = try lastNodeAsTextNode.spliceText(offset: 0, delCount: endOffset, newText: "")
-            if let lastNode {
-              markedNodeKeysForKeep.insert(lastNode.key)
+      if let lastIndex = lastNode.getIndexWithinParent() {
+        if endPoint.type == .text && (endOffset != 0 || lastNode.getTextPart().isEmpty) ||
+            (endPoint.type == .element && lastIndex < endOffset) {
+          if let lastTextNode = lastNode as? TextNode,
+             !isTokenOrInert(lastTextNode) && endOffset != lastTextNode.getTextContentSize() {
+            if lastTextNode.isSegmented() {
+              let textNode = createTextNode(text: lastNode.getTextContent())
+              _ = try lastNode.replace(replaceWith: textNode)
+              lastNode = textNode
+            }
+            lastNode = try lastTextNode.spliceText(offset: 0, delCount: endOffset, newText: "")
+            markedNodeKeysForKeep.insert(lastNode.getKey())
+          } else {
+            if format != firstNode.format, let lastTextNode = lastNode as? TextNode {
+              lastNode = try lastTextNode.spliceText(offset: 0, delCount: endOffset, newText: text, moveSelection: true)
+              markedNodeKeysForKeep.insert(lastNode.getKey())
+            } else {
+              try lastNode.remove()
             }
           }
         } else {
-          let lastNodeParent = try lastNode?.getParentOrThrow()
-          if let lastNodeParent,
-             !lastNodeParent.canBeEmpty(),
-             lastNodeParent.getChildrenSize() == 1 {
-            try lastNodeParent.remove()
-          } else {
-            try lastNode?.remove()
-          }
-        }
-      } else {
-        if let lastNode {
-          markedNodeKeysForKeep.insert(lastNode.key)
+          markedNodeKeysForKeep.insert(lastNode.getKey())
         }
       }
 
       // Either move the remaining nodes of the last parent to after
       // the first child, or remove them entirely. If the last parent
       // is the same as the first parent, this logic also works.
-      let lastNodeChildren = lastElement?.getChildren() ?? []
+      let lastNodeChildren = lastElement.getChildren().reversed()
       let selectedNodesSet = Set(selectedNodes)
-      let firstAndLastElementsAreEqual = firstElement == lastElement
+      let firstAndLastElementsAreEqual = firstElement === lastElement
 
-      // We choose a target to insert all nodes after. In the case of having
-      // and inline starting parent element with a starting node that has no
-      // siblings, we should insert after the starting parent element, otherwise
-      // we will incorrectly merge into the starting parent element.
-      // TODO: should we keep on traversing parents if we're inside another
-      // nested inline element?
-      let insertionTarget = firstElement.isInline() && firstNode.getNextSibling() == nil ? firstElement : firstNode
-
-      for (_, lastNodeChild) in lastNodeChildren.enumerated().reversed() {
-        if lastNodeChild.isSameNode(firstNode) || ((lastNodeChild as? ElementNode)?.isParentOf(firstNode) ?? false) {
-          break
-        }
-
-        if lastNodeChild.isAttached() {
-          if !selectedNodesSet.contains(lastNodeChild) || lastNodeChild == lastElementChild {
-            if !firstAndLastElementsAreEqual {
-              try insertionTarget.insertAfter(nodeToInsert: lastNodeChild)
-            }
-          } else {
-            try lastNodeChild.remove()
-          }
-        }
-      }
-
-      if !firstAndLastElementsAreEqual {
-        // Check if we have already moved out all the nodes of the
-        // last parent, and if so, traverse the parent tree and mark
-        // them all as being able to deleted too.
-        var parent: ElementNode? = lastElement
-        var lastRemovedParent: ElementNode?
-
-        while let thisParent = parent {
-          let children = thisParent.getChildren()
-          let childrenLength = children.count
-          if childrenLength == 0 || children.last == lastRemovedParent {
-            markedNodeKeysForKeep.remove(thisParent.key)
-            lastRemovedParent = thisParent
-          }
-          parent = thisParent.getParent()
-        }
-      }
-
-      // Ensure we do splicing after moving of nodes, as splicing
-      // can have side-effects (in the case of hashtags).
-      if !firstNode.isToken() {
-        firstNode = try firstNode.spliceText(offset: startOffset, delCount: firstNodeTextLength - startOffset, newText: text, moveSelection: true)
-        if firstNode.getTextContent().lengthAsNSString() == 0 {
-          try firstNode.remove()
-        } else if firstNode.isComposing() && self.anchor.type == .text {
-          // When composing, we need to adjust the anchor offset so that
-          // we correctly replace that right range.
-          self.anchor.offset -= text.lengthAsNSString()
-        }
-      } else if startOffset == firstNodeTextLength {
-        try firstNode.select(anchorOffset: nil, focusOffset: nil)
+      // If the last element is an "inline" element, don't move it's text nodes to the first node.
+      // Instead, preserve the "inline" element's children and append to the first element.
+      if !lastElement.canBeEmpty() {
+        try firstElement.append([lastElement])
       } else {
-        let textNode = TextNode(text: text)
-        try textNode.select(anchorOffset: nil, focusOffset: nil)
-        try firstNode.replace(replaceWith: textNode)
+        for node in lastNodeChildren {
+          if node === firstNode {
+            break
+          }
+
+          if node.isAttached() {
+            if !selectedNodesSet.contains(node) || node === lastNode {
+              if !firstAndLastElementsAreEqual {
+                _ = try firstNode.insertAfter(nodeToInsert: node)
+              }
+            } else {
+              try node.remove()
+            }
+          }
+        }
+
+        if !firstAndLastElementsAreEqual {
+          // Check if we have already moved out all the nodes of the
+          // last parent, and if so, traverse the parent tree and mark
+          // them all as being able to deleted too.
+          var parent: Node? = lastElement
+          var lastRemovedParent: Node?
+
+          while let unwrappedParent = parent as? ElementNode {
+            let children = unwrappedParent.getChildren()
+            let childrenLength = children.count
+
+            if childrenLength == 0 || children[childrenLength - 1].isSameKey(lastRemovedParent) {
+              markedNodeKeysForKeep.remove(unwrappedParent.getKey())
+              lastRemovedParent = unwrappedParent
+            }
+
+            parent = unwrappedParent.getParent()
+          }
+        }
       }
 
-      for selectedNode in selectedNodes.dropFirst() {
-        let key = selectedNode.key
-        if !markedNodeKeysForKeep.contains(key) {
-          try selectedNode.remove()
+      if firstNode.format == format {
+        // Ensure we do splicing after moving of nodes, as splicing
+        // can have side-effects (in the case of hashtags).
+        if !isTokenOrInert(firstNode) {
+          firstNode = try firstNode.spliceText(
+            offset: startOffset,
+            delCount: firstNodeTextLength - startOffset,
+            newText: text,
+            moveSelection: true
+          )
+          if firstNode.getTextPart().isEmpty {
+            try firstNode.remove()
+          } else if firstNode.isComposing() && anchor.type == .text {
+            anchor.offset -= text.lengthAsNSString()
+          }
+        } else if startOffset == firstNodeTextLength {
+          _ = try firstNode.select(anchorOffset: nil, focusOffset: nil)
+        } else {
+          try firstNode.remove()
+        }
+      }
+
+      // Remove all selected nodes that haven't already been removed.
+      for node in selectedNodes[1..<selectedNodes.count] {
+        let key = node.getKey()
+
+        if !markedNodeKeysForKeep.contains(key) &&
+            (!isElementNode(node: node) || ((node as? ElementNode)?.canSelectionRemove() ?? false)) {
+          try node.remove()
         }
       }
     }
@@ -893,94 +842,76 @@ public class RangeSelection: BaseSelection {
   }
 
   public func deleteCharacter(isBackwards: Bool) throws {
-    let wasCollapsed = isCollapsed()
     if isCollapsed() {
-      let anchor = self.anchor
-      let focus = self.focus
-      var anchorNode: Node? = try anchor.getNode()
+      let node = try anchor.getNode()
+
       if !isBackwards {
-        if let anchorNode = anchorNode as? ElementNode,
-           anchor.type == .element,
-           anchor.offset == anchorNode.getChildrenSize() {
-          let parent = anchorNode.getParent()
-          let nextSibling = anchorNode.getNextSibling() ?? parent?.getNextSibling()
-          if let nextSibling = nextSibling as? ElementNode, nextSibling.isShadowRoot() {
-            return
+        var requiresCanExtractContents = false
+
+        switch anchor.type {
+        case .element:
+          if let node = node as? ElementNode {
+            requiresCanExtractContents = anchor.offset == node.getChildrenSize()
           }
-        } else if let anchorNode = anchorNode as? ElementNode, anchor.type == .text && anchor.offset == anchorNode.getTextContentSize() {
-          // repeating the code in the previous condition, as porting the JS code with a typecast in the 'if' statement was difficult in Swift
-          let parent = anchorNode.getParent()
-          let nextSibling = anchorNode.getNextSibling() ?? parent?.getNextSibling()
-          if let nextSibling = nextSibling as? ElementNode, nextSibling.isShadowRoot() {
-            return
+        case .text:
+          if let node = node as? TextNode {
+            requiresCanExtractContents = anchor.offset == node.getTextContentSize()
           }
+        case .range:
+          throw LexicalError.invariantViolation("Need range selection")
+        case .node:
+          throw LexicalError.invariantViolation("Need node selection")
+        case .grid:
+          throw LexicalError.invariantViolation("Need grid selection")
+        }
+
+        if let nextSibling = try (node.getNextSibling() ?? (try node.getParentOrThrow()).getNextSibling()) as? ElementNode,
+           requiresCanExtractContents && !nextSibling.canExtractContents() {
+          return
         }
       }
 
-      // Handle the deletion around decorators.
-      let possibleNode = try getAdjacentNode(focus: focus, isBackward: isBackwards)
-      if let possibleNode = possibleNode as? DecoratorNode, !possibleNode.isIsolated() {
-        // Make it possible to move selection from range selection to
-        // node selection on the node.
-        if /* possibleNode.isKeyboardSelectable() && */
-          let anchorNode = anchorNode as? ElementNode,
-          anchorNode.getChildrenSize() == 0 {
-          try anchorNode.remove()
-          let nodeSelection = NodeSelection(nodes: Set([possibleNode.key]))
-          try setSelection(nodeSelection)
-        } else {
-          try possibleNode.remove()
-          if let editor = getActiveEditor() {
-            editor.dispatchCommand(type: .selectionChange)
-          }
-        }
-        return
-      } else if !isBackwards, let possibleNode = possibleNode as? ElementNode, let anchorNode = anchorNode as? ElementNode, anchorNode.isEmpty() {
-        try anchorNode.remove()
-        try possibleNode.selectStart()
-        return
-      }
       try modify(alter: .extend, isBackward: isBackwards, granularity: .character)
 
       if !isCollapsed() {
-        let focusNode = focus.type == .text ? try focus.getNode() : nil
-        anchorNode = anchor.type == .text ? try anchor.getNode() : nil
+        let focusNode = focus.type == .text ? (try focus.getNode() as? TextNode) : nil
+        let anchorNode = focus.type == .text ? (try anchor.getNode() as? TextNode) : nil
 
-        if let focusNode = focusNode as? TextNode, focusNode.isSegmented() {
-          let offset = focus.getOffset()
-          let textContentSize = focusNode.getTextContentSize()
-          if let anchorNode, focusNode.isSameNode(anchorNode) || (isBackwards && offset != textContentSize) || (!isBackwards && offset != 0) {
-            try removeSegment(node: focusNode, isBackward: isBackwards, offset: offset)
+        if let node = focusNode, node.isSegmented() {
+          let offset = focus.offset
+          let textContentSize = node.getTextContentSize()
+
+          if focusNode == anchorNode &&
+              (isBackwards && offset != textContentSize) ||
+              (!isBackwards && offset != 0) {
+            try removeSegment(node: node, isBackward: isBackwards, offset: offset)
             return
           }
-        } else if let anchorNode = anchorNode as? TextNode, anchorNode.isSegmented() {
-          let offset = anchor.getOffset()
-          let textContentSize = anchorNode.getTextContentSize()
-          if let focusNode, anchorNode.isSameNode(focusNode) || (isBackwards && offset != 0) || (!isBackwards && offset != textContentSize) {
-            try removeSegment(node: anchorNode, isBackward: isBackwards, offset: offset)
+        } else if let node = anchorNode, node.isSegmented() {
+          let offset = anchor.offset
+          let textContentSize = node.getTextContentSize()
+
+          if focusNode == anchorNode &&
+              (isBackwards && offset != textContentSize) ||
+              (!isBackwards && offset != 0) {
+            try removeSegment(node: node, isBackward: isBackwards, offset: offset)
             return
           }
         }
-        try updateCaretSelectionForUnicodeCharacter(selection: self, isBackward: isBackwards)
+        // @alexmattice - updateCaretSelectionForUnicodeCharacter(this, isBackward)
       } else if isBackwards && anchor.offset == 0 {
         // Special handling around rich text nodes
-        let element = anchor.type == .element ? try anchor.getNode() : try anchor.getNode().getParentOrThrow()
-        if let element = element as? ElementNode, try element.collapseAtStart(selection: self) {
+        let node = try anchor.type == .element ? anchor.getNode() : (try anchor.getNode().getParentOrThrow())
+
+        if let elementNode = node as? ElementNode, (try elementNode.collapseAtStart(selection: self)) {
           return
         }
       }
     }
 
     try removeText()
-
-    if isBackwards && !wasCollapsed && isCollapsed() && self.anchor.type == .element && self.anchor.offset == 0 {
-      if let anchorNode = try self.anchor.getNode() as? ElementNode,
-         anchorNode.isEmpty(),
-         isRootNode(node: anchorNode.getParent()),
-         anchorNode.getIndexWithinParent() == 0 {
-        try anchorNode.collapseAtStart(selection: self)
-      }
-    }
+    // NOTE: This is where the logic for dealing with hashtags resides in the web code.
+    // updateCaretSelectionForAdjacentHashtags()
   }
 
   public func deleteWord(isBackwards: Bool) throws {
@@ -1067,7 +998,6 @@ public class RangeSelection: BaseSelection {
     self.focus = focus
     self.dirty = false
     self.format = TextFormat()
-    self.style = ""
   }
 
   internal func formatText(formatType: TextFormatType) throws {
