@@ -561,7 +561,8 @@ class SelectionUtilsTests: XCTestCase {
         try transferStartingElementPointToTextPoint(
           start: startPoint,
           end: endPoint,
-          format: TextFormat()
+          format: TextFormat(),
+          style: ""
         )
       )
     }
