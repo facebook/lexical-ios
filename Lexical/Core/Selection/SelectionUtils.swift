@@ -434,7 +434,7 @@ func moveSelectionPointToEnd(point: Point, node: Node) {
   }
 }
 
-func transferStartingElementPointToTextPoint(start: Point, end: Point, format: TextFormat) throws {
+func transferStartingElementPointToTextPoint(start: Point, end: Point, format: TextFormat, style: String) throws {
   guard let element = try start.getNode() as? ElementNode else { return }
 
   var placementNode = element.getChildAtIndex(index: start.offset)
@@ -506,43 +506,6 @@ func removeSegment(node: TextNode, isBackward: Bool, offset: Int) throws {
   }
 }
 
-public func updateCaretSelectionForUnicodeCharacter(
-  selection: RangeSelection,
-  isBackward: Bool
-) throws {
-  let anchor = selection.anchor
-  let focus = selection.focus
-  let anchorNode = try anchor.getNode()
-  let focusNode = try focus.getNode()
-
-  if anchorNode == focusNode && anchor.type == .text && focus.type == .text {
-    let anchorOffset = anchor.offset
-    let focusOffset = focus.offset
-    let isBefore = anchorOffset < focusOffset
-    let startOffset = isBefore ? anchorOffset : focusOffset
-    let endOffset = isBefore ? focusOffset : anchorOffset
-    let characterOffset = endOffset - 1
-
-    if startOffset != characterOffset {
-      let text = anchorNode.getTextContent()
-      let start = text.index(text.startIndex, offsetBy: startOffset)
-      let end = text.index(text.startIndex, offsetBy: endOffset)
-      let range = start..<end
-      let textSlice = String(text[range])
-
-      if !doesContainGrapheme(textSlice) {
-        if isBackward {
-          focus.offset = characterOffset
-        } else {
-          anchor.offset = characterOffset
-        }
-      }
-    }
-  } else {
-    // TODO: Handling of multibyte characters
-  }
-}
-
 public func setBlocksType(
   selection: RangeSelection,
   createElement: () -> ElementNode
@@ -599,4 +562,104 @@ private func isBlock(_ node: Node) -> Bool {
     firstChild == nil || isTextNode(firstChild) || ((firstChild as? ElementNode)?.isInline() ?? false)
 
   return !node.isInline() && node.canBeEmpty() != false && isLeafElement
+}
+
+private func resolveSelectionPointOnBoundary(
+  point: Point,
+  isBackward: Bool,
+  isCollapsed: Bool
+) throws {
+  let offset = point.offset
+  let node = try point.getNode()
+
+  if offset == 0 {
+    let prevSibling = node.getPreviousSibling()
+    let parent = node.getParent()
+
+    if !isBackward {
+      if
+        let prevSibling = prevSibling as? ElementNode,
+        !isCollapsed,
+        prevSibling.isInline()
+      {
+        point.key = prevSibling.key
+        point.offset = prevSibling.getChildrenSize()
+        point.type = .element
+      } else if let prevSibling = prevSibling as? TextNode {
+        point.key = prevSibling.key
+        point.offset = prevSibling.getTextContent().lengthAsNSString()
+      }
+    } else if
+      (isCollapsed || !isBackward),
+      prevSibling == nil,
+      let parent,
+      parent.isInline() {
+      let parentSibling = parent.getPreviousSibling()
+      if let parentSibling = parentSibling as? TextNode {
+        point.key = parentSibling.key
+        point.offset = parentSibling.getTextContent().lengthAsNSString()
+      }
+    }
+  } else if offset == node.getTextContent().lengthAsNSString() {
+    let nextSibling = node.getNextSibling()
+    let parent = node.getParent()
+
+    if isBackward, let nextSibling = nextSibling as? ElementNode, nextSibling.isInline() {
+      point.key = nextSibling.key
+      point.offset = 0
+      point.type = .element
+    } else if
+      (isCollapsed || isBackward),
+      nextSibling == nil,
+      let parent,
+      parent.isInline(),
+      !parent.canInsertTextAfter()
+    {
+      let parentSibling = parent.getNextSibling()
+      if let parentSibling = parentSibling as? TextNode {
+        point.key = parentSibling.key
+        point.offset = 0
+      }
+    }
+  }
+}
+
+internal func normalizeSelectionPointsForBoundaries(
+  anchor: Point,
+  focus: Point,
+  lastSelection: BaseSelection?
+) throws {
+  if anchor.type == .text && focus.type == .text {
+    let isBackward = try anchor.isBefore(point: focus)
+    let isCollapsed = anchor == focus
+
+    // Attempt to normalize the offset to the previous sibling if we're at the
+    // start of a text node and the sibling is a text node or inline element.
+    try resolveSelectionPointOnBoundary(point: anchor, isBackward: isBackward, isCollapsed: isCollapsed)
+    try resolveSelectionPointOnBoundary(point: focus, isBackward: !isBackward, isCollapsed: isCollapsed)
+
+    if isCollapsed {
+      focus.key = anchor.key
+      focus.offset = anchor.offset
+      focus.type = anchor.type
+    }
+    guard let editor = getActiveEditor() else {
+      throw LexicalError.invariantViolation("no editor")
+    }
+
+    if
+      editor.isComposing(),
+      editor.compositionKey != anchor.key,
+      let lastSelection = lastSelection as? RangeSelection
+    {
+      let lastAnchor = lastSelection.anchor
+      let lastFocus = lastSelection.focus
+      anchor.key = lastAnchor.key
+      anchor.type = lastAnchor.type
+      anchor.offset = lastAnchor.offset
+      focus.key = lastFocus.key
+      focus.type = lastFocus.type
+      focus.offset = lastFocus.offset
+    }
+  }
 }

@@ -92,6 +92,17 @@ internal enum Reconciler {
       fatalError("Cannot run reconciler on an editor with no text storage")
     }
 
+    if editor.dirtyNodes.isEmpty,
+       editor.dirtyType == .noDirtyNodes,
+       let currentSelection = currentEditorState.selection,
+       let pendingSelection = pendingEditorState.selection,
+       currentSelection.isSelection(pendingSelection),
+       pendingSelection.dirty == false,
+       markedTextOperation == nil {
+      // should be nothing to reconcile
+      return
+    }
+
     if let markedTextOperation, markedTextOperation.createMarkedText {
       guard shouldReconcileSelection == false else {
         editor.log(.reconciler, .warning, "should not reconcile selection whilst starting marked text!")

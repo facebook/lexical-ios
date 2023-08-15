@@ -227,6 +227,7 @@ open class ElementNode: Node {
     return false
   }
 
+  @discardableResult
   open func collapseAtStart(selection: RangeSelection) throws -> Bool {
     return false
   }
@@ -461,5 +462,10 @@ open class ElementNode: Node {
     _ = try children.map({ try $0.remove() })
 
     return writableSelf
+  }
+
+  // Shadow root functionality not yet implemented in Lexical iOS.
+  public func isShadowRoot() -> Bool {
+    return false
   }
 }

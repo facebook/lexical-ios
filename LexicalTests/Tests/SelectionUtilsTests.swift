@@ -561,42 +561,10 @@ class SelectionUtilsTests: XCTestCase {
         try transferStartingElementPointToTextPoint(
           start: startPoint,
           end: endPoint,
-          format: TextFormat()
+          format: TextFormat(),
+          style: ""
         )
       )
-    }
-  }
-
-  func testUpdateCaretSelectionForUnicodeCharacter() throws {
-    let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
-    let editor = view.editor
-
-    try editor.update {
-      let textNode = TextNode()
-      try textNode.setText("hello ")
-
-      let textNode2 = TextNode()
-      try textNode2.setText("world")
-
-      let paragraphNode = ParagraphNode()
-      try paragraphNode.append([textNode, textNode2])
-
-      let startPoint = createPoint(key: textNode.key, offset: 0, type: .text)
-      let endPoint = createPoint(key: textNode.key, offset: 6, type: .text)
-      let selection = RangeSelection(anchor: startPoint, focus: endPoint, format: TextFormat())
-
-      XCTAssertEqual(startPoint.offset, 0)
-      XCTAssertEqual(endPoint.offset, 6)
-
-      XCTAssertNoThrow(
-        try updateCaretSelectionForUnicodeCharacter(
-          selection: selection,
-          isBackward: false
-        )
-      )
-
-      XCTAssertEqual(startPoint.offset, 5)
-      XCTAssertEqual(endPoint.offset, 6)
     }
   }
 
