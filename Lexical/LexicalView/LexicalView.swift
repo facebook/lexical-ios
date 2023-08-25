@@ -104,7 +104,7 @@ public extension LexicalViewDelegate {
     return layoutManager
   }
 
-  var textContainerInsets: UIEdgeInsets {
+  @objc public var textContainerInsets: UIEdgeInsets {
     textView.textContainerInset
   }
 
