@@ -27,12 +27,12 @@ public extension LexicalViewDelegate {
   }
 }
 
-public struct LexicalPlaceholderText {
+@objc public class LexicalPlaceholderText: NSObject {
   public var text: String
   public var font: UIFont
   public var color: UIColor
 
-  public init(text: String, font: UIFont, color: UIColor) {
+  @objc public init(text: String, font: UIFont, color: UIColor) {
     self.text = text
     self.font = font
     self.color = color
@@ -46,7 +46,7 @@ public struct LexicalPlaceholderText {
 /// In order to avoid the possibility of accidentally using UITextView methods that Lexical does not expect, we've
 /// encapsulated our UITextView subclass as a private property of LexicalView. The aim is to consider the UITextView
 /// as below the abstraction level for developers using Lexical.
-public class LexicalView: UIView, Frontend {
+@objc public class LexicalView: UIView, Frontend {
   var textLayoutWidth: CGFloat {
     return max(textView.bounds.width - textView.textContainerInset.left - textView.textContainerInset.right - 2 * textView.textContainer.lineFragmentPadding, 0)
   }
@@ -54,7 +54,7 @@ public class LexicalView: UIView, Frontend {
   let textView: TextView
   let responderForNodeSelection: ResponderForNodeSelection
 
-  public init(editorConfig: EditorConfig, featureFlags: FeatureFlags, placeholderText: LexicalPlaceholderText? = nil) {
+  @objc public init(editorConfig: EditorConfig, featureFlags: FeatureFlags, placeholderText: LexicalPlaceholderText? = nil) {
     self.textView = TextView(editorConfig: editorConfig, featureFlags: featureFlags)
     self.textView.showsVerticalScrollIndicator = false
     self.textView.clipsToBounds = true
@@ -95,7 +95,7 @@ public class LexicalView: UIView, Frontend {
     return textStorage
   }
 
-  var layoutManager: LayoutManager {
+  @objc public var layoutManager: LayoutManager {
     guard let layoutManager = self.textView.layoutManager as? LayoutManager else {
       // this will never happen
       editor.log(.TextView, .error, "Text view had no layout manager")
@@ -278,7 +278,7 @@ public class LexicalView: UIView, Frontend {
   /// Returns the Lexical ``Editor`` owned by this LexicalView.
   ///
   /// This is the primary entry point for working with Lexical.
-  public var editor: Editor {
+  @objc public var editor: Editor {
     get {
       textView.editor
     }
@@ -380,12 +380,14 @@ public class LexicalView: UIView, Frontend {
     textView.inputDelegate?.selectionDidChange(textView)
   }
 
-  public func textViewBecomeFirstResponder() {
-    _ = textView.becomeFirstResponder()
+  @discardableResult
+  @objc public func textViewBecomeFirstResponder() -> Bool {
+    return textView.becomeFirstResponder()
   }
 
-  public func textViewResignFirstResponder() {
-    textView.resignFirstResponder()
+  @discardableResult
+  @objc public func textViewResignFirstResponder() -> Bool {
+    return textView.resignFirstResponder()
   }
 
   public func hideAccessoryInput(_ hidden: Bool) {
