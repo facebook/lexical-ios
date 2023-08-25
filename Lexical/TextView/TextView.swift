@@ -32,6 +32,8 @@ class TextView: UITextView {
   private let useInputDelegateProxy: Bool
   private let inputDelegateProxy: InputDelegateProxy
 
+  fileprivate var textViewDelegate: TextViewDelegate = TextViewDelegate()
+
   // MARK: - Init
 
   init(editorConfig: EditorConfig, featureFlags: FeatureFlags) {
@@ -68,7 +70,7 @@ class TextView: UITextView {
       super.inputDelegate = inputDelegateProxy
     }
 
-    delegate = self
+    delegate = textViewDelegate
     textContainerInset = UIEdgeInsets(top: 8.0, left: 5.0, bottom: 8.0, right: 5.0)
 
     setUpPlaceholderLabel()
@@ -368,7 +370,7 @@ class TextView: UITextView {
     addSubview(placeholderLabel)
   }
 
-  private func hidePlaceholderLabel() {
+  fileprivate func hidePlaceholderLabel() {
     placeholderLabel.isHidden = true
   }
 
@@ -381,59 +383,65 @@ class TextView: UITextView {
   }
 }
 
-extension TextView: UITextViewDelegate {
+private class TextViewDelegate: NSObject, UITextViewDelegate {
   public func textViewDidChangeSelection(_ textView: UITextView) {
+    guard let textView = textView as? TextView else { return }
 
-    if isUpdatingNativeSelection {
+    if textView.isUpdatingNativeSelection {
       return
     }
 
-    if let interception = interceptNextSelectionChangeAndReplaceWithRange {
-      interceptNextSelectionChangeAndReplaceWithRange = nil
-      selectedRange = interception
+    if let interception = textView.interceptNextSelectionChangeAndReplaceWithRange {
+      textView.interceptNextSelectionChangeAndReplaceWithRange = nil
+      textView.selectedRange = interception
       return
     }
 
-    onSelectionChange(editor: editor)
+    onSelectionChange(editor: textView.editor)
   }
 
   public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-    hidePlaceholderLabel()
-    if let lexicalDelegate {
-      return lexicalDelegate.textViewShouldChangeText(self, range: range, replacementText: text)
+    guard let textView = textView as? TextView else { return false }
+
+    textView.hidePlaceholderLabel()
+    if let lexicalDelegate = textView.lexicalDelegate {
+      return lexicalDelegate.textViewShouldChangeText(textView, range: range, replacementText: text)
     }
 
     return true
   }
 
   public func textViewDidBeginEditing(_ textView: UITextView) {
-    lexicalDelegate?.textViewDidBeginEditing(textView: self)
+    guard let textView = textView as? TextView else { return }
+    textView.lexicalDelegate?.textViewDidBeginEditing(textView: textView)
   }
 
   public func textViewDidEndEditing(_ textView: UITextView) {
-    lexicalDelegate?.textViewDidEndEditing(textView: self)
+    guard let textView = textView as? TextView else { return }
+    textView.lexicalDelegate?.textViewDidEndEditing(textView: textView)
   }
 
   public func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+    guard let textView = textView as? TextView else { return false }
 
     let nativeSelection = NativeSelection(range: characterRange, affinity: .backward)
-    try? editor.update {
+    try? textView.editor.update {
       guard let selection = try getSelection() as? RangeSelection else {
         // TODO: cope with non range selections. Should just make a range selection here
         return
       }
       try selection.applyNativeSelection(nativeSelection)
     }
-    let handledByLexical = self.editor.dispatchCommand(type: .linkTapped, payload: URL)
+    let handledByLexical = textView.editor.dispatchCommand(type: .linkTapped, payload: URL)
 
     if handledByLexical {
       return false
     }
 
-    if !isEditable {
+    if !textView.isEditable {
       return true
     }
 
-    return lexicalDelegate?.textView(self, shouldInteractWith: URL, in: characterRange, interaction: interaction) ?? false
+    return textView.lexicalDelegate?.textView(textView, shouldInteractWith: URL, in: characterRange, interaction: interaction) ?? false
   }
 }
