@@ -38,17 +38,20 @@ public class EditorState: NSObject {
   }
 
   /// Allows you to interrogate the contents of this EditorState without having to attach it to an Editor.
-  public func read<V>(closure: () throws -> V) throws -> V? {
+  public func read<V>(closure: () throws -> V) throws -> V {
     return try beginRead(activeEditorState: self, closure: closure)
   }
 
   private func beginRead<V>(
     activeEditorState: EditorState,
     closure: () throws -> V
-  ) throws -> V? {
+  ) throws -> V {
     var result: V?
     try runWithStateLexicalScopeProperties(activeEditor: nil, activeEditorState: activeEditorState, readOnlyMode: true) {
       result = try closure()
+    }
+    guard let result else {
+      throw LexicalError.internal("No result returned from expected closure")
     }
     return result
   }
