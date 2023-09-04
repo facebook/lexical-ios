@@ -209,7 +209,7 @@ func stringLocationForPoint(_ point: Point, editor: Editor) throws -> Int? {
   }
 }
 
-func createNativeSelection(from selection: RangeSelection, editor: Editor) throws -> NativeSelection {
+public func createNativeSelection(from selection: RangeSelection, editor: Editor) throws -> NativeSelection {
   let isBefore = try selection.anchor.isBefore(point: selection.focus)
   var affinity: UITextStorageDirection = isBefore ? .forward : .backward
 

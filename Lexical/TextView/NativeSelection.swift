@@ -39,7 +39,7 @@ public class NativeSelection {
 
   // if nil, there's no selection at all (i.e. no focus). If there's a location but length 0, then
   // the caret is being displayed.
-  let range: NSRange?
+  public let range: NSRange?
 
   // UITextRange can only be turned into a numerical range in the context of a text field. We're storing
   // both things in this object -- the opaque range is useful for modifying the selection, whereas the
