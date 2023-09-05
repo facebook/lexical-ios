@@ -51,7 +51,9 @@ public extension LexicalViewDelegate {
     return max(textView.bounds.width - textView.textContainerInset.left - textView.textContainerInset.right - 2 * textView.textContainer.lineFragmentPadding, 0)
   }
 
-  let textView: TextView
+  /// The unerlying UITextView. Note that this should not be accessed unless there's no way to do what you want
+  /// using the Lexical API.
+  @objc public let textView: TextView
   let responderForNodeSelection: ResponderForNodeSelection
 
   @objc public init(editorConfig: EditorConfig, featureFlags: FeatureFlags, placeholderText: LexicalPlaceholderText? = nil) {

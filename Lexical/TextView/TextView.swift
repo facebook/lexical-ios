@@ -15,7 +15,8 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
   func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool
 }
 
-class TextView: UITextView {
+/// Lexical's subclass of UITextView. Note that using this can be dangerous, if you make changes that Lexical does not expect.
+@objc public class TextView: UITextView {
   let editor: Editor
 
   internal let pasteboard = UIPasteboard.general
@@ -87,14 +88,14 @@ class TextView: UITextView {
     fatalError("\(#function) has not been implemented")
   }
 
-  override func layoutSubviews() {
+  override public func layoutSubviews() {
     super.layoutSubviews()
 
     placeholderLabel.frame.origin = CGPoint(x: textContainer.lineFragmentPadding * 1.5 + textContainerInset.left, y: textContainerInset.top)
     placeholderLabel.sizeToFit()
   }
 
-  override var inputDelegate: UITextInputDelegate? {
+  override public var inputDelegate: UITextInputDelegate? {
     get {
       if useInputDelegateProxy {
         return inputDelegateProxy.targetInputDelegate
@@ -113,7 +114,7 @@ class TextView: UITextView {
 
   // MARK: - Incoming events
 
-  override func deleteBackward() {
+  override public func deleteBackward() {
     editor.log(.UITextView, .verbose, "deleteBackward()")
 
     let previousSelectedRange = selectedRange
@@ -139,7 +140,7 @@ class TextView: UITextView {
     }
   }
 
-  override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+  override public func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
     if action == #selector(paste(_:)) {
       if pasteboard.hasStrings {
         return true
@@ -155,19 +156,19 @@ class TextView: UITextView {
     }
   }
 
-  override func copy(_ sender: Any?) {
+  override public func copy(_ sender: Any?) {
     editor.dispatchCommand(type: .copy, payload: pasteboard)
   }
 
-  override func cut(_ sender: Any?) {
+  override public func cut(_ sender: Any?) {
     editor.dispatchCommand(type: .cut, payload: pasteboard)
   }
 
-  override func paste(_ sender: Any?) {
+  override public func paste(_ sender: Any?) {
     editor.dispatchCommand(type: .paste, payload: pasteboard)
   }
 
-  override func insertText(_ text: String) {
+  override public func insertText(_ text: String) {
     editor.log(.UITextView, .verbose, "Text view selected range \(String(describing: self.selectedRange))")
 
     let expectedSelectionLocation = selectedRange.location + text.lengthAsNSString()
@@ -195,7 +196,7 @@ class TextView: UITextView {
 
   // MARK: Marked text
 
-  override func setAttributedMarkedText(_ markedText: NSAttributedString?, selectedRange: NSRange) {
+  override public func setAttributedMarkedText(_ markedText: NSAttributedString?, selectedRange: NSRange) {
     editor.log(.UITextView, .verbose)
     if let markedText {
       setMarkedTextInternal(markedText.string, selectedRange: selectedRange)
@@ -204,7 +205,7 @@ class TextView: UITextView {
     }
   }
 
-  override func setMarkedText(_ markedText: String?, selectedRange: NSRange) {
+  override public func setMarkedText(_ markedText: String?, selectedRange: NSRange) {
     editor.log(.UITextView, .verbose)
     if let markedText {
       setMarkedTextInternal(markedText, selectedRange: selectedRange)
@@ -270,7 +271,7 @@ class TextView: UITextView {
     showPlaceholderText()
   }
 
-  override func unmarkText() {
+  override public func unmarkText() {
     editor.log(.UITextView, .verbose)
     let previousMarkedRange = editor.getNativeSelection().markedRange
     let oldIsUpdatingNative = isUpdatingNativeSelection
@@ -374,7 +375,7 @@ class TextView: UITextView {
     placeholderLabel.isHidden = true
   }
 
-  override func becomeFirstResponder() -> Bool {
+  override public func becomeFirstResponder() -> Bool {
     let r = super.becomeFirstResponder()
     if r == true {
       onSelectionChange(editor: editor)
