@@ -84,7 +84,7 @@ open class LinkPlugin: Plugin {
 
   func toggleLink(url: String?) throws {
     guard let selection = try getSelection() else { return }
-    let nodes = try selection.extract()
+    var nodes = try selection.extract()
 
     guard let url else {
       // Remove linkNode
@@ -97,8 +97,19 @@ open class LinkPlugin: Plugin {
           try parent.remove()
         }
       }
-
       return
+    }
+
+    if nodes.count == 0 || (nodes.count == 1 && nodes.first is ElementNode) {
+      // We have a URL but no nodes. Insert a text node representing the URL.
+      let node = TextNode(text: url)
+      let result = try selection.insertNodes(nodes: [node], selectStart: false)
+      if result {
+        nodes = [node]
+      } else {
+        // could not insert node
+        return
+      }
     }
 
     // Add or merge LinkNodes
