@@ -120,7 +120,10 @@ public class RangeSelection: BaseSelection {
       let startOffset = anchorOffset > focusOffset ? focusOffset : anchorOffset
       let endOffset = anchorOffset > focusOffset ? anchorOffset : focusOffset
       let splitNodes = try firstNode.splitText(splitOffsets: [startOffset, endOffset])
-      guard let node = startOffset == 0 ? splitNodes.first : splitNodes[1] else { return [] }
+      guard let node = startOffset == 0
+              ? (splitNodes.count > 0 ? splitNodes.first : nil)
+              : (splitNodes.count > 1 ? splitNodes[1] : nil)
+      else { return [] }
       return [node]
     }
 
