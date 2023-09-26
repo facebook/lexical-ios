@@ -157,6 +157,11 @@ func checkIfTokenOrCanTextBeInserted(node: TextNode) -> Bool {
 
 // triggered by selection change event from the UITextView
 internal func onSelectionChange(editor: Editor) {
+  if editor.isUpdating {
+    // If for example a Lexical plugin requests the text view to become first responder (i.e.
+    // after some kind of UI was presented), we don't want to overwrite the Lexical selection here.
+    return
+  }
   do {
     try editor.updateWithCustomBehaviour(mode: UpdateBehaviourModificationMode(suppressReconcilingSelection: true, suppressSanityCheck: true)) {
       let nativeSelection = editor.getNativeSelection()
