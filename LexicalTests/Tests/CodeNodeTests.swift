@@ -24,7 +24,7 @@ class CodeNodeTests: XCTestCase {
     view = nil
   }
 
-  func testinsertNewAfter() throws {
+  func testInsertNewAfter() throws {
     guard let editor else {
       XCTFail("Editor unexpectedly nil")
       return
