@@ -43,8 +43,8 @@ class ListItemNodeTests: XCTestCase {
 
       /*
        1. Item 1
-          1. Nested item 1
-          2. Nested item 2
+       1. Nested item 1
+       2. Nested item 2
        2. Item 2
        */
 
