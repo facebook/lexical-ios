@@ -103,7 +103,7 @@ public struct TextFormat: Equatable, Codable {
     self.superScript = false
   }
 
-  func isTypeSet(type: TextFormatType) -> Bool {
+  public func isTypeSet(type: TextFormatType) -> Bool {
     switch type {
     case .bold:
       return bold

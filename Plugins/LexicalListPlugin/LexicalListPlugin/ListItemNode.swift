@@ -251,7 +251,6 @@ public class ListItemNode: ElementNode {
     let listNode = node.getParent() as? ListNode
 
     var attributes: [NSAttributedString.Key: Any] = theme.listItem ?? [:]
-
     attributes[.paddingHead] = attributes[.paddingHead] ?? theme.indentSize
 
     if node.getChildren().first is ListNode {
@@ -261,19 +260,40 @@ public class ListItemNode: ElementNode {
 
     var character = ""
 
-    if listNode?.getListType() == .bullet {
-      character = "\u{2022}"
-    } else {
-      // list is numbered; count previous siblings
-      if let listNode {
+    if let listNode {
+      switch listNode.getListType() {
+      case .bullet:
+        character = "\u{2022}"
+
+      case .number:
         let start = listNode.getStart()
-        let prevItems = getPreviousSiblings().filter { $0 is ListItemNode }.count
-        character = String("\(start + prevItems).")
+
+        // Count previous siblings
+        let prevItemsCount = getPreviousSiblings()
+          .filter {
+            if let siblingItem = $0 as? ListItemNode,
+               // Don't count sibling items containing nested lists
+               !(siblingItem.getFirstChild() is ListNode) {
+              return true
+            } else {
+              return false
+            }
+          }
+          .count
+
+        character = String("\(start + prevItemsCount).")
+
+      case .check:
+        break
       }
     }
 
     // the magic number is to horizontally position the bullet further left than the indent size, but not so far as to hit the previous indent stop.
-    attributes[.listItem] = ListItemAttribute(itemNodeKey: node.key, listItemCharacter: character, characterIndentationPixels: (CGFloat(getIndent() + 1) - 0.8) * theme.indentSize)
+    attributes[.listItem] = ListItemAttribute(
+      itemNodeKey: node.key,
+      listItemCharacter: character,
+      characterIndentationPixels: (CGFloat(getIndent() + 1) - 0.8) * theme.indentSize
+    )
 
     return attributes
   }
