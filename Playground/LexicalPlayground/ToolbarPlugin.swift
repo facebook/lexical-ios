@@ -21,7 +21,7 @@ public class ToolbarPlugin: Plugin {
   weak var viewControllerForPresentation: UIViewController?
   weak var historyPlugin: EditorHistoryPlugin?
 
-  init(viewControllerForPresentation: UIViewController, historyPlugin: EditorHistoryPlugin) {
+  init(viewControllerForPresentation: UIViewController, historyPlugin: EditorHistoryPlugin?) {
     self._toolbar = UIToolbar()
     self.historyPlugin = historyPlugin
     self.viewControllerForPresentation = viewControllerForPresentation

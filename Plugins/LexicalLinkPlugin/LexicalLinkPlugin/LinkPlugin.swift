@@ -28,7 +28,7 @@ open class LinkPlugin: Plugin {
   public init() {}
 
   weak var editor: Editor?
-  public var lexicalView: LexicalView?
+  public weak var lexicalView: LexicalView?
 
   public func setUp(editor: Editor) {
     self.editor = editor
