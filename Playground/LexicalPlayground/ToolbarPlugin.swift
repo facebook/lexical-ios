@@ -232,36 +232,36 @@ public class ToolbarPlugin: Plugin {
 
   private var paragraphMenuItems: [UIAction] {
     return [
-      UIAction(title: "Normal", image: UIImage(systemName: "paragraph"), state: paragraphMenuSelectedItem == .paragraph ? .on : .off, handler: { (_) in
-        self.setBlock {
+      UIAction(title: "Normal", image: UIImage(systemName: "paragraph"), state: paragraphMenuSelectedItem == .paragraph ? .on : .off, handler: { [weak self] (_) in
+        self?.setBlock {
           createParagraphNode()
         }
       }),
-      UIAction(title: "Heading 1", image: UIImage(named: "h1"), state: paragraphMenuSelectedItem == .h1 ? .on : .off, handler: { (_) in
-        self.setBlock {
+      UIAction(title: "Heading 1", image: UIImage(named: "h1"), state: paragraphMenuSelectedItem == .h1 ? .on : .off, handler: { [weak self] (_) in
+        self?.setBlock {
           createHeadingNode(headingTag: .h1)
         }
       }),
-      UIAction(title: "Heading 2", image: UIImage(named: "h2"), state: paragraphMenuSelectedItem == .h2 ? .on : .off, handler: { (_) in
-        self.setBlock {
+      UIAction(title: "Heading 2", image: UIImage(named: "h2"), state: paragraphMenuSelectedItem == .h2 ? .on : .off, handler: { [weak self] (_) in
+        self?.setBlock {
           createHeadingNode(headingTag: .h2)
         }
       }),
-      UIAction(title: "Code Block", image: UIImage(systemName: "chevron.left.forwardslash.chevron.right"), state: paragraphMenuSelectedItem == .code ? .on : .off, handler: { (_) in
-        self.setBlock {
+      UIAction(title: "Code Block", image: UIImage(systemName: "chevron.left.forwardslash.chevron.right"), state: paragraphMenuSelectedItem == .code ? .on : .off, handler: { [weak self] (_) in
+        self?.setBlock {
           createCodeNode()
         }
       }),
-      UIAction(title: "Quote", image: UIImage(systemName: "quote.opening"), state: paragraphMenuSelectedItem == .quote ? .on : .off, handler: { (_) in
-        self.setBlock {
+      UIAction(title: "Quote", image: UIImage(systemName: "quote.opening"), state: paragraphMenuSelectedItem == .quote ? .on : .off, handler: { [weak self] (_) in
+        self?.setBlock {
           createQuoteNode()
         }
       }),
-      UIAction(title: "Bulleted List", image: UIImage(systemName: "list.bullet"), state: paragraphMenuSelectedItem == .bullet ? .on : .off, handler: { (_) in
-        self.editor?.dispatchCommand(type: .insertUnorderedList)
+      UIAction(title: "Bulleted List", image: UIImage(systemName: "list.bullet"), state: paragraphMenuSelectedItem == .bullet ? .on : .off, handler: { [weak self] (_) in
+        self?.editor?.dispatchCommand(type: .insertUnorderedList)
       }),
-      UIAction(title: "Numbered List", image: UIImage(systemName: "list.number"), state: paragraphMenuSelectedItem == .numbered ? .on : .off, handler: { (_) in
-        self.editor?.dispatchCommand(type: .insertOrderedList)
+      UIAction(title: "Numbered List", image: UIImage(systemName: "list.number"), state: paragraphMenuSelectedItem == .numbered ? .on : .off, handler: { [weak self] (_) in
+        self?.editor?.dispatchCommand(type: .insertOrderedList)
       })
     ]
   }
@@ -285,20 +285,20 @@ public class ToolbarPlugin: Plugin {
       }
     }
     return [
-      UIAction(title: "Bold", image: UIImage(systemName: "bold"), state: rangeSelection?.hasFormat(type: .bold) ?? false ? .on : .off, handler: { (_) in
-        self.toggleBold()
+      UIAction(title: "Bold", image: UIImage(systemName: "bold"), state: rangeSelection?.hasFormat(type: .bold) ?? false ? .on : .off, handler: { [weak self] (_) in
+        self?.toggleBold()
       }),
-      UIAction(title: "Italic", image: UIImage(systemName: "italic"), state: rangeSelection?.hasFormat(type: .italic) ?? false ? .on : .off, handler: { (_) in
-        self.toggleItalic()
+      UIAction(title: "Italic", image: UIImage(systemName: "italic"), state: rangeSelection?.hasFormat(type: .italic) ?? false ? .on : .off, handler: { [weak self] (_) in
+        self?.toggleItalic()
       }),
-      UIAction(title: "Underline", image: UIImage(systemName: "underline"), state: rangeSelection?.hasFormat(type: .underline) ?? false ? .on : .off, handler: { (_) in
-        self.toggleUnderline()
+      UIAction(title: "Underline", image: UIImage(systemName: "underline"), state: rangeSelection?.hasFormat(type: .underline) ?? false ? .on : .off, handler: { [weak self] (_) in
+        self?.toggleUnderline()
       }),
-      UIAction(title: "Strikethrough", image: UIImage(systemName: "strikethrough"), state: rangeSelection?.hasFormat(type: .strikethrough) ?? false ? .on : .off, handler: { (_) in
-        self.toggleStrikethrough()
+      UIAction(title: "Strikethrough", image: UIImage(systemName: "strikethrough"), state: rangeSelection?.hasFormat(type: .strikethrough) ?? false ? .on : .off, handler: { [weak self] (_) in
+        self?.toggleStrikethrough()
       }),
-      UIAction(title: "Inline Code", image: UIImage(systemName: "chevron.left.forwardslash.chevron.right"), state: rangeSelection?.hasFormat(type: .code) ?? false ? .on : .off, handler: { (_) in
-        self.toggleInlineCode()
+      UIAction(title: "Inline Code", image: UIImage(systemName: "chevron.left.forwardslash.chevron.right"), state: rangeSelection?.hasFormat(type: .code) ?? false ? .on : .off, handler: { [weak self] (_) in
+        self?.toggleInlineCode()
       }),
     ]
   }
