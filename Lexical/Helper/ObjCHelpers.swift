@@ -17,7 +17,7 @@ import Foundation
 
   @discardableResult
   func dispatchCommandObjC(_ commandName: String, payload: AnyObject? = nil) -> Bool {
-    return dispatchCommand(type: CommandType(rawValue: commandName), payload: payload);
+    return dispatchCommand(type: CommandType(rawValue: commandName), payload: payload)
   }
 
   func getTextContentObjC() -> String {
