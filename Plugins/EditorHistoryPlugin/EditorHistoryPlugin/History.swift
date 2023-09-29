@@ -25,7 +25,7 @@ enum ChangeType {
 }
 
 public class EditorHistory {
-  var editor: Editor
+  weak var editor: Editor?
   var externalHistoryState: HistoryState?
   var delay: Int
   var prevChangeTime: Double
@@ -43,6 +43,10 @@ public class EditorHistory {
     editorState: EditorState,
     prevEditorState: EditorState,
     dirtyNodes: DirtyNodeMap) {
+    guard let editor else {
+      return
+    }
+
     let historyState: HistoryState = externalHistoryState ?? createEmptyHistoryState()
     let currentEditorState = historyState.current == nil ? nil : historyState.current?.editorState
 
@@ -96,7 +100,8 @@ public class EditorHistory {
 
   func undo() {
     guard let externalHistoryState,
-          externalHistoryState.undoStack.count != 0
+          externalHistoryState.undoStack.count != 0,
+          let editor
     else { return }
 
     var historyStateEntry = externalHistoryState.undoStack.removeLast()
@@ -126,7 +131,8 @@ public class EditorHistory {
 
   func redo() {
     guard let externalHistoryState,
-          externalHistoryState.redoStack.count != 0
+          externalHistoryState.redoStack.count != 0,
+          let editor
     else { return }
 
     if let current = externalHistoryState.current {
@@ -169,6 +175,7 @@ public class EditorHistory {
     currentHistoryEntry: HistoryStateEntry?,
     dirtyNodes: DirtyNodeMap
   ) throws -> MergeAction {
+    guard let editor else { return .discardHistoryCandidate }
     let changeTime = Date().timeIntervalSince1970
 
     if prevChangeTime == 0 {
@@ -216,11 +223,11 @@ public class EditorHistory {
 }
 
 public struct HistoryStateEntry {
-  var editor: Editor?
+  weak var editor: Editor?
   var editorState: EditorState
   var undoSelection: RangeSelection?
 
-  public init(editor: Editor, editorState: EditorState, undoSelection: RangeSelection?) {
+  public init(editor: Editor?, editorState: EditorState, undoSelection: RangeSelection?) {
     self.editor = editor
     self.editorState = editorState
     self.undoSelection = undoSelection
