@@ -70,7 +70,7 @@ public enum DirtyType {
   case fullReconcile
 }
 
-public enum TextFormatType {
+@objc public enum TextFormatType: Int {
   case bold
   case italic
   case underline
