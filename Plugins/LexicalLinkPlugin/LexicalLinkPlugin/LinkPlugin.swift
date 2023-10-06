@@ -71,15 +71,20 @@ open class LinkPlugin: Plugin {
 
   func insertLink(linkPayload: LinkPayload?, editor: Editor) {
     do {
+      var modifiedSelection: BaseSelection?
       try editor.update {
         getActiveEditorState()?.selection = linkPayload?.originalSelection
         try toggleLink(url: linkPayload?.urlString)
+        modifiedSelection = try getSelection()?.clone()
+      }
+      lexicalView?.textViewBecomeFirstResponder()
+      try editor.update {
+        getActiveEditorState()?.selection = modifiedSelection
       }
     } catch {
       print("\(error)")
     }
 
-    lexicalView?.textViewBecomeFirstResponder()
   }
 
   func toggleLink(url: String?) throws {
