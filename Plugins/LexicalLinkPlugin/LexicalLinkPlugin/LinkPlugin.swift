@@ -84,7 +84,6 @@ open class LinkPlugin: Plugin {
     } catch {
       print("\(error)")
     }
-
   }
 
   func toggleLink(url: String?) throws {
