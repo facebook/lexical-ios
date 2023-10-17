@@ -193,7 +193,7 @@ open class TextNode: Node {
   }
 
   private var text: String = ""
-  var mode: Mode = .normal
+  public var mode: Mode = .normal
   var format: TextFormat = TextFormat()
   var detail = TextNodeDetail()
   var style: String = ""
