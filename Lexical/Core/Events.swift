@@ -217,6 +217,10 @@ internal func handleIndentAndOutdent(insertTab: (Node) -> Void, indentOrOutdent:
 
 public func registerRichText(editor: Editor) {
 
+  // Style defaults and commands are handled in Styles.swift
+  registerDefaultStyles(editor: editor)
+  registerStyleCommands(editor: editor)
+
   _ = editor.registerCommand(type: .insertLineBreak, listener: { [weak editor] payload in
     guard let editor else { return false }
     do {

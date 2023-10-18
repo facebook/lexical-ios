@@ -138,6 +138,7 @@ public func createCodeHighlightNode(text: String, highlightType: String?) -> Cod
   CodeHighlightNode(text: text, highlightType: highlightType)
 }
 
+@available(*, deprecated, message: "Use new styles system")
 public func toggleTextFormatType(format: TextFormat, type: TextFormatType, alignWithFormat: TextFormat?) -> TextFormat {
   var activeFormat = format
   let isStateFlagPresent = format.isTypeSet(type: type)

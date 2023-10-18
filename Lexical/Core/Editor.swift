@@ -94,6 +94,9 @@ public class Editor: NSObject {
 
   internal var nodeTransforms: [NodeType: [(Int, NodeTransform)]] = [:]
 
+  // Styles. For all methods to manipulate these, see Styles.swift
+  internal var registeredStyles: StylesRegistrationDict = [:]
+
   // Used to help co-ordinate selection and events
   internal var compositionKey: NodeKey?
   public var dirtyType: DirtyType = .noDirtyNodes // TODO: I made this public to work around an issue in playground. @amyworrall

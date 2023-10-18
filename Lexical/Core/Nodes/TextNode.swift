@@ -83,6 +83,7 @@ public struct SerializedTextFormat: OptionSet, Codable {
   }
 }
 
+@available(*, deprecated, message: "use new styles system")
 public struct TextFormat: Equatable, Codable {
 
   public var bold: Bool
@@ -187,16 +188,12 @@ open class TextNode: Node {
   enum CodingKeys: String, CodingKey {
     case text
     case mode
-    case format
     case detail
-    case style
   }
 
   private var text: String = ""
   var mode: Mode = .normal
-  var format: TextFormat = TextFormat()
   var detail = TextNodeDetail()
-  var style: String = ""
 
   override public init() {
     super.init()
@@ -260,12 +257,12 @@ open class TextNode: Node {
 
   public func setBold(_ isBold: Bool) throws {
     try errorOnReadOnly()
-    try getWritable().format.bold = isBold
+    try getWritable().setStyle(Styles.Bold.self, isBold)
   }
 
   public func setItalic(_ isItalic: Bool) throws {
     try errorOnReadOnly()
-    try getWritable().format.italic = isItalic
+    try getWritable().setStyle(Styles.Italic.self, isItalic)
   }
 
   public func canInsertTextAfter() -> Bool {
@@ -394,28 +391,29 @@ open class TextNode: Node {
     return true
   }
 
+  @available(*, deprecated, message: "Use new styles system")
   public func getFormat() -> TextFormat {
     let node = getLatest() as TextNode
-    return node.format
+    return compatibilityFormatFromStyles(node.styles)
   }
 
+  @available(*, deprecated, message: "Use new styles system")
   @discardableResult
   public func setFormat(format: TextFormat) throws -> TextNode {
     try errorOnReadOnly()
     let node = try getWritable() as TextNode
-    node.format = format
+    let newStyles = compatibilityStylesFromFormat(format)
+    node.styles = compatibilityMergeStylesAssumingAllFormats(old: node.styles, newFormats: newStyles)
     return node
   }
 
+  @available(*, deprecated, message: "Use new styles system")
   public func getStyle() -> String {
-    let node = getLatest() as TextNode
-    return node.style
+    return ""
   }
 
-  public func setStyle(_ style: String) throws {
-    let writable = try getWritable()
-    writable.style = style
-  }
+  @available(*, deprecated, message: "Use new styles system")
+  public func setStyle(_ style: String) throws {}
 
   public func splitText(splitOffsets: [Int]) throws -> [TextNode] {
     try errorOnReadOnly()
