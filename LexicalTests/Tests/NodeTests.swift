@@ -32,7 +32,7 @@ class NodeTests: XCTestCase {
     try editor.update {
       let node = Node()
       let node2 = Node()
-      let node3 = Node(LexicalConstants.uninitializedNodeKey)
+      let node3 = Node(styles: [:], key: LexicalConstants.uninitializedNodeKey)
       XCTAssertNotNil(node)
       XCTAssertNotNil(node2)
       XCTAssertEqual(node.key, "1")
@@ -128,34 +128,17 @@ class NodeTests: XCTestCase {
     }
   }
 
-  func testTextNodeFormatSerialization() throws {
-    try editor.update {
-      let textNode = TextNode()
-      try textNode.setText("hello world")
-      var textFormat = TextFormat()
-      textFormat.bold = true
-      textFormat.underline = true
-      textNode.format = textFormat
-
-      let encoder = JSONEncoder()
-      let data = try encoder.encode(textNode)
-      guard let jsonString = String(data: data, encoding: .utf8) else { return }
-      print(jsonString)
-      XCTAssertTrue(jsonString.contains("\"format\":9"))
-    }
-  }
-
   func testTextNodeFormatDeserialization() throws {
     let jsonString = "{\"format\":9,\"detail\":0,\"style\":\"\",\"mode\":\"normal\",\"text\":\"hello world\",\"version\":1,\"type\":\"text\"}"
 
     let decoder = JSONDecoder()
     let decodedNode = try decoder.decode(TextNode.self, from: (jsonString.data(using: .utf8) ?? Data()))
-    XCTAssertTrue(decodedNode.format.bold)
-    XCTAssertTrue(decodedNode.format.underline)
-    XCTAssertFalse(decodedNode.format.strikethrough)
-    XCTAssertFalse(decodedNode.format.code)
-    XCTAssertFalse(decodedNode.format.superScript)
-    XCTAssertFalse(decodedNode.format.subScript)
+    XCTAssertTrue(decodedNode.getStyle(Styles.Bold.self) ?? false)
+    XCTAssertTrue(decodedNode.getStyle(Styles.Underline.self) ?? false)
+    XCTAssertFalse(decodedNode.getStyle(Styles.Strikethrough.self) ?? false)
+    XCTAssertFalse(decodedNode.getStyle(Styles.Code.self) ?? false)
+    XCTAssertFalse(decodedNode.getStyle(Styles.SuperScript.self) ?? false)
+    XCTAssertFalse(decodedNode.getStyle(Styles.SubScript.self) ?? false)
   }
 
   func testParagraphNode() throws {
@@ -1324,7 +1307,7 @@ class NodeTests: XCTestCase {
 
       let textNode = TextNode()
       try textNode.setText("hello ")
-      textNode.format = TextFormat()
+      try textNode.setStyles([:])
 
       let paragraphNode = ParagraphNode()
       try paragraphNode.append([textNode])
@@ -1346,7 +1329,7 @@ class NodeTests: XCTestCase {
 
       let textNode = TextNode()
       try textNode.setText("hello ")
-      textNode.format = TextFormat()
+      try textNode.setStyles([:])
 
       let paragraphNode = ParagraphNode()
       try paragraphNode.append([textNode])
@@ -1383,9 +1366,8 @@ class NodeTests: XCTestCase {
 
       textNode2 = try textNode.setFormat(format: format)
 
-      XCTAssertEqual(textNode2.getAttributedStringAttributes(theme: editor.getTheme()).count, 1)
-      XCTAssertTrue(textNode2.getAttributedStringAttributes(theme: editor.getTheme()).contains(where: { $0.key == .bold }))
-      XCTAssertFalse(textNode2.getAttributedStringAttributes(theme: editor.getTheme()).contains(where: { $0.key == .italic }))
+      XCTAssertEqual(textNode2.getAttributedStringAttributes(theme: editor.getTheme())[.bold] as? Bool ?? false, true)
+      XCTAssertEqual(textNode2.getAttributedStringAttributes(theme: editor.getTheme())[.italic] as? Bool ?? false, false)
     }
   }
 
@@ -1707,12 +1689,8 @@ class NodeTests: XCTestCase {
       try textNode2.setText("hello ")
       textNode2.mode = .inert
 
-      let textNode3 = TextNode()
-      textNode3.type = NodeType.paragraph
-
       XCTAssertTrue(textNode.isSimpleText())
       XCTAssertFalse(textNode2.isSimpleText())
-      XCTAssertFalse(textNode3.isSimpleText())
     }
   }
 
@@ -2062,7 +2040,7 @@ class NodeTests: XCTestCase {
       _ = TextNode.canSimpleTextNodesBeMerged(node1: textNode, node2: textNode2)
 
       XCTAssertFalse(textNode.mode == textNode2.mode)
-      XCTAssertEqual(textNode.format, textNode2.format)
+      XCTAssertTrue(stylesDictsAreEqual(textNode.styles, textNode2.styles, editor: editor))
     }
   }
 

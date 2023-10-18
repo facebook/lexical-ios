@@ -135,6 +135,10 @@ public class NodeSelection: BaseSelection {
     let focus = Point(key: parent.getKey(), offset: nodeIndexInParent + 1, type: .element)
     return RangeSelection(anchor: anchor, focus: focus, format: TextFormat())
   }
+
+  public func applyTextStyle<T>(_ style: T.Type, value: T.StyleValueType?) throws where T : Style {
+    // TODO
+  }
 }
 
 extension NodeSelection: CustomDebugStringConvertible {

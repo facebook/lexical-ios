@@ -12,10 +12,9 @@ public func cloneWithProperties<T: Node>(node: T) throws -> Node {
   let latest = node.getLatest()
   let clone = latest.clone()
   clone.parent = latest.parent
+  clone.styles = latest.styles
   if let latestTextNode = latest as? TextNode,
      let latestCloneNode = clone as? TextNode {
-    latestCloneNode.format = latestTextNode.format
-    latestCloneNode.style = latestTextNode.style
     latestCloneNode.mode = latestTextNode.mode
     latestCloneNode.detail = latestTextNode.detail
     return latestCloneNode
@@ -23,8 +22,7 @@ public func cloneWithProperties<T: Node>(node: T) throws -> Node {
             let latestCloneNode = clone as? ElementNode {
     latestCloneNode.children = latestElementNode.children
     latestCloneNode.direction = latestElementNode.direction
-    //    latestCloneNode.indent = latestElementNode.indent
-    //    latestCloneNode.format = latestElementNode.format
+      latestCloneNode.indent = latestElementNode.indent
     return latestCloneNode
     //  } else if ($isDecoratorNode(latest) && $isDecoratorNode(clone)) {
     //    clone.state = latest.state

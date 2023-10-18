@@ -25,22 +25,25 @@ public class SelectableImageNode: SelectableDecoratorNode {
 
     self.url = URL(string: url)
     self.size = size
-    self.type = NodeType.image
     self.sourceID = sourceID
   }
 
   required init(_ key: NodeKey? = nil) {
     super.init(key)
-
-    self.type = NodeType.image
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-
-    self.type = NodeType.image
+  }
+  
+  public override class func getType() -> NodeType {
+    return .selectableImage
   }
 
+  required init(styles: StylesDict, key: NodeKey?) {
+    super.init(styles: styles, key: key)
+  }
+  
   override public func encode(to encoder: Encoder) throws {
     try super.encode(to: encoder)
   }

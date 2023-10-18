@@ -17,27 +17,28 @@ public class ListItemNode: ElementNode {
 
   private var value: Int = 0
 
-  override public init() {
-    super.init()
-    self.type = NodeType.listItem
-  }
-
-  override public required init(_ key: NodeKey?) {
-    super.init(key)
-    self.type = NodeType.listItem
+  public convenience override init() {
+    self.init(styles: [:], key: nil)
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-    self.type = NodeType.listItem
   }
 
+  public override class func getType() -> NodeType {
+    return .listItem
+  }
+
+  required init(styles: StylesDict, key: NodeKey?) {
+    super.init(styles: styles, key: key)
+  }
+  
   override open func encode(to encoder: Encoder) throws {
     try super.encode(to: encoder)
   }
 
   override public func clone() -> Self {
-    Self(key)
+    Self(styles: styles, key: key)
   }
 
   public func getValue() -> Int {
@@ -168,7 +169,7 @@ public class ListItemNode: ElementNode {
   }
 
   override public func insertNewAfter(selection: RangeSelection?) throws -> Node? {
-    let newElement = ListItemNode()
+    let newElement = ListItemNode(styles: [:], key: nil)
     _ = try self.insertAfter(nodeToInsert: newElement)
 
     return newElement

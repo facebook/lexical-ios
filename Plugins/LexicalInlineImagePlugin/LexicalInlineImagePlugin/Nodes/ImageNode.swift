@@ -23,27 +23,30 @@ public class ImageNode: DecoratorNode {
   var size = CGSize.zero
   var sourceID: String = ""
 
+  public override class func getType() -> NodeType {
+    return .image
+  }
+
   public required init(url: String, size: CGSize, sourceID: String, key: NodeKey? = nil) {
     super.init(key)
 
     self.url = URL(string: url)
     self.size = size
-    self.type = NodeType.image
     self.sourceID = sourceID
   }
 
   required init(_ key: NodeKey? = nil) {
     super.init(key)
-
-    self.type = NodeType.image
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-
-    self.type = NodeType.image
   }
-
+  
+  required init(styles: StylesDict, key: NodeKey?) {
+    super.init(styles: [:], key: key)
+  }
+  
   override public func encode(to encoder: Encoder) throws {
     try super.encode(to: encoder)
   }

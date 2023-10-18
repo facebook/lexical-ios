@@ -16,13 +16,11 @@ public class CodeHighlightNode: TextNode {
 
   override public init() {
     super.init()
-    self.type = NodeType.codeHighlight
   }
 
   required init(text: String, highlightType: String?, key: NodeKey? = nil) {
     super.init(text: text, key: key)
     self.highlightType = highlightType
-    self.type = NodeType.codeHighlight
   }
 
   public required init(from decoder: Decoder) throws {
@@ -30,11 +28,18 @@ public class CodeHighlightNode: TextNode {
     try super.init(from: decoder)
 
     self.highlightType = try container.decode(String.self, forKey: .highlightType)
-    self.type = NodeType.codeHighlight
   }
 
   public required convenience init(text: String, key: NodeKey?) {
     self.init(text: text, highlightType: nil, key: key)
+  }
+  
+  public required init(styles: StylesDict, key: NodeKey?) {
+    fatalError("init(styles:key:) has not been implemented")
+  }
+  
+  public override class func getType() -> NodeType {
+    return .codeHighlight
   }
 
   override public func encode(to encoder: Encoder) throws {
@@ -48,7 +53,12 @@ public class CodeHighlightNode: TextNode {
   }
 
   // Prevent formatting (bold, underline, etc)
+  @available(*, deprecated)
   override public func setFormat(format: TextFormat) throws -> CodeHighlightNode {
     return try self.getWritable()
   }
+
+  override public func setStyles(_ stylesDict: StylesDict) throws {}
+
+  override public func setStyle<T>(_ style: T.Type, _ value: T.StyleValueType?) throws where T : Style {}
 }

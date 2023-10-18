@@ -49,18 +49,22 @@ import UIKit
 
  */
 open class DecoratorNode: Node {
-  override public init() {
-    super.init()
+  public init() {
+    super.init(styles: [:], key: nil)
   }
 
-  override public required init(_ key: NodeKey?) {
-    super.init(key)
+  public required init(_ key: NodeKey?) {
+    super.init(styles: [:], key: key)
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
   }
-
+  
+  public required init(styles: StylesDict, key: NodeKey?) {
+    super.init(styles: styles, key: key)
+  }
+  
   override open func encode(to encoder: Encoder) throws {
     try super.encode(to: encoder)
   }

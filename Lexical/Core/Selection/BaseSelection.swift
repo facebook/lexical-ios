@@ -62,4 +62,7 @@ public protocol BaseSelection: AnyObject, CustomDebugStringConvertible {
 
   /// Handles user-provided text to insert, applying a series of insertion heuristics based on the selection type and position.
   func insertText(_ text: String) throws
+
+  /// Applies a style to the text nodes in the selection, splitting if necessary
+  func applyTextStyle<T: Style>(_ style: T.Type, value: T.StyleValueType?) throws
 }

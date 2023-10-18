@@ -19,15 +19,9 @@ open class LinkNode: ElementNode {
 
   public var url: String = ""
 
-  override public init() {
-    super.init()
-    self.type = NodeType.link
-  }
-
   public required init(url: String, key: NodeKey?) {
-    super.init(key)
+    super.init(styles: [:], key: key)
     self.url = url
-    self.type = NodeType.link
   }
 
   public required init(from decoder: Decoder) throws {
@@ -35,7 +29,14 @@ open class LinkNode: ElementNode {
     try super.init(from: decoder)
 
     self.url = try container.decode(String.self, forKey: .url)
-    self.type = NodeType.link
+  }
+  
+  required public init(styles: StylesDict, key: NodeKey?) {
+    fatalError("init(styles:key:) has not been implemented")
+  }
+  
+  open override class func getType() -> NodeType {
+    return .link
   }
 
   override open func encode(to encoder: Encoder) throws {

@@ -18,24 +18,23 @@ open class Node: Codable {
   enum CodingKeys: String, CodingKey {
     case type
     case version
+    case styles
   }
 
   public var key: NodeKey
   var parent: NodeKey?
-  public var type: NodeType
   public var version: Int
 
-  public init() {
-    self.type = Node.getType()
-    self.version = 1
-    self.key = LexicalConstants.uninitializedNodeKey
+  // Use style APIs to manipulate styles: see Styles.swift
+  // This is public only so that it can be accessed in e.g. clone methods of subclasses.
+  public var styles: StylesDict = [:]
 
-    _ = try? generateKey(node: self)
-  }
-
-  public init(_ key: NodeKey?) {
-    self.type = Node.getType()
+  // This change will be a code-breaking change for subclasses, which must now all implement this method. However,
+  // the effort required to update each class will be minimal. The rationale for this breaking change is to avoid
+  // bugs where styles disappear when nodes are copied, etc.
+  public required init(styles: StylesDict, key: NodeKey?) {
     self.version = 1
+    self.styles = styles
 
     if let key, key != LexicalConstants.uninitializedNodeKey {
       self.key = key
@@ -45,12 +44,32 @@ open class Node: Codable {
     }
   }
 
+  public convenience init() {
+    self.init(styles: [:], key: nil)
+  }
+
   /// Used when initialising node from JSON
   public required init(from decoder: Decoder) throws {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     key = LexicalConstants.uninitializedNodeKey
-    type = try NodeType(rawValue: values.decode(String.self, forKey: .type))
     version = try values.decode(Int.self, forKey: .version)
+
+    // styles
+    if let styleContainer = try? values.nestedContainer(keyedBy: StyleCodingKeys.self, forKey: .styles) {
+      guard let editor = getActiveEditor() else {
+        throw LexicalError.internal("Could not get active editor")
+      }
+      // try each style and see if there's a value
+      var newStyles: StylesDict = [:]
+      for (styleName, style) in editor.registeredStyles {
+        guard let styleKey = StyleCodingKeys(stringValue: styleName.rawValue) else { continue }
+        guard let superDecoder = try? styleContainer.superDecoder(forKey: styleKey) else { continue }
+        if let value = try? styleValueFromDecoder(style, decoder: superDecoder) {
+          newStyles[styleName] = value
+        }
+      }
+      self.styles = newStyles
+    }
 
     _ = try? generateKey(node: self)
   }
@@ -58,8 +77,21 @@ open class Node: Codable {
   /// Used when serialising node to JSON
   open func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(self.type.rawValue, forKey: .type)
     try container.encode(self.version, forKey: .version)
+    try container.encode(self.type.rawValue, forKey: .type)
+
+    // styles
+    if styles.count > 0 {
+      var stylesContainer = container.nestedContainer(keyedBy: StyleCodingKeys.self, forKey: .styles)
+      guard let editor = getActiveEditor() else {
+        throw LexicalError.internal("Could not get active editor")
+      }
+      for (styleName, style) in editor.registeredStyles {
+        guard let styleValue = self.getStyle(style),
+              let styleKey = StyleCodingKeys(stringValue: styleName.rawValue) else { continue }
+        try stylesContainer.encode(styleValue, forKey: styleKey)
+      }
+    }
   }
 
   /**
@@ -68,11 +100,14 @@ open class Node: Codable {
    */
   open func didMoveTo(newEditor editor: Editor) {}
 
-  // This is an initial value for `type`.
-  // static methods cannot be overridden in swift so,
-  // each subclass needs to assign the type property in their init method
-  static func getType() -> NodeType {
+  open class func getType() -> NodeType {
     NodeType.unknown
+  }
+
+  public var type: NodeType {
+    get {
+      Self.getType()
+    }
   }
 
   /// Provides the **preamble** part of the node's content. Typically the preamble is used for control characters to represent embedded objects (see ``DecoratorNode``).
@@ -112,7 +147,7 @@ open class Node: Codable {
   /// Returns the latest version of the node from the active EditorState. This is used to avoid getting values from stale node references.
   public func getLatest() -> Self {
     guard let latest: Self = getNodeByKey(key: key) else {
-      fatalError()
+      return self
     }
     return latest
   }
@@ -124,7 +159,17 @@ open class Node: Codable {
 
   /// Lets the node provide attributes for TextKit to use to render the node's content.
   open func getAttributedStringAttributes(theme: Theme) -> [NSAttributedString.Key: Any] {
-    [:]
+    let node = getLatest()
+    let attributesDict = theme.getValue(node.type, withSubtype: nil) ?? [:]
+    guard let editor = getActiveEditor() else {
+      return attributesDict
+    }
+    let styleAttributeDicts: [Theme.AttributeDict] = node.styles.map { (key: StyleName, value: Any) in
+      guard let styleType = editor.registeredStyles[key] else { return [:] }
+      return styleAttributesDictFor(node: node, style: styleType, theme: theme)
+    }
+    let dicts = [attributesDict] + styleAttributeDicts
+    return dicts.reduce([:]) { $0.merging($1) { (_, next) in next } }
   }
 
   /**
@@ -162,7 +207,7 @@ open class Node: Codable {
     if let latestNode = latestNode as? ElementNode, let mutableNode = mutableNode as? ElementNode {
       mutableNode.children = latestNode.children
     } else if let latestNode = latestNode as? TextNode, let mutableNode = mutableNode as? TextNode {
-      mutableNode.format = latestNode.format
+      mutableNode.styles = latestNode.styles
       mutableNode.mode = latestNode.mode
     }
 
@@ -781,6 +826,44 @@ open class Node: Codable {
 
   public func isSameNode(_ node: Node) -> Bool {
     return self.getKey() == node.getKey()
+  }
+
+  // MARK: - Styles
+
+  func getStyle<T: Style>(_ style: T.Type) -> T.StyleValueType? {
+    let styleVal = self.getLatest().styles[style.name]
+    if let styleVal = styleVal as? T.StyleValueType {
+      return styleVal
+    }
+    return nil
+  }
+
+  func setStyle<T: Style>(_ style: T.Type, _ value: T.StyleValueType?) throws {
+    try validateStyleOrThrow(style)
+    try getWritable().styles[style.name] = value
+  }
+
+  func getStyles() -> StylesDict {
+    return getLatest().styles
+  }
+
+  func setStyles(_ stylesDict: StylesDict) throws {
+    // TODO: validate all!
+    try getWritable().styles = stylesDict
+  }
+
+  func toggleStyle<T: Style>(_ style: T.Type) throws where T.StyleValueType == Bool {
+    let currentValue = getStyle(style) ?? false
+    try setStyle(style, !currentValue)
+  }
+
+  func validateStyle<T: Style>(_ style: T.Type, value: T.StyleValueType?) -> T.StyleValueType? {
+    do {
+      try validateStyleOrThrow(style)
+    } catch {
+      return nil
+    }
+    return value
   }
 }
 

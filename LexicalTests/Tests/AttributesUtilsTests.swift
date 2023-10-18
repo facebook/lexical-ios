@@ -84,7 +84,7 @@ class AttributesUtilsTests: XCTestCase {
     try editor.update {
       let textNode = TextNode()
       try textNode.setText("hello world")
-      textNode.format.bold = true
+      try textNode.setStyle(Styles.Bold.self, true)
 
       let paragraphNode = ParagraphNode()
       try paragraphNode.append([textNode])
@@ -103,7 +103,7 @@ class AttributesUtilsTests: XCTestCase {
 
       XCTAssertTrue(font.fontDescriptor.symbolicTraits.contains(.traitBold), "Font should contain the bold trait")
 
-      textNode.format.bold = false
+      try textNode.setStyle(Styles.Bold.self, false)
       // let attributedString = NSMutableAttributedString(string: textNode.getTextPart())
       let newStyledAttrStr = AttributeUtils.attributedStringByAddingStyles(attributedString, from: textNode, state: editorState, theme: editor.getTheme())
       let newFont = firstFontInAttributedString(attrStr: newStyledAttrStr)
@@ -119,7 +119,7 @@ class AttributesUtilsTests: XCTestCase {
     try editor.update {
       let textNode = TextNode()
       try textNode.setText("hello world")
-      textNode.format.italic = true
+      try textNode.setStyle(Styles.Italic.self, true)
 
       let paragraphNode = ParagraphNode()
       try paragraphNode.append([textNode])
@@ -138,7 +138,7 @@ class AttributesUtilsTests: XCTestCase {
 
       XCTAssertTrue(font.fontDescriptor.symbolicTraits.contains(.traitItalic), "Font should contain the italic trait")
 
-      textNode.format.italic = false
+      try textNode.setStyle(Styles.Italic.self, false)
       let newStyledAttrStr = AttributeUtils.attributedStringByAddingStyles(attributedString, from: textNode, state: editorState, theme: editor.getTheme())
       let newFont = firstFontInAttributedString(attrStr: newStyledAttrStr)
 
@@ -153,8 +153,8 @@ class AttributesUtilsTests: XCTestCase {
     try editor.update {
       let textNode = TextNode()
       try textNode.setText("hello world")
-      textNode.format.bold = true
-      textNode.format.italic = true
+      try textNode.setStyle(Styles.Bold.self, true)
+      try textNode.setStyle(Styles.Italic.self, true)
 
       let paragraphNode = ParagraphNode()
       try paragraphNode.append([textNode])
@@ -174,7 +174,7 @@ class AttributesUtilsTests: XCTestCase {
       XCTAssertTrue(font.fontDescriptor.symbolicTraits.contains(.traitBold), "Font should contain the bold trait")
       XCTAssertTrue(font.fontDescriptor.symbolicTraits.contains(.traitItalic), "Font should contain the italic trait")
 
-      textNode.format.bold = false
+      try textNode.setStyle(Styles.Bold.self, false)
       let newStyledAttrStr = AttributeUtils.attributedStringByAddingStyles(attributedString, from: textNode, state: editorState, theme: editor.getTheme())
       let newFont = firstFontInAttributedString(attrStr: newStyledAttrStr)
 
