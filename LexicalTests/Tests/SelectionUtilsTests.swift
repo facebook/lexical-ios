@@ -533,7 +533,7 @@ class SelectionUtilsTests: XCTestCase {
 
       var textFormat = TextFormat()
       textFormat.bold = true
-      newSelection2.format = textFormat
+      newSelection2.styles = compatibilityStylesFromFormat(textFormat)
 
       XCTAssertFalse(editor.getEditorState().selection?.isSelection(newSelection2) ?? false)
     }
@@ -561,8 +561,7 @@ class SelectionUtilsTests: XCTestCase {
         try transferStartingElementPointToTextPoint(
           start: startPoint,
           end: endPoint,
-          format: TextFormat(),
-          style: ""
+          styles: [:]
         )
       )
     }

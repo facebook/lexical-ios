@@ -24,12 +24,12 @@ open class ElementNode: Node {
     return direction
   }
 
-  override public init() {
-    super.init()
+  public init() {
+    super.init(styles: [:], key: nil)
   }
 
-  override public init(_ key: NodeKey?) {
-    super.init(key)
+  public init(_ key: NodeKey?) {
+    super.init(styles: [:], key: key)
   }
 
   public required init(from decoder: Decoder) throws {
@@ -73,14 +73,17 @@ open class ElementNode: Node {
       node.parent = self.key
     }
   }
-
+  
+  public required init(styles: StylesDict, key: NodeKey?) {
+    super.init(styles: styles, key: key)
+  }
+  
   override open func encode(to encoder: Encoder) throws {
     try super.encode(to: encoder)
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(self.getChildren(), forKey: .children)
     try container.encode(self.direction, forKey: .direction)
     try container.encode(self.indent, forKey: .indent)
-    try container.encode("", forKey: .format)
   }
 
   @discardableResult

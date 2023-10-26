@@ -116,22 +116,15 @@ public class UnknownNode: Node {
 
     data = try container.decode(SupportedValue.self)
 
-    typealias Keys = Node.CodingKeys
-
     // NB: As consuming keys in a coding container is a stateful operation, certain keys are
     //     re-extracted and initialized similarly to the super class here.
-    super.init()
-
-    if case let .object(values) = data {
-
-      if case let .string(type) = values[Keys.type.rawValue] {
-        self.type = NodeType(rawValue: type)
-      } else {
-        throw LexicalError.invariantViolation("No type passed to UnknownNode")
-      }
-    }
+    super.init(styles: [:], key: nil)
   }
-
+  
+  public required init(styles: StylesDict, key: NodeKey?) {
+    fatalError("init(styles:key:) has not been implemented")
+  }
+  
   override open func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
 

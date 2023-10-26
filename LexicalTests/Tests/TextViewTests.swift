@@ -293,9 +293,9 @@ class TextViewTests: XCTestCase {
       XCTAssertTrue((nodemap["0"] as? ParagraphNode)?.children.count == 2)
       XCTAssertTrue((nodemap["1"] as? TextNode)?.getTextPart() == "Hello world")
       XCTAssertTrue((nodemap["2"] as? TextNode)?.getTextPart() == "Test")
-      XCTAssertTrue((nodemap["2"] as? TextNode)?.format.underline ?? false)
+      XCTAssertTrue((nodemap["2"] as? TextNode)?.getStyle(Styles.Underline.self) ?? false)
       XCTAssertTrue((nodemap["3"] as? TextNode)?.getTextPart() == "Text")
-      XCTAssertTrue((nodemap["3"] as? TextNode)?.format.underline ?? false)
+      XCTAssertTrue((nodemap["3"] as? TextNode)?.getStyle(Styles.Underline.self) ?? false)
       XCTAssertTrue((nodemap["4"] as? ParagraphNode)?.children.count == 1)
     }
   }

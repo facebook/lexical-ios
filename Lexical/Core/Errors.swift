@@ -13,4 +13,5 @@ public enum LexicalError: Error {
   case sanityCheck(errorMessage: String, textViewText: String, fullReconcileText: String)
   case reconciler(String)
   case rangeCacheSearch(String)
+  case styleValidation(String)
 }

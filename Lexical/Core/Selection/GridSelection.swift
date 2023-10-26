@@ -75,6 +75,10 @@ public class GridSelection: BaseSelection {
   public func insertText(_ text: String) throws {
     // TODO
   }
+
+  public func applyTextStyle<T>(_ style: T.Type, value: T.StyleValueType?) throws where T : Style {
+    // TODO
+  }
 }
 
 extension GridSelection: CustomDebugStringConvertible {

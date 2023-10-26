@@ -111,7 +111,7 @@ class UtilsTests: XCTestCase {
       }
       selection = newSelection
     }
-    XCTAssertEqual(selection?.format.bold, true)
+    XCTAssertEqual(selection?.styles[Styles.Bold.name] as? Bool, true)
 
     try view.textView.defaultClearEditor()
 
@@ -123,6 +123,6 @@ class UtilsTests: XCTestCase {
       selection = newSelection
     }
     print("updatedSelection: \(selection.debugDescription)")
-    XCTAssertEqual(selection?.format.bold, false)
+    XCTAssertEqual(selection?.styles[Styles.Bold.name] as? Bool ?? false, false)
   }
 }

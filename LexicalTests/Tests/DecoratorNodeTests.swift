@@ -31,7 +31,11 @@ class TestDecoratorNode: DecoratorNode {
   required init(from decoder: Decoder) throws {
     fatalError("init(from:) has not been implemented")
   }
-
+  
+  required init(styles: StylesDict, key: NodeKey?) {
+    fatalError("init(styles:key:) has not been implemented")
+  }
+  
   override public func clone() -> Self {
     Self(numTimes: numberOfTimesDecorateHasBeenCalled, key: key)
   }

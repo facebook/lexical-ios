@@ -96,4 +96,25 @@ import Foundation
   public func setBlockLevelAttributes(_ nodeType: NodeType, value: BlockLevelAttributes?) {
     blockLevelAttributes[nodeType] = value
   }
+
+  // Style theme
+
+  typealias StyleValueBlock = (Any) -> AttributeDict
+  private var styleAttributes: [StyleName: StyleValueBlock] = [:]
+
+  public func getStyleConvertedValue<T: Style>(_ style: T.Type, value: T.StyleValueType) -> AttributeDict? {
+    if let converter = styleAttributes[style.name] {
+      return converter(value)
+    }
+    return nil
+  }
+
+  public func setStyleValueConverter<T: Style>(_ style: T.Type, converter: @escaping (T.StyleValueType) -> AttributeDict) {
+    styleAttributes[style.name] = { input in
+      if let input = input as? T.StyleValueType {
+        return converter(input)
+      }
+      return [:]
+    }
+  }
 }

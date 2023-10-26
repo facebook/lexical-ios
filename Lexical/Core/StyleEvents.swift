@@ -7,6 +7,7 @@
 
 import Foundation
 
+@available(*, deprecated, message: "Please use the new Styles system (see Styles.swift)")
 public func updateTextFormat(type: TextFormatType, editor: Editor) throws {
   guard getActiveEditor() != nil else {
     throw LexicalError.invariantViolation("Must have editor")

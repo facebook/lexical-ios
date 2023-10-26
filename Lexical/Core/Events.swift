@@ -176,16 +176,8 @@ internal func onSelectionChange(editor: Editor) {
       }
 
       try lexicalSelection.applyNativeSelection(nativeSelection)
+      lexicalSelection.styles = (try? lexicalSelection.anchor.getNode().getStyles()) ?? [:]
 
-      switch lexicalSelection.anchor.type {
-      case .text:
-        guard let anchorNode = try lexicalSelection.anchor.getNode() as? TextNode else { break }
-        lexicalSelection.format = anchorNode.getFormat()
-      case .element:
-        lexicalSelection.format = TextFormat()
-      default:
-        break
-      }
       editor.dispatchCommand(type: .selectionChange, payload: nil)
     }
   } catch {
@@ -216,6 +208,10 @@ internal func handleIndentAndOutdent(insertTab: (Node) -> Void, indentOrOutdent:
 }
 
 public func registerRichText(editor: Editor) {
+
+  // Style defaults and commands are handled in Styles.swift
+  registerDefaultStyles(editor: editor)
+  registerStyleCommands(editor: editor)
 
   _ = editor.registerCommand(type: .insertLineBreak, listener: { [weak editor] payload in
     guard let editor else { return false }
