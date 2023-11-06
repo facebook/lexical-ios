@@ -42,15 +42,17 @@ public class CodeNode: ElementNode {
 
   private var language: String = ""
 
+  open override class var type: NodeType {
+    .code
+  }
+
   override public init() {
     super.init()
-    self.type = NodeType.code
   }
 
   required init(language: String, key: NodeKey? = nil) {
     super.init(key)
     self.language = language
-    self.type = NodeType.code
   }
 
   public required init(from decoder: Decoder) throws {
@@ -58,7 +60,6 @@ public class CodeNode: ElementNode {
     try super.init(from: decoder)
 
     self.language = try container.decode(String.self, forKey: .language)
-    self.type = NodeType.code
   }
 
   override public func encode(to encoder: Encoder) throws {

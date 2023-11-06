@@ -19,15 +19,17 @@ open class LinkNode: ElementNode {
 
   public var url: String = ""
 
+  open override class var type: NodeType {
+    .link
+  }
+
   override public init() {
     super.init()
-    self.type = NodeType.link
   }
 
   public required init(url: String, key: NodeKey?) {
     super.init(key)
     self.url = url
-    self.type = NodeType.link
   }
 
   public required init(from decoder: Decoder) throws {
@@ -35,7 +37,6 @@ open class LinkNode: ElementNode {
     try super.init(from: decoder)
 
     self.url = try container.decode(String.self, forKey: .url)
-    self.type = NodeType.link
   }
 
   override open func encode(to encoder: Encoder) throws {

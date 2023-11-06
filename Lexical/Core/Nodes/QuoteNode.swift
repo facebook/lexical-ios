@@ -8,20 +8,20 @@
 import UIKit
 
 public class QuoteNode: ElementNode {
+  open override class var type: NodeType {
+    .quote
+  }
+
   override public init() {
     super.init()
-    self.type = NodeType.quote
   }
 
   override public required init(_ key: NodeKey?) {
     super.init(key)
-    self.type = NodeType.quote
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-
-    self.type = NodeType.quote
   }
 
   override public func encode(to encoder: Encoder) throws {

@@ -1,4 +1,4 @@
-// swift-tools-version: 5.6
+// swift-tools-version: 5.9
 /*
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -7,10 +7,11 @@
  */
 
 import PackageDescription
+import CompilerPluginSupport
 
 let package = Package(
   name: "Lexical",
-  platforms: [.iOS(.v13)],
+  platforms: [.macOS(.v10_15), .iOS(.v13)],
   products: [
     .library(
       name: "Lexical",
@@ -39,11 +40,21 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
+    .package(url: "https://github.com/apple/swift-syntax.git", from: "509.0.0-swift-5.9-DEVELOPMENT-SNAPSHOT-2023-04-25-b"),
   ],
   targets: [
+    .macro(
+      name: "LexicalMacrosBase",
+      dependencies: [
+        .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+        .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
+      ],
+      path: "./LexicalMacrosBase"
+    ),
+
     .target(
       name: "Lexical",
-      dependencies: [],
+      dependencies: ["LexicalMacrosBase"],
       path: "./Lexical"),
     .testTarget(
       name: "LexicalTests",

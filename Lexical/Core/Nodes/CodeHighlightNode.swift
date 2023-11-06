@@ -14,15 +14,17 @@ public class CodeHighlightNode: TextNode {
 
   public var highlightType: String?
 
+  open override class var type: NodeType {
+    .codeHighlight
+  }
+
   override public init() {
     super.init()
-    self.type = NodeType.codeHighlight
   }
 
   required init(text: String, highlightType: String?, key: NodeKey? = nil) {
     super.init(text: text, key: key)
     self.highlightType = highlightType
-    self.type = NodeType.codeHighlight
   }
 
   public required init(from decoder: Decoder) throws {
@@ -30,7 +32,6 @@ public class CodeHighlightNode: TextNode {
     try super.init(from: decoder)
 
     self.highlightType = try container.decode(String.self, forKey: .highlightType)
-    self.type = NodeType.codeHighlight
   }
 
   public required convenience init(text: String, key: NodeKey?) {

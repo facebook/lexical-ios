@@ -111,6 +111,8 @@ public class UnknownNode: Node {
     }
   }
 
+  private var type: NodeType = .unknown
+
   public required init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
 

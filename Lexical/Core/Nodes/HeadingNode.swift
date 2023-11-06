@@ -23,49 +23,10 @@ enum HeadingDefaultFontSize: Float {
   case h5 = 20
 }
 
+@LexicalNode(.heading)
 public class HeadingNode: ElementNode {
-  enum CodingKeys: String, CodingKey {
-    case tag
-  }
 
-  private var tag: HeadingTagType
-
-  // MARK: - Init
-
-  public init(tag: HeadingTagType) {
-    self.tag = tag
-
-    super.init()
-    self.type = NodeType.heading
-  }
-
-  public required init(_ key: NodeKey?, tag: HeadingTagType) {
-    self.tag = tag
-    super.init(key)
-    self.type = NodeType.heading
-  }
-
-  public required init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.tag = try container.decode(HeadingTagType.self, forKey: .tag)
-    try super.init(from: decoder)
-
-    self.type = NodeType.heading
-  }
-
-  override public func encode(to encoder: Encoder) throws {
-    try super.encode(to: encoder)
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(self.tag, forKey: .tag)
-  }
-
-  public func getTag() -> HeadingTagType {
-    tag
-  }
-
-  override public func clone() -> Self {
-    Self(key, tag: tag)
-  }
+  private var _tag: HeadingTagType
 
   override public func getAttributedStringAttributes(theme: Theme) -> [NSAttributedString.Key: Any] {
     switch tag {

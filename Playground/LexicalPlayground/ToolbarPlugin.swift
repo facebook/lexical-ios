@@ -172,7 +172,7 @@ public class ToolbarPlugin: Plugin {
 
       // derive paragraph style
       if let heading = element as? HeadingNode {
-        if heading.getTag() == .h1 {
+        if heading.tag == .h1 {
           paragraphButton?.image = UIImage(named: "h1")
           paragraphMenuSelectedItem = .h1
         } else {

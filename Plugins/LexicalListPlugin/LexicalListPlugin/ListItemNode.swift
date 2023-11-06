@@ -17,19 +17,20 @@ public class ListItemNode: ElementNode {
 
   private var value: Int = 0
 
+  open override class var type: NodeType {
+    .listItem
+  }
+
   override public init() {
     super.init()
-    self.type = NodeType.listItem
   }
 
   override public required init(_ key: NodeKey?) {
     super.init(key)
-    self.type = NodeType.listItem
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-    self.type = NodeType.listItem
   }
 
   override open func encode(to encoder: Encoder) throws {

@@ -20,13 +20,19 @@ open class Node: Codable {
     case version
   }
 
+  open class var type: NodeType {
+    .unknown
+  }
+
+  public func getType() -> NodeType {
+    return Swift.type(of: self).type
+  }
+
   public var key: NodeKey
   var parent: NodeKey?
-  public var type: NodeType
   public var version: Int
 
   public init() {
-    self.type = Node.getType()
     self.version = 1
     self.key = LexicalConstants.uninitializedNodeKey
 
@@ -34,7 +40,6 @@ open class Node: Codable {
   }
 
   public init(_ key: NodeKey?) {
-    self.type = Node.getType()
     self.version = 1
 
     if let key, key != LexicalConstants.uninitializedNodeKey {
@@ -49,7 +54,6 @@ open class Node: Codable {
   public required init(from decoder: Decoder) throws {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     key = LexicalConstants.uninitializedNodeKey
-    type = try NodeType(rawValue: values.decode(String.self, forKey: .type))
     version = try values.decode(Int.self, forKey: .version)
 
     _ = try? generateKey(node: self)
@@ -58,7 +62,7 @@ open class Node: Codable {
   /// Used when serialising node to JSON
   open func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(self.type.rawValue, forKey: .type)
+    try container.encode(Self.type.rawValue, forKey: .type)
     try container.encode(self.version, forKey: .version)
   }
 
@@ -67,13 +71,6 @@ open class Node: Codable {
    with an existing editor state.
    */
   open func didMoveTo(newEditor editor: Editor) {}
-
-  // This is an initial value for `type`.
-  // static methods cannot be overridden in swift so,
-  // each subclass needs to assign the type property in their init method
-  static func getType() -> NodeType {
-    NodeType.unknown
-  }
 
   /// Provides the **preamble** part of the node's content. Typically the preamble is used for control characters to represent embedded objects (see ``DecoratorNode``).
   ///
@@ -137,7 +134,7 @@ open class Node: Codable {
    Lexical's paragraph nodes!)
    */
   open func getBlockLevelAttributes(theme: Theme) -> BlockLevelAttributes? {
-    return theme.getBlockLevelAttributes(self.type)
+    return theme.getBlockLevelAttributes(Self.type)
   }
 
   /// Returns a mutable version of the node. Will throw an error if called outside of a Lexical Editor ``Editor/update(_:)`` callback.
