@@ -18,7 +18,7 @@ class UpdatesTests: XCTestCase {
     try editor.update {
       let editorState = getActiveEditorState()
       XCTAssertNotNil(editorState)
-      node = Node()
+      node = Node(styles: [:], key: nil)
 
       guard let node else {
         XCTFail("should have node")

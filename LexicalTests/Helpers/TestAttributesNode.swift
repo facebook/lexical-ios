@@ -12,12 +12,18 @@ import Lexical
 class TestAttributesNode: ElementNode {
   override required init() {
     super.init()
-    self.type = NodeType(rawValue: "TestNode")
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-    self.type = NodeType(rawValue: "TestNode")
+  }
+  
+  required init(styles: StylesDict, key: NodeKey?) {
+    fatalError("init(styles:key:) has not been implemented")
+  }
+  
+  override class func getType() -> NodeType {
+    return NodeType(rawValue: "TestNode")
   }
 
   override open func getAttributedStringAttributes(theme: Theme) -> [NSAttributedString.Key: Any] {

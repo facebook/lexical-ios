@@ -26,39 +26,9 @@ func selectPointOnNode(point: Point, node: Node) {
   point.updatePoint(key: node.key, offset: updatedOffset, type: point.type)
 }
 
-/// Returns the current Lexical selection, generating it from the UITextView if necessary.
-/// - Parameters:
-///   - allowInvalidPositions: In most cases, it is desirable to regenerate the selection whenever
-///   the current selection does not refer to valid positions in valid nodes. However, there are some
-///   situations, such as if you're getting the selection when preparing to modify it to be valid using your
-///   own validity rules, when you just want to fetch the current selection whatever it is.
-public func getSelection(allowInvalidPositions: Bool = false) throws -> BaseSelection? {
-  let editorState = getActiveEditorState()
-  let selection = editorState?.selection
-
-  if let selection {
-    if allowInvalidPositions == true {
-      return selection
-    }
-    if sanityCheckSelection(selection) {
-      return selection
-    }
-    getActiveEditor()?.log(.other, .warning, "Selection failed sanity check")
-  }
-
-  if let editor = getActiveEditor() {
-    do {
-      let selection = try createSelection(editor: editor)
-      editorState?.selection = selection
-      return selection
-    } catch {
-      editor.log(.other, .warning, "Exception while creating range selection")
-      return nil
-    }
-  }
-
-  // Could not get active editor. This is unexpected, but we can't log since logging requires editor!
-  throw LexicalError.invariantViolation("called getSelection() without an active editor")
+/// Returns the current Lexical selection
+public func getSelection() throws -> BaseSelection? {
+  return getActiveEditorState()?.selection
 }
 
 private func sanityCheckSelection(_ selection: BaseSelection) -> Bool {
@@ -234,7 +204,7 @@ func createEmptyRangeSelection() -> RangeSelection {
   let anchor = Point(key: kRootNodeKey, offset: 0, type: .element)
   let focus = Point(key: kRootNodeKey, offset: 0, type: .element)
 
-  return RangeSelection(anchor: anchor, focus: focus, format: TextFormat())
+  return RangeSelection(anchor: anchor, focus: focus, styles: [:])
 }
 
 /// When we create a selection, we try to use the previous selection where possible, unless an actual user selection change has occurred.
@@ -259,7 +229,7 @@ func createSelection(editor: Editor) throws -> BaseSelection? {
 
     if let anchor = try pointAtStringLocation(range.location, searchDirection: nativeSelection.affinity, rangeCache: editor.rangeCache),
        let focus = try pointAtStringLocation(range.location + range.length, searchDirection: nativeSelection.affinity, rangeCache: editor.rangeCache) {
-      return RangeSelection(anchor: anchor, focus: focus, format: TextFormat())
+      return RangeSelection(anchor: anchor, focus: focus, styles: [:])
     }
 
     return nil
@@ -285,7 +255,7 @@ func makeRangeSelection(
   let selection = RangeSelection(
     anchor: Point(key: anchorKey, offset: anchorOffset, type: anchorType),
     focus: Point(key: focusKey, offset: focusOffset, type: focusType),
-    format: TextFormat())
+    styles: [:])
 
   selection.dirty = true
   editorState.selection = selection
@@ -434,11 +404,12 @@ func moveSelectionPointToEnd(point: Point, node: Node) {
   }
 }
 
-func transferStartingElementPointToTextPoint(start: Point, end: Point, format: TextFormat, style: String) throws {
+func transferStartingElementPointToTextPoint(start: Point, end: Point, styles: StylesDict) throws {
   guard let element = try start.getNode() as? ElementNode else { return }
 
   var placementNode = element.getChildAtIndex(index: start.offset)
-  let textNode = try createTextNode(text: nil).setFormat(format: format)
+  let textNode = createTextNode(text: nil)
+  try textNode.setStyles(styles)
   var target: Node
 
   if isRootNode(node: element) {
@@ -448,8 +419,6 @@ func transferStartingElementPointToTextPoint(start: Point, end: Point, format: T
   } else {
     target = textNode
   }
-
-  _ = try textNode.setFormat(format: format)
 
   if placementNode == nil {
     try element.append([target])

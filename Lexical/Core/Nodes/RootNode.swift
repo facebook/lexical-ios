@@ -9,14 +9,16 @@ import UIKit
 
 public class RootNode: ElementNode {
 
-  override required init() {
-    super.init(kRootNodeKey)
-    self.type = NodeType.root
+  override init() {
+    super.init(styles: [:], key: kRootNodeKey)
+  }
+
+  public required init(styles: StylesDict, key: NodeKey?) {
+    super.init(styles: styles, key: key ?? kRootNodeKey)
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-    self.type = NodeType.root
   }
 
   override public func encode(to encoder: Encoder) throws {
@@ -24,7 +26,11 @@ public class RootNode: ElementNode {
   }
 
   override public func clone() -> Self {
-    Self()
+    Self(styles: self.styles, key: kRootNodeKey)
+  }
+
+  override static public func getType() -> NodeType {
+    return .root
   }
 
   override public func getAttributedStringAttributes(theme: Theme) -> [NSAttributedString.Key: Any] {

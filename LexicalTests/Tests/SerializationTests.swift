@@ -86,56 +86,66 @@ class SerializationTests: XCTestCase {
   func testWebFormatJSONImporting() throws {
     try editor.update {
       let decoder = JSONDecoder()
-      let decodedNodeArray = try decoder.decode(SerializedEditorState.self, from: (jsonString.data(using: .utf8) ?? Data()))
-      guard let rootNode = decodedNodeArray.rootNode else {
-        XCTFail("Failed to decode RootNode")
-        return
-      }
+      do {
+        let decodedNodeArray = try decoder.decode(SerializedEditorState.self, from: (jsonString.data(using: .utf8) ?? Data()))
 
-      guard let selection = try getSelection() as? RangeSelection else {
-        XCTFail("Could not get selection")
-        return
-      }
+        guard let rootNode = decodedNodeArray.rootNode else {
+          XCTFail("Failed to decode RootNode")
+          return
+        }
+        guard let selection = try getSelection() as? RangeSelection else {
+          XCTFail("Could not get selection")
+          return
+        }
 
-      _ = try insertGeneratedNodes(editor: editor, nodes: rootNode.getChildren(), selection: selection)
+        _ = try insertGeneratedNodes(editor: editor, nodes: rootNode.getChildren(), selection: selection)
+
+      } catch {
+        XCTFail("Error in decoding \(error)")
+      }
     }
 
     try editor.read {
-      let rootNode = editor.getEditorState().getRootNode()
-      XCTAssertEqual(rootNode?.children.count, 4)
+      guard let rootNode = getRoot() else {
+        XCTFail("No root")
+        return
+      }
+      let children = rootNode.children
+      XCTAssertEqual(children.count, 4)
 
-      guard let firstParagraph = rootNode?.getChildren()[0] as? ParagraphNode else {
+      guard let firstParagraph = rootNode.getChildren()[0] as? ParagraphNode else {
         XCTFail("Could not get first ParagraphNode")
         return
       }
       XCTAssertEqual(firstParagraph.children.count, 7)
       XCTAssertEqual(firstParagraph.getTextContent(), "This is bold italic underline text in the first paragraph.\n")
-      XCTAssertTrue((firstParagraph.getChildren()[1] as? TextNode)?.format.bold ?? false)
-      XCTAssertTrue((firstParagraph.getChildren()[3] as? TextNode)?.format.italic ?? false)
-      XCTAssertTrue((firstParagraph.getChildren()[5] as? TextNode)?.format.underline ?? false)
+      XCTAssertTrue((firstParagraph.getChildren()[1] as? TextNode)?.getStyle(Styles.Bold.self) ?? false)
+      XCTAssertTrue((firstParagraph.getChildren()[3] as? TextNode)?.getStyle(Styles.Italic.self) ?? false)
+      XCTAssertTrue((firstParagraph.getChildren()[5] as? TextNode)?.getStyle(Styles.Underline.self) ?? false)
 
-      guard let secondPargraph = rootNode?.getChildren()[1] as? ParagraphNode else {
+      guard let secondPargraph = rootNode.getChildren()[1] as? ParagraphNode else {
         XCTFail("Could not get second ParagraphNode")
         return
       }
       XCTAssertEqual(secondPargraph.children.count, 1)
       XCTAssertEqual(secondPargraph.getTextContent(), "This is another paragraph.\n")
 
-      guard let childrenSize = rootNode?.getChildrenSize(), childrenSize >= 3, let thirdParagraph = rootNode?.getChildren()[2] as? ParagraphNode else {
+      let childrenSize = rootNode.getChildrenSize()
+      guard childrenSize >= 3, let thirdParagraph = rootNode.getChildren()[2] as? ParagraphNode else {
         XCTFail("Could not get third ParagraphNode")
         return
       }
       XCTAssertEqual(thirdParagraph.children.count, 1)
       XCTAssertEqual(thirdParagraph.getTextContent(), "This is a code line.\n")
-      XCTAssertTrue((thirdParagraph.getChildren().first as? TextNode)?.format.code ?? false)
+      XCTAssertTrue((thirdParagraph.getChildren().first as? TextNode)?.getStyle(Styles.Code.self) ?? false)
 
-      guard let fourthParagraph = rootNode?.getChildren()[3] as? ParagraphNode else {
+      guard let fourthParagraph = rootNode.getChildren()[3] as? ParagraphNode else {
         XCTFail("Could not get fourth ParagraphNode")
         return
       }
       XCTAssertEqual(fourthParagraph.children.count, 2)
       XCTAssertEqual(fourthParagraph.getTextContent(), "This is strikethrough")
-      XCTAssertTrue((fourthParagraph.getChildren().last as? TextNode)?.format.strikethrough ?? false)
+      XCTAssertTrue((fourthParagraph.getChildren().last as? TextNode)?.getStyle(Styles.Strikethrough.self) ?? false)
     }
   }
 
@@ -165,9 +175,11 @@ class SerializationTests: XCTestCase {
     XCTAssertEqual(text, "This is bold italic underline text in the first paragraph.\nThis is another paragraph.\nThis is a code line.\nThis is strikethrough")
   }
 
+  let roundtripJSONWithStyles = "{\"root\":{\"direction\":\"ltr\",\"indent\":0,\"children\":[{\"type\":\"paragraph\",\"children\":[{\"type\":\"text\",\"mode\":\"normal\",\"text\":\"This is \",\"detail\":0,\"version\":1},{\"detail\":0,\"type\":\"text\",\"mode\":\"normal\",\"text\":\"bold\",\"styles\":{\"bold\":true},\"version\":1},{\"text\":\" \",\"version\":1,\"type\":\"text\",\"mode\":\"normal\",\"detail\":0},{\"styles\":{\"italic\":true},\"version\":1,\"text\":\"italic\",\"mode\":\"normal\",\"detail\":0,\"type\":\"text\"},{\"mode\":\"normal\",\"text\":\" \",\"detail\":0,\"version\":1,\"type\":\"text\"},{\"type\":\"text\",\"detail\":0,\"styles\":{\"underline\":true},\"text\":\"underline\",\"version\":1,\"mode\":\"normal\"},{\"text\":\" text in the first paragraph.\",\"version\":1,\"type\":\"text\",\"mode\":\"normal\",\"detail\":0}],\"indent\":0,\"direction\":\"ltr\",\"version\":1},{\"version\":1,\"children\":[{\"type\":\"text\",\"detail\":0,\"text\":\"This is another paragraph.\",\"version\":1,\"mode\":\"normal\"}],\"direction\":\"ltr\",\"indent\":0,\"type\":\"paragraph\"},{\"direction\":\"ltr\",\"children\":[{\"detail\":0,\"text\":\"This is a code line.\",\"version\":1,\"styles\":{\"code\":true},\"type\":\"text\",\"mode\":\"normal\"}],\"indent\":0,\"version\":1,\"type\":\"paragraph\"},{\"version\":1,\"direction\":\"ltr\",\"indent\":0,\"type\":\"paragraph\",\"children\":[{\"detail\":0,\"text\":\"This is \",\"type\":\"text\",\"version\":1,\"mode\":\"normal\"},{\"type\":\"text\",\"text\":\"strikethrough\",\"mode\":\"normal\",\"detail\":0,\"version\":1,\"styles\":{\"strikethrough\":true}}]}],\"type\":\"root\",\"version\":1}}"
+
   func testFromToJSONMethods() throws {
     let headlessEditor = Editor.createHeadless(editorConfig: EditorConfig(theme: Theme(), plugins: []))
-    let editorState = try EditorState.fromJSON(json: jsonString, editor: headlessEditor)
+    let editorState = try EditorState.fromJSON(json: roundtripJSONWithStyles, editor: headlessEditor)
 
     try headlessEditor.read {
       XCTAssertEqual(getRoot()?.getTextContent(), "", "Expected empty string")
@@ -180,15 +192,15 @@ class SerializationTests: XCTestCase {
 
     try headlessEditor.setEditorState(editorState)
 
+    var jsonResult: String = ""
     try headlessEditor.read {
       let text = getRoot()?.getTextContent()
       XCTAssertEqual(text, "This is bold italic underline text in the first paragraph.\nThis is another paragraph.\nThis is a code line.\nThis is strikethrough", "Expected text in editor")
+      jsonResult = try editorState.toJSON()
     }
 
-    let jsonResult = try editorState.toJSON()
-
     // test json equality
-    guard let comparisonJSONData = jsonString.data(using: .utf8), let outputJSONData = jsonResult.data(using: .utf8) else {
+    guard let comparisonJSONData = roundtripJSONWithStyles.data(using: .utf8), let outputJSONData = jsonResult.data(using: .utf8) else {
       XCTFail("couldn't convert to data")
       return
     }

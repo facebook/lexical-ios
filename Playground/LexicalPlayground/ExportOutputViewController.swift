@@ -40,8 +40,12 @@ class ExportOutputViewController: UIViewController {
 
   func generateJSON(editor: Editor) {
     let currentEditorState = editor.getEditorState()
-    if let jsonString = try? currentEditorState.toJSON() {
-      output = jsonString
+    do {
+      try editor.read {
+        self.output = try currentEditorState.toJSON()
+      }
+    } catch {
+      print("JSON error: \(error)")
     }
   }
 

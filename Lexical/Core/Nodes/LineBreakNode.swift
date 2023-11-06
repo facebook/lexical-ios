@@ -6,19 +6,20 @@
  */
 
 public class LineBreakNode: Node {
-  override public init() {
-    super.init()
-    self.type = NodeType.linebreak
+  public init() {
+    super.init(styles: [:], key: nil)
   }
 
-  override required init(_ key: NodeKey?) {
-    super.init(key)
-    self.type = NodeType.linebreak
+  required public init(styles: StylesDict, key: NodeKey?) {
+    super.init(styles: styles, key: key)
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-    self.type = NodeType.linebreak
+  }
+
+  public override class func getType() -> NodeType {
+    .linebreak
   }
 
   override public func encode(to encoder: Encoder) throws {
@@ -26,7 +27,7 @@ public class LineBreakNode: Node {
   }
 
   override public func clone() -> Self {
-    Self(key)
+    Self(styles: styles, key: key)
   }
 
   override public func getPostamble() -> String {
@@ -34,6 +35,6 @@ public class LineBreakNode: Node {
   }
 
   public func createLineBreakNode() -> LineBreakNode {
-    return LineBreakNode()
+    return LineBreakNode(styles: [:], key: nil)
   }
 }

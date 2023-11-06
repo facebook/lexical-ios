@@ -11,6 +11,7 @@ public enum TextNodeThemeSubtype {
   public static let code = "code"
 }
 
+@available(*, deprecated, message: "Use new styles system")
 public struct SerializedTextFormat: OptionSet, Codable {
   public let rawValue: Int
 
@@ -83,6 +84,7 @@ public struct SerializedTextFormat: OptionSet, Codable {
   }
 }
 
+@available(*, deprecated, message: "use new styles system")
 public struct TextFormat: Equatable, Codable {
 
   public var bold: Bool
@@ -187,26 +189,25 @@ open class TextNode: Node {
   enum CodingKeys: String, CodingKey {
     case text
     case mode
-    case format
     case detail
-    case style
+    case format // for compatibility
   }
 
   private var text: String = ""
   public var mode: Mode = .normal
-  var format: TextFormat = TextFormat()
   var detail = TextNodeDetail()
-  var style: String = ""
 
-  override public init() {
-    super.init()
-    self.type = NodeType.text
+  init() {
+    super.init(styles: [:], key: nil)
   }
 
   public required init(text: String, key: NodeKey?) {
-    super.init(key)
+    super.init(styles: [:], key: key)
     self.text = text
-    self.type = NodeType.text
+  }
+
+  open override class func getType() -> NodeType {
+    return .text
   }
 
   public convenience init(text: String) {
@@ -219,22 +220,27 @@ open class TextNode: Node {
 
     self.text = try container.decode(String.self, forKey: .text)
     self.mode = try container.decode(Mode.self, forKey: .mode)
-    let serializedFormat = try container.decode(SerializedTextFormat.self, forKey: .format)
-    self.format = SerializedTextFormat.convertToTextFormat(from: serializedFormat)
+
+    if let serializedFormat = try container.decodeIfPresent(SerializedTextFormat.self, forKey: .format) {
+      let textFormat = SerializedTextFormat.convertToTextFormat(from: serializedFormat)
+      let styles = compatibilityStylesFromFormat(textFormat)
+      self.styles = self.styles.merging(styles, uniquingKeysWith: { _, new in new })
+    }
+
     let serializedDetail = try container.decode(SerializedTextNodeDetail.self, forKey: .detail)
     self.detail = SerializedTextNodeDetail.convertToTextDetail(from: serializedDetail)
-    self.style = try container.decode(String.self, forKey: .style)
-    self.type = NodeType.text
   }
-
+  
+  public required init(styles: StylesDict, key: NodeKey?) {
+    super.init(styles: styles, key: key)
+  }
+  
   override open func encode(to encoder: Encoder) throws {
     try super.encode(to: encoder)
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(self.text, forKey: .text)
     try container.encode(self.mode, forKey: .mode)
-    try container.encode(SerializedTextFormat.convertToSerializedTextFormat(from: self.format).rawValue, forKey: .format)
     try container.encode(SerializedTextNodeDetail.convertToSerializedTextNodeDetail(from: self.detail).rawValue, forKey: .detail)
-    try container.encode(self.style, forKey: .style)
   }
 
   override public func getTextPart() -> String {
@@ -260,12 +266,12 @@ open class TextNode: Node {
 
   public func setBold(_ isBold: Bool) throws {
     try errorOnReadOnly()
-    try getWritable().format.bold = isBold
+    try getWritable().setStyle(Styles.Bold.self, isBold)
   }
 
   public func setItalic(_ isItalic: Bool) throws {
     try errorOnReadOnly()
-    try getWritable().format.italic = isItalic
+    try getWritable().setStyle(Styles.Italic.self, isItalic)
   }
 
   public func canInsertTextAfter() -> Bool {
@@ -274,42 +280,6 @@ open class TextNode: Node {
 
   override open func clone() -> Self {
     return Self(text: text, key: key)
-  }
-
-  override open func getAttributedStringAttributes(theme: Theme) -> [NSAttributedString.Key: Any] {
-    var attributeDictionary = super.getAttributedStringAttributes(theme: theme)
-
-    // TODO: Remove this once codeHighlight node is implemented
-    if let parent, let _ = getNodeByKey(key: parent) as? CodeNode {
-      format = TextFormat()
-    }
-
-    if format.bold {
-      attributeDictionary[.bold] = true
-    }
-
-    if format.italic {
-      attributeDictionary[.italic] = true
-    }
-
-    if format.underline {
-      attributeDictionary[.underlineStyle] = NSUnderlineStyle.single.rawValue
-    }
-
-    if format.strikethrough {
-      attributeDictionary[.strikethroughStyle] = NSUnderlineStyle.single.rawValue
-    }
-
-    if format.code {
-      if let themeDict = theme.getValue(.text, withSubtype: TextNodeThemeSubtype.code) {
-        attributeDictionary.merge(themeDict) { (_, new) in new }
-      } else {
-        attributeDictionary[NSAttributedString.Key.fontFamily] = "Courier"
-        attributeDictionary[NSAttributedString.Key.backgroundColor] = UIColor.lightGray
-      }
-    }
-
-    return attributeDictionary
   }
 
   public func isInert() -> Bool {
@@ -363,7 +333,7 @@ open class TextNode: Node {
 
     try writableNode.setText("\(prefixText)\(newText)\(postText)")
 
-    let selection = try getSelection(allowInvalidPositions: true)
+    let selection = try getSelection()
     if moveSelection, let selection = selection as? RangeSelection {
       let newOffset = offset + newText.lengthAsNSString()
       selection.setTextNodeRange(
@@ -394,28 +364,29 @@ open class TextNode: Node {
     return true
   }
 
+  @available(*, deprecated, message: "Use new styles system")
   public func getFormat() -> TextFormat {
     let node = getLatest() as TextNode
-    return node.format
+    return compatibilityFormatFromStyles(node.styles)
   }
 
+  @available(*, deprecated, message: "Use new styles system")
   @discardableResult
   public func setFormat(format: TextFormat) throws -> TextNode {
     try errorOnReadOnly()
     let node = try getWritable() as TextNode
-    node.format = format
+    let newStyles = compatibilityStylesFromFormat(format)
+    node.styles = compatibilityMergeStylesAssumingAllFormats(old: node.styles, newFormats: newStyles)
     return node
   }
 
+  @available(*, deprecated, message: "Use new styles system")
   public func getStyle() -> String {
-    let node = getLatest() as TextNode
-    return node.style
+    return ""
   }
 
-  public func setStyle(_ style: String) throws {
-    let writable = try getWritable()
-    writable.style = style
-  }
+  @available(*, deprecated, message: "Use new styles system")
+  public func setStyle(_ style: String) throws {}
 
   public func splitText(splitOffsets: [Int]) throws -> [TextNode] {
     try errorOnReadOnly()
@@ -456,8 +427,7 @@ open class TextNode: Node {
       // Create a new TextNode
       writableNode = createTextNode(text: firstPart)
       writableNode.parent = parentKey
-      writableNode.format = format
-      writableNode.style = style
+      writableNode.styles = styles
       writableNode.detail = detail
       hasReplacedSelf = true
     } else {
@@ -475,8 +445,7 @@ open class TextNode: Node {
       let part = parts[i]
       let partSize = part.lengthAsNSString()
       let sibling = try createTextNode(text: part).getWritable()
-      sibling.format = format
-      sibling.style = style
+      sibling.styles = styles
       sibling.detail = detail
       let siblingKey = sibling.key
       let nextTextSize = textSize + partSize
@@ -572,9 +541,10 @@ open class TextNode: Node {
     return selection
   }
 
+  @available(*, deprecated, message: "Use new styles system")
   public func getFormatFlags(type: TextFormatType, alignWithFormat: TextFormat? = nil) -> TextFormat {
     let node = getLatest() as TextNode
-    let format = node.format
+    let format = compatibilityFormatFromStyles(node.getStyles())
     return toggleTextFormatType(format: format, type: type, alignWithFormat: alignWithFormat)
   }
 
@@ -648,15 +618,14 @@ open class TextNode: Node {
 
   static func canSimpleTextNodesBeMerged(node1: TextNode, node2: TextNode) -> Bool {
     let node1Mode = node1.mode
-    let node1Format = node1.format
-    let node1Style = node1.style
+    let node1Style = node1.styles
     let node2Mode = node2.mode
-    let node2Format = node2.format
-    let node2Style = node2.style
+    let node2Style = node2.styles
+
+    guard let editor = getActiveEditor() else { return false }
 
     return node1Mode == node2Mode &&
-      node1Format == node2Format &&
-      node1Style == node2Style
+      stylesDictsAreEqual(node1Style, node2Style, editor: editor)
   }
 
   static func mergeTextNodes(node1: TextNode, node2: TextNode) throws -> TextNode {

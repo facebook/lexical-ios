@@ -23,24 +23,22 @@ public class ListNode: ElementNode {
   private var start: Int = 1
 
   public required convenience init(listType: ListType, start: Int, key: NodeKey? = nil) {
-    self.init(key)
+    self.init(styles: [:], key: key)
     self.listType = listType
     self.start = start
   }
 
-  override public init() {
-    super.init()
-    self.type = NodeType.list
-  }
-
-  override public init(_ key: NodeKey?) {
-    super.init(key)
-    self.type = NodeType.list
-  }
-
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-    self.type = NodeType.list
+    // TODO: coding keys
+  }
+  
+  required init(styles: StylesDict, key: NodeKey?) {
+    fatalError("init(styles:key:) has not been implemented")
+  }
+  
+  public override class func getType() -> NodeType {
+    return .list
   }
 
   // MARK: getters/setters

@@ -10,17 +10,22 @@ import UIKit
 public class ParagraphNode: ElementNode {
   override public init() {
     super.init()
-    self.type = NodeType.paragraph
   }
 
   override required init(_ key: NodeKey?) {
     super.init(key)
-    self.type = NodeType.paragraph
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-    self.type = NodeType.paragraph
+  }
+  
+  public required init(styles: StylesDict, key: NodeKey?) {
+    super.init(styles: styles, key: key)
+  }
+
+  public override class func getType() -> NodeType {
+    return .paragraph
   }
 
   override public func encode(to encoder: Encoder) throws {

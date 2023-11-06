@@ -94,6 +94,9 @@ public class Editor: NSObject {
 
   internal var nodeTransforms: [NodeType: [(Int, NodeTransform)]] = [:]
 
+  // Styles. For all methods to manipulate these, see Styles.swift
+  internal var registeredStyles: StylesRegistrationDict = [:]
+
   // Used to help co-ordinate selection and events
   internal var compositionKey: NodeKey?
   public var dirtyType: DirtyType = .noDirtyNodes // TODO: I made this public to work around an issue in playground. @amyworrall
@@ -161,6 +164,7 @@ public class Editor: NSObject {
   public static func createHeadless(editorConfig: EditorConfig) -> Editor {
     let editor = Editor(editorConfig: editorConfig)
     editor.headless = true
+    registerRichText(editor: editor)
     return editor
   }
 
@@ -398,7 +402,7 @@ public class Editor: NSObject {
           if selection != nil {
             try paragraph.select(anchorOffset: nil, focusOffset: nil)
             if let selection = selection as? RangeSelection {
-              selection.clearFormat()
+              selection.clearStoredStyles()
             }
           }
         }

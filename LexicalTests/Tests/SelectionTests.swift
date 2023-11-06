@@ -757,13 +757,20 @@ class SelectionTests: XCTestCase {
       let start = createPoint(key: "1", offset: 5, type: .text)
       let end = createPoint(key: "1", offset: 15, type: .text)
       selection = RangeSelection(anchor: start, focus: end, format: TextFormat())
-      XCTAssertEqual(selection.format.bold, false)
+      getActiveEditorState()?.selection = selection
+      XCTAssertEqual(selection.styles[Styles.Bold.name] as? Bool ?? false, false)
 
       try selection.formatText(formatType: .bold)
-      XCTAssertEqual(selection.format.bold, true)
+      XCTAssertEqual(selection.styles[Styles.Bold.name] as? Bool ?? false, true)
+
+      XCTAssertEqual(getSelectionAssumingRangeSelection(), selection)
+      XCTAssertEqual(getSelectionAssumingRangeSelection().styles[Styles.Bold.name] as? Bool ?? false, true)
+
     }
 
     try editor.read {
+      XCTAssertEqual(getSelectionAssumingRangeSelection().styles[Styles.Bold.name] as? Bool ?? false, true)
+
       // 2 new textNodes should have been created
       var textNodes = editor.getEditorState().nodeMap.values.filter { $0.type == NodeType.text && $0.parent != nil }
       textNodes = textNodes.sorted(by: { $0.key < $1.key })
@@ -781,15 +788,20 @@ class SelectionTests: XCTestCase {
         return
       }
 
-      XCTAssertEqual(textNode0.format.bold, false)
-      XCTAssertEqual(textNode1.format.bold, true)
-      XCTAssertEqual(textNode2.format.bold, false)
+      XCTAssertEqual(getSelectionAssumingRangeSelection().styles[Styles.Bold.name] as? Bool ?? false, true)
+
+
+      XCTAssertEqual(textNode0.getStyle(Styles.Bold.self) ?? false, false)
+      XCTAssertEqual(textNode1.getStyle(Styles.Bold.self) ?? false, true)
+      XCTAssertEqual(textNode2.getStyle(Styles.Bold.self) ?? false, false)
     }
 
     try editor.update {
+      XCTAssertEqual(getSelectionAssumingRangeSelection().styles[Styles.Italic.name] as? Bool ?? false, false)
+      XCTAssertEqual(getSelectionAssumingRangeSelection().styles[Styles.Bold.name] as? Bool ?? false, true)
       try updateTextFormat(type: .italic, editor: editor)
-      XCTAssertEqual(getSelectionAssumingRangeSelection().format.italic, true)
-      XCTAssertEqual(getSelectionAssumingRangeSelection().format.bold, true)
+      XCTAssertEqual(getSelectionAssumingRangeSelection().styles[Styles.Italic.name] as? Bool ?? false, true)
+      XCTAssertEqual(getSelectionAssumingRangeSelection().styles[Styles.Bold.name] as? Bool ?? false, true)
     }
   }
 
@@ -810,12 +822,12 @@ class SelectionTests: XCTestCase {
       let start = createPoint(key: "1", offset: 4, type: .text)
       let end = createPoint(key: "3", offset: 7, type: .text)
       selection = RangeSelection(anchor: start, focus: end, format: TextFormat())
-      XCTAssertEqual(selection.format.bold, false)
+      XCTAssertEqual(selection.styles[Styles.Bold.name] as? Bool ?? false, false)
 
       try selection.formatText(formatType: .bold)
       XCTAssertEqual(selection.anchor.offset, 0)
       XCTAssertEqual(selection.focus.offset, 7)
-      XCTAssertEqual(selection.format.bold, true)
+      XCTAssertEqual(selection.styles[Styles.Bold.name] as? Bool ?? false, true)
     }
 
     try editor.read {
@@ -919,11 +931,11 @@ class SelectionTests: XCTestCase {
       let start = createPoint(key: "1", offset: 5, type: .text)
       let end = createPoint(key: "1", offset: 15, type: .text)
       selection = RangeSelection(anchor: start, focus: end, format: TextFormat())
-      XCTAssertEqual(selection.format.bold, false)
+      XCTAssertEqual(selection.styles[Styles.Bold.name] as? Bool ?? false, false)
 
       // make "testing to" to bold
       try selection.formatText(formatType: .bold)
-      XCTAssertEqual(selection.format.bold, true)
+      XCTAssertEqual(selection.styles[Styles.Bold.name] as? Bool ?? false, true)
     }
 
     // make "ing to verify" underlined
@@ -933,10 +945,10 @@ class SelectionTests: XCTestCase {
       let start = createPoint(key: "3", offset: 4, type: .text)
       let end = createPoint(key: "4", offset: 7, type: .text)
       selection = RangeSelection(anchor: start, focus: end, format: TextFormat())
-      XCTAssertEqual(selection.format.bold, false)
+      XCTAssertEqual(selection.styles[Styles.Bold.name] as? Bool ?? false, false)
 
       try selection.formatText(formatType: .underline)
-      XCTAssertEqual(selection.format.underline, true)
+      XCTAssertEqual(selection.styles[Styles.Underline.name] as? Bool ?? false, true)
     }
 
     try editor.read {
@@ -953,30 +965,30 @@ class SelectionTests: XCTestCase {
 
       // "I am" should not have any format
       if let textNode = textNodes[0] as? TextNode {
-        XCTAssertFalse(textNode.format.bold)
+        XCTAssertFalse(textNode.getStyle(Styles.Bold.self) ?? false)
       }
 
       // "test" should be bold
       if let textNode = textNodes[1] as? TextNode {
-        XCTAssertTrue(textNode.format.bold)
+        XCTAssertTrue(textNode.getStyle(Styles.Bold.self) ?? false)
       }
 
       // " verify" should be underlined
       if let textNode = textNodes[2] as? TextNode {
-        XCTAssertTrue(textNode.format.underline)
-        XCTAssertFalse(textNode.format.bold)
+        XCTAssertTrue(textNode.getStyle(Styles.Underline.self) ?? false)
+        XCTAssertFalse(textNode.getStyle(Styles.Bold.self) ?? false)
       }
 
       // "ing to" should bold and underline
       if let textNode = textNodes[3] as? TextNode {
-        XCTAssertTrue(textNode.format.bold)
-        XCTAssertTrue(textNode.format.underline)
+        XCTAssertTrue(textNode.getStyle(Styles.Bold.self) ?? false)
+        XCTAssertTrue(textNode.getStyle(Styles.Underline.self) ?? false)
       }
 
       //  "format updates !!" shouldn't have any format
       if let textNode = textNodes[4] as? TextNode {
-        XCTAssertFalse(textNode.format.bold)
-        XCTAssertFalse(textNode.format.underline)
+        XCTAssertFalse(textNode.getStyle(Styles.Bold.self) ?? false)
+        XCTAssertFalse(textNode.getStyle(Styles.Underline.self) ?? false)
       }
     }
 
@@ -1004,24 +1016,24 @@ class SelectionTests: XCTestCase {
 
       // "I am" should not have any format
       if let textNode = textNodes[0] as? TextNode {
-        XCTAssertFalse(textNode.format.bold)
+        XCTAssertFalse(textNode.getStyle(Styles.Bold.self) ?? false)
       }
 
       // "test" should be bold
       if let textNode = textNodes[1] as? TextNode {
-        XCTAssertTrue(textNode.format.bold)
+        XCTAssertTrue(textNode.getStyle(Styles.Bold.self) ?? false)
       }
 
       // "ing to verify" should be underlined but not bold
       if let textNode = textNodes[2] as? TextNode {
-        XCTAssertTrue(textNode.format.underline)
-        XCTAssertFalse(textNode.format.bold)
+        XCTAssertTrue(textNode.getStyle(Styles.Underline.self) ?? false)
+        XCTAssertFalse(textNode.getStyle(Styles.Bold.self) ?? false)
       }
 
       //  "format updates !!" shouldn't have any format
       if let textNode = textNodes[3] as? TextNode {
-        XCTAssertFalse(textNode.format.bold)
-        XCTAssertFalse(textNode.format.underline)
+        XCTAssertFalse(textNode.getStyle(Styles.Bold.self) ?? false)
+        XCTAssertFalse(textNode.getStyle(Styles.Underline.self) ?? false)
       }
     }
   }
@@ -1114,7 +1126,7 @@ class SelectionTests: XCTestCase {
 
       XCTAssertEqual(textNode1.getTextPart(), "Hello world ")
       XCTAssertEqual(textNode2.getTextPart(), "again")
-      XCTAssertTrue(textNode2.format.bold)
+      XCTAssertTrue(textNode2.getStyle(Styles.Bold.self) ?? false)
     }
   }
 

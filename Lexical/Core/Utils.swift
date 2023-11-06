@@ -138,6 +138,7 @@ public func createCodeHighlightNode(text: String, highlightType: String?) -> Cod
   CodeHighlightNode(text: text, highlightType: highlightType)
 }
 
+@available(*, deprecated, message: "Use new styles system")
 public func toggleTextFormatType(format: TextFormat, type: TextFormatType, alignWithFormat: TextFormat?) -> TextFormat {
   var activeFormat = format
   let isStateFlagPresent = format.isTypeSet(type: type)
@@ -265,18 +266,19 @@ public func getNodeHierarchy(editorState: EditorState?) throws -> String {
       let indentation = (0..<depth).map({ _ in "\t " }).joined(separator: "")
 
       if let textNode = node as? TextNode {
-        if textNode.format.debugDescription != "" {
-          formatString = "{ format: \(textNode.format.debugDescription) }"
-        } else {
-          formatString = ""
-        }
+        // TODO: debug for new styles
+//        if textNode.format.debugDescription != "" {
+//          formatString = "{ format: \(textNode.format.debugDescription) }"
+//        } else {
+//          formatString = ""
+//        }
         description.append("\(indentation)(\(node.key)) \(node.type.rawValue) \"\(textNode.getTextPart())\" \(formatString)")
       } else {
         description.append("\(indentation)(\(node.key)) \(node.type.rawValue)")
       }
 
       if let elementNode = node as? ElementNode {
-        let childNodes = elementNode.children.map({ (getNodeByKey(key: $0) ?? Node(), depth + 1) }).reversed()
+        let childNodes = elementNode.children.map({ (getNodeByKey(key: $0) ?? Node(styles: [:], key: $0), depth + 1) }).reversed()
         currentNodes.append(contentsOf: childNodes)
       }
     } while !currentNodes.isEmpty
