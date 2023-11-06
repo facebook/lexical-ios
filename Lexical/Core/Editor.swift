@@ -404,6 +404,7 @@ public class Editor: NSObject {
         }
       }
     }
+    frontend?.showPlaceholderText()
   }
 
   internal func resetReconciler(pendingEditorState: EditorState) {
