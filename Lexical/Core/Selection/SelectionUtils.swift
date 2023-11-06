@@ -524,19 +524,14 @@ public func setBlocksType(
     return
   }
 
-  guard var nodes = try? selection.getNodes() else { return }
-  var maybeBlock = try? selection.anchor.getNode().getParentOrThrow()
+  var nodes = (try? selection.getNodes()) ?? []
 
-  if let maybeBlock, !nodes.contains(maybeBlock) {
-    nodes.append(maybeBlock)
-  }
-
-  if let unwrappedMaybeBlock = maybeBlock, unwrappedMaybeBlock.isInline() {
-    maybeBlock = try? unwrappedMaybeBlock.getParentOrThrow()
-
-    if let maybeBlock, !nodes.contains(maybeBlock) {
-      nodes.append(maybeBlock)
+  var currentNode: Node? = try? selection.anchor.getNode()
+  while let currentNodeUnwrapped = currentNode {
+    if !nodes.contains(currentNodeUnwrapped) {
+      nodes.append(currentNodeUnwrapped)
     }
+    currentNode = currentNodeUnwrapped.getParent()
   }
 
   for node in nodes {
