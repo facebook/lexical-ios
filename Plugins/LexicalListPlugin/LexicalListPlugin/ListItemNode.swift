@@ -19,17 +19,14 @@ public class ListItemNode: ElementNode {
 
   override public init() {
     super.init()
-    self.type = NodeType.listItem
   }
 
   override public required init(_ key: NodeKey?) {
     super.init(key)
-    self.type = NodeType.listItem
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-    self.type = NodeType.listItem
   }
 
   override open func encode(to encoder: Encoder) throws {
@@ -38,6 +35,10 @@ public class ListItemNode: ElementNode {
 
   override public func clone() -> Self {
     Self(key)
+  }
+
+  override public class func getType() -> NodeType {
+    .listItem
   }
 
   public func getValue() -> Int {
