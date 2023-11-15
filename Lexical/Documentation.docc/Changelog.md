@@ -2,6 +2,24 @@
 
 This document lists changes made in each released version of Lexical.
 
+## 0.2 (Wed 15th November 2023)
+
+### API breaking changes
+
+* Node type is now provided by a `getType()` method: #47
+
+### Fixes
+
+* Fixed memory leaks: #40, #44
+* Improvements to typing logic, particularly when replacing characters. 
+* Fixed the "insert link" UI within the playground for situations where no text is selected.
+
+### Features
+
+* `performRangeSearch()` and `performRangeSearchWithPayload()` functions, to help converting Lexical EditorStates into a format used by backends/APIs which work with string ranges.
+* Undo/redo (aka History) is now in a plugin rather than core
+* `SelectableDecoratorNode` allows implementing a decorator that handles click-to-select. Improvements to `NodeSelection` allow pressing backspace to delete selected decorators, etc. `SelectableImageNode` provides an example use of this. (Still to do, allow theming the selection ring, and allow customising more behaviour!)
+
 ## 0.1 (Wed 5th July 2023)
 
 - Initial release
