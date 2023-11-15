@@ -286,6 +286,12 @@ public extension LexicalViewDelegate {
     }
   }
 
+  public var text: String {
+    get {
+      textView.text
+    }
+  }
+
   /// A proxy for the underlying `UITextView`'s `isScrollEnabled` property.
   public var isScrollEnabled: Bool {
     get {
