@@ -11,10 +11,18 @@ import LexicalListPlugin
 import LexicalMarkdown
 import UIKit
 
-internal enum OutputFormat {
+internal enum OutputFormat: CaseIterable {
   case html
   case json
   case markdown
+
+  var title: String {
+    switch self {
+    case .html: return "HTML"
+    case .json: return "JSON"
+    case .markdown: return "Markdown"
+    }
+  }
 }
 
 class ExportOutputViewController: UIViewController {

@@ -117,14 +117,11 @@ class ViewController: UIViewController, UIToolbarDelegate {
   }
 
   func setUpExportMenu() {
-    let menuItems = [
-      UIAction(title: "Export HTML", handler: { [weak self] action in
-        self?.showExportScreen(.html)
-      }),
-      UIAction(title: "Export JSON", handler: { [weak self] ction in
-        self?.showExportScreen(.json)
+    let menuItems = OutputFormat.allCases.map { outputFormat in
+      UIAction(title: "Export \(outputFormat.title)", handler: { [weak self] action in
+        self?.showExportScreen(outputFormat)
       })
-    ]
+    }
     let menu = UIMenu(title: "Export as…", children: menuItems)
     let barButtonItem = UIBarButtonItem(title: "Export", style: .plain, target: nil, action: nil)
     barButtonItem.menu = menu
