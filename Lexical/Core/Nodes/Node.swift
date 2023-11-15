@@ -22,11 +22,9 @@ open class Node: Codable {
 
   public var key: NodeKey
   var parent: NodeKey?
-  public var type: NodeType
   public var version: Int
 
   public init() {
-    self.type = Node.getType()
     self.version = 1
     self.key = LexicalConstants.uninitializedNodeKey
 
@@ -34,7 +32,6 @@ open class Node: Codable {
   }
 
   public init(_ key: NodeKey?) {
-    self.type = Node.getType()
     self.version = 1
 
     if let key, key != LexicalConstants.uninitializedNodeKey {
@@ -49,7 +46,6 @@ open class Node: Codable {
   public required init(from decoder: Decoder) throws {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     key = LexicalConstants.uninitializedNodeKey
-    type = try NodeType(rawValue: values.decode(String.self, forKey: .type))
     version = try values.decode(Int.self, forKey: .version)
 
     _ = try? generateKey(node: self)
@@ -58,8 +54,8 @@ open class Node: Codable {
   /// Used when serialising node to JSON
   open func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(self.type.rawValue, forKey: .type)
     try container.encode(self.version, forKey: .version)
+    try container.encode(self.type.rawValue, forKey: .type)
   }
 
   /**
@@ -68,11 +64,14 @@ open class Node: Codable {
    */
   open func didMoveTo(newEditor editor: Editor) {}
 
-  // This is an initial value for `type`.
-  // static methods cannot be overridden in swift so,
-  // each subclass needs to assign the type property in their init method
-  static func getType() -> NodeType {
+  open class func getType() -> NodeType {
     NodeType.unknown
+  }
+
+  public var type: NodeType {
+    get {
+      Self.getType()
+    }
   }
 
   /// Provides the **preamble** part of the node's content. Typically the preamble is used for control characters to represent embedded objects (see ``DecoratorNode``).

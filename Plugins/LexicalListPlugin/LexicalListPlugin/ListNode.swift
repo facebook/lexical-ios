@@ -30,17 +30,17 @@ public class ListNode: ElementNode {
 
   override public init() {
     super.init()
-    self.type = NodeType.list
   }
 
   override public init(_ key: NodeKey?) {
     super.init(key)
-    self.type = NodeType.list
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-    self.type = NodeType.list
+  }
+  override public class func getType() -> NodeType {
+    return .list
   }
 
   // MARK: getters/setters

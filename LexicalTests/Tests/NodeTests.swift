@@ -1707,12 +1707,8 @@ class NodeTests: XCTestCase {
       try textNode2.setText("hello ")
       textNode2.mode = .inert
 
-      let textNode3 = TextNode()
-      textNode3.type = NodeType.paragraph
-
       XCTAssertTrue(textNode.isSimpleText())
       XCTAssertFalse(textNode2.isSimpleText())
-      XCTAssertFalse(textNode3.isSimpleText())
     }
   }
 

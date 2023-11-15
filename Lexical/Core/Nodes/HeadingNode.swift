@@ -36,21 +36,21 @@ public class HeadingNode: ElementNode {
     self.tag = tag
 
     super.init()
-    self.type = NodeType.heading
   }
 
   public required init(_ key: NodeKey?, tag: HeadingTagType) {
     self.tag = tag
     super.init(key)
-    self.type = NodeType.heading
+  }
+
+  override public class func getType() -> NodeType {
+    return .heading
   }
 
   public required init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.tag = try container.decode(HeadingTagType.self, forKey: .tag)
     try super.init(from: decoder)
-
-    self.type = NodeType.heading
   }
 
   override public func encode(to encoder: Encoder) throws {

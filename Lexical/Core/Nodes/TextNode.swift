@@ -200,13 +200,15 @@ open class TextNode: Node {
 
   override public init() {
     super.init()
-    self.type = NodeType.text
   }
 
   public required init(text: String, key: NodeKey?) {
     super.init(key)
     self.text = text
-    self.type = NodeType.text
+  }
+
+  override open class func getType() -> NodeType {
+    return .text
   }
 
   public convenience init(text: String) {
@@ -224,7 +226,6 @@ open class TextNode: Node {
     let serializedDetail = try container.decode(SerializedTextNodeDetail.self, forKey: .detail)
     self.detail = SerializedTextNodeDetail.convertToTextDetail(from: serializedDetail)
     self.style = try container.decode(String.self, forKey: .style)
-    self.type = NodeType.text
   }
 
   override open func encode(to encoder: Encoder) throws {

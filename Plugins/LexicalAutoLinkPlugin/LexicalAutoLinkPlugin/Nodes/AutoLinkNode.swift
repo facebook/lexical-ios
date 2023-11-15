@@ -20,12 +20,14 @@ public class AutoLinkNode: LinkNode {
 
   override public init() {
     super.init()
-    self.type = NodeType.autoLink
   }
 
   required init(url: String, key: NodeKey?) {
     super.init(url: url, key: key)
-    self.type = NodeType.autoLink
+  }
+
+  override public class func getType() -> NodeType {
+    .autoLink
   }
 
   public required init(from decoder: Decoder) throws {
@@ -33,7 +35,6 @@ public class AutoLinkNode: LinkNode {
     try super.init(from: decoder)
 
     self.url = try container.decode(String.self, forKey: .url)
-    self.type = NodeType.autoLink
   }
 
   override open func encode(to encoder: Encoder) throws {

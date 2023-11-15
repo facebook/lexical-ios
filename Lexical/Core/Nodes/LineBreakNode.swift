@@ -8,17 +8,18 @@
 public class LineBreakNode: Node {
   override public init() {
     super.init()
-    self.type = NodeType.linebreak
   }
 
   override required init(_ key: NodeKey?) {
     super.init(key)
-    self.type = NodeType.linebreak
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
-    self.type = NodeType.linebreak
+  }
+
+  override public class func getType() -> NodeType {
+    .linebreak
   }
 
   override public func encode(to encoder: Encoder) throws {

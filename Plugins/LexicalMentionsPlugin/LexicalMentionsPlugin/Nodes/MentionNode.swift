@@ -23,14 +23,16 @@ public class MentionNode: TextNode {
   public required init(mention: String, text: String?, key: NodeKey?) {
     super.init(text: text ?? mention, key: key)
     self.mention = mention
-    self.type = NodeType.mention
+  }
+
+  override public class func getType() -> NodeType {
+    .mention
   }
 
   public required init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     try super.init(from: decoder)
     self.mention = try container.decode(String.self, forKey: .mention)
-    self.type = NodeType.mention
   }
 
   required init(text: String, key: NodeKey?) {

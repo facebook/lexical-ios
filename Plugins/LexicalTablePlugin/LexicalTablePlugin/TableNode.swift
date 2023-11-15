@@ -54,7 +54,6 @@ public class TableNode: DecoratorNode {
 
     self.numColumns = numColumns
     self.numRows = numRows
-    self.type = NodeType.table
 
     if let newRows {
       self.rows = newRows
@@ -129,14 +128,14 @@ public class TableNode: DecoratorNode {
 
   required init(_ key: NodeKey? = nil) {
     super.init(key)
-
-    self.type = NodeType.table
   }
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
+  }
 
-    self.type = NodeType.table
+  override public class func getType() -> NodeType {
+    .table
   }
 
   override public func encode(to encoder: Encoder) throws {
