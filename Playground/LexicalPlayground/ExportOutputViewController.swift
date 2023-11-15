@@ -46,13 +46,21 @@ class ExportOutputViewController: UIViewController {
 
   func generateHTML(editor: Editor) {
     try? editor.read {
-      self.output = try generateHTMLFromNodes(editor: editor, selection: nil)
+      do {
+        self.output = try generateHTMLFromNodes(editor: editor, selection: nil)
+      } catch let error {
+        self.output = error.localizedDescription
+      }
     }
   }
 
   func generateMarkdown(editor: Editor) {
     try? editor.read {
-      self.output = try LexicalMarkdown.generateMarkdown(from: editor, selection: nil)
+      do {
+        self.output = try LexicalMarkdown.generateMarkdown(from: editor, selection: nil)
+      } catch let error {
+        self.output = error.localizedDescription
+      }
     }
   }
 
@@ -60,6 +68,8 @@ class ExportOutputViewController: UIViewController {
     let currentEditorState = editor.getEditorState()
     if let jsonString = try? currentEditorState.toJSON() {
       output = jsonString
+    } else {
+      output = "Failed to generate JSON output"
     }
   }
 
