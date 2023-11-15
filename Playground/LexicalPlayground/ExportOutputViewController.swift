@@ -8,11 +8,13 @@
 import Lexical
 import LexicalHTML
 import LexicalListPlugin
+import LexicalMarkdown
 import UIKit
 
 internal enum OutputFormat {
   case html
   case json
+  case markdown
 }
 
 class ExportOutputViewController: UIViewController {
@@ -25,6 +27,8 @@ class ExportOutputViewController: UIViewController {
       generateHTML(editor: editor)
     case .json:
       generateJSON(editor: editor)
+    case .markdown:
+      generateMarkdown(editor: editor)
     }
   }
 
@@ -35,6 +39,12 @@ class ExportOutputViewController: UIViewController {
   func generateHTML(editor: Editor) {
     try? editor.read {
       self.output = try generateHTMLFromNodes(editor: editor, selection: nil)
+    }
+  }
+
+  func generateMarkdown(editor: Editor) {
+    try? editor.read {
+      self.output = try LexicalMarkdown.generateMarkdown(from: editor, selection: nil)
     }
   }
 
