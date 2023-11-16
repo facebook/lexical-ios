@@ -1159,7 +1159,7 @@ public class RangeSelection: BaseSelection {
         if startOffset != 0 {
           // the entire first node isn't selected, so split it
           let splitNodes = try textNode.splitText(splitOffsets: [startOffset])
-          if splitNodes.count >= 1 {
+          if splitNodes.count > 1 {
             textNode = splitNodes[1]
           }
 
