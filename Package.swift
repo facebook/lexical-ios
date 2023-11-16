@@ -42,6 +42,7 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
+    .package(url: "https://github.com/apple/swift-markdown.git", branch: "main"),
   ],
   targets: [
     .target(
@@ -109,11 +110,15 @@ let package = Package(
 
     .target(
       name: "LexicalMarkdown",
-      dependencies: ["Lexical"],
+      dependencies: ["Lexical", 
+        .product(name: "Markdown", package: "swift-markdown")
+      ],
       path: "./Plugins/LexicalMarkdown/LexicalMarkdown"),
     .testTarget(
       name: "LexicalMarkdownTests",
-      dependencies: ["Lexical", "LexicalMarkdown"],
+      dependencies: ["Lexical", "LexicalMarkdown",
+        .product(name: "Markdown", package: "swift-markdown"),
+      ],
       path: "./Plugins/LexicalMarkdown/LexicalMarkdownTests"),
   ]
 )
