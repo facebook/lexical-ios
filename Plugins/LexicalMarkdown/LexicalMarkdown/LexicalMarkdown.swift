@@ -1,11 +1,12 @@
-//
-//  LexicalMarkdown.swift
-//
-//
-//  Created by mani on 15/11/2023.
-//
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
 import Foundation
+import Markdown
 import Lexical
 
 open class LexicalMarkdown: Plugin {
@@ -20,7 +21,12 @@ open class LexicalMarkdown: Plugin {
   public func tearDown() {
   }
 
-  public class func generateMarkdown(from editor: Editor, selection: BaseSelection?) throws -> String {
-    throw NSError(domain: "", code: 0, userInfo: [NSLocalizedFailureReasonErrorKey: "Unimplemented"])
+  public class func generateMarkdown(from editor: Editor, 
+                                     selection: BaseSelection?) throws -> String {
+    guard let root = editor.getEditorState().getRootNode() else {
+      return ""
+    }
+
+    return Markdown.Document(root.getChildren().exportAsBlockMarkdown()).format()
   }
 }

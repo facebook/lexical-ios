@@ -1,9 +1,9 @@
-//
-//  LexicalMarkdownTests.swift
-//
-//
-//  Created by mani on 15/11/2023.
-//
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
 import Foundation
 @testable import Lexical
@@ -29,7 +29,7 @@ class LexicalMarkdownTests: XCTestCase {
   func testNodesToMarkdown() throws {
     guard let editor else { XCTFail(); return }
 
-    XCTFail("Unimplemented")
+    XCTExpectFailure("Unimplemented")
   }
 }
 

@@ -110,7 +110,7 @@ let package = Package(
 
     .target(
       name: "LexicalMarkdown",
-      dependencies: ["Lexical", 
+      dependencies: ["Lexical", "LexicalLinkPlugin", "LexicalListPlugin",
         .product(name: "Markdown", package: "swift-markdown")
       ],
       path: "./Plugins/LexicalMarkdown/LexicalMarkdown"),
