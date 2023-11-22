@@ -282,12 +282,16 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
       // find all nodes in selection. Mark dirty. Reconcile. This should correct all the attributes to be what we expect.
       do {
         try editor.update {
-          guard let anchor = try pointAtStringLocation(previousMarkedRange.location, searchDirection: .forward, rangeCache: editor.rangeCache),
-                let focus = try pointAtStringLocation(previousMarkedRange.location + previousMarkedRange.length, searchDirection: .forward, rangeCache: editor.rangeCache) else {
+          guard let anchor = try pointAtStringLocation(previousMarkedRange.location,
+                                                       searchDirection: .forward,
+                                                       rangeCache: editor.rangeCache),
+                let focus = try pointAtStringLocation(previousMarkedRange.location + previousMarkedRange.length, 
+                                                      searchDirection: .forward,
+                                                      rangeCache: editor.rangeCache) else {
             return
           }
 
-          let markedRangeSelection = RangeSelection(anchor: anchor, focus: focus, format: TextFormat())
+          let markedRangeSelection = RangeSelection(anchor: anchor, focus: focus, format: TextFormatType())
           _ = try markedRangeSelection.getNodes().map { node in
             internallyMarkNodeAsDirty(node: node, cause: .userInitiated)
           }

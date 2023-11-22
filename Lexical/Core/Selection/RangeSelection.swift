@@ -13,12 +13,12 @@ public class RangeSelection: BaseSelection {
   public var anchor: Point
   public var focus: Point
   public var dirty: Bool
-  public var format: TextFormat
+  public var format: TextFormatType
   public var style: String // TODO: add style support to iOS
 
   // MARK: - Init
 
-  public init(anchor: Point, focus: Point, format: TextFormat) {
+  public init(anchor: Point, focus: Point, format: TextFormatType) {
     self.anchor = anchor
     self.focus = focus
     self.dirty = false
@@ -40,7 +40,7 @@ public class RangeSelection: BaseSelection {
   }
 
   public func hasFormat(type: TextFormatType) -> Bool {
-    return format.isTypeSet(type: type)
+    return format.contains(type)
   }
 
   public func getCharacterOffsets(selection: RangeSelection) -> (Int, Int) {
@@ -1070,7 +1070,7 @@ public class RangeSelection: BaseSelection {
     self.anchor = anchor
     self.focus = focus
     self.dirty = false
-    self.format = TextFormat()
+    self.format = TextFormatType()
     self.style = ""
   }
 
@@ -1083,7 +1083,7 @@ public class RangeSelection: BaseSelection {
     let selectedNodes = try getNodes()
     guard var firstNode = selectedNodes.first, let lastNode = selectedNodes.last else { return }
 
-    var firstNextFormat = TextFormat()
+    var firstNextFormat = TextFormatType()
     for node in selectedNodes {
       if let node = node as? TextNode {
         firstNextFormat = node.getFormatFlags(type: formatType)
@@ -1218,12 +1218,12 @@ public class RangeSelection: BaseSelection {
   }
 
   internal func clearFormat() {
-    format = TextFormat()
+    format = TextFormatType()
   }
 
   // MARK: - Private
 
-  private func updateSelection(anchor: Point, focus: Point, format: TextFormat, isDirty: Bool) {
+  private func updateSelection(anchor: Point, focus: Point, format: TextFormatType, isDirty: Bool) {
     self.anchor.updatePoint(key: anchor.key, offset: anchor.offset, type: anchor.type)
     self.focus.updatePoint(key: focus.key, offset: focus.offset, type: focus.type)
     self.format = format

@@ -255,7 +255,9 @@ internal enum Reconciler {
       // marked text operation.
       let length = markedTextOperation.markedTextString.lengthAsNSString()
       let endPoint = Point(key: startPoint.key, offset: startPoint.offset + length, type: .text)
-      try frontend.updateNativeSelection(from: RangeSelection(anchor: startPoint, focus: endPoint, format: TextFormat()))
+      try frontend.updateNativeSelection(from: RangeSelection(anchor: startPoint,
+                                                              focus: endPoint,
+                                                              format: TextFormatType()))
       let attributedSubstring = markedTextAttributedString.attributedSubstring(from: NSRange(location: startPoint.offset, length: length))
       editor.frontend?.setMarkedTextFromReconciler(attributedSubstring, selectedRange: markedTextOperation.markedTextInternalSelection)
 
