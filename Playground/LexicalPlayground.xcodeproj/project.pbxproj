@@ -23,6 +23,7 @@
 		06CB47B429DE0139005AC7BD /* NodeHierarchyViewPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CB47B329DE0139005AC7BD /* NodeHierarchyViewPlugin.swift */; };
 		06F7CF942A542E4E0024CD5A /* LexicalInlineImagePlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 06F7CF932A542E4E0024CD5A /* LexicalInlineImagePlugin */; };
 		06F7CF962A545C7C0024CD5A /* lexical-logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 06F7CF952A545C7C0024CD5A /* lexical-logo.png */; };
+		3C48FEE42B04F2C5009BBFA2 /* LexicalMarkdown in Frameworks */ = {isa = PBXBuildFile; productRef = 3C48FEE32B04F2C5009BBFA2 /* LexicalMarkdown */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +46,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0656CFA229D48391009CA08F /* LexicalListPlugin in Frameworks */,
+				3C48FEE42B04F2C5009BBFA2 /* LexicalMarkdown in Frameworks */,
 				065B5C862A22291C003A38DB /* SelectableDecoratorNode in Frameworks */,
 				069E59DB2A1EBF1700CA4296 /* LexicalHTML in Frameworks */,
 				065F9DF72A5EC1D600C95087 /* EditorHistoryPlugin in Frameworks */,
@@ -133,6 +135,7 @@
 				06F7CF932A542E4E0024CD5A /* LexicalInlineImagePlugin */,
 				065B5C852A22291C003A38DB /* SelectableDecoratorNode */,
 				065F9DF62A5EC1D600C95087 /* EditorHistoryPlugin */,
+				3C48FEE32B04F2C5009BBFA2 /* LexicalMarkdown */,
 			);
 			productName = LexicalPlayground;
 			productReference = 0656CF7529D1E438009CA08F /* LexicalPlayground.app */;
@@ -446,6 +449,10 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = LexicalInlineImagePlugin;
 		};
+		3C48FEE32B04F2C5009BBFA2 /* LexicalMarkdown */ = {
+ 			isa = XCSwiftPackageProductDependency;
+ 			productName = LexicalMarkdown;
+ 		};
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0656CF6D29D1E438009CA08F /* Project object */;
