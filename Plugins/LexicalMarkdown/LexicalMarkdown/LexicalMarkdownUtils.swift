@@ -7,16 +7,16 @@
 
 import Foundation
 import Lexical
-import SwiftMarkdown
+import Markdown
 
 extension Array where Element == Node {
-  func exportAsInlineMarkdown(indentation: Int) -> [SwiftMarkdown.InlineMarkup] {
+  func exportAsInlineMarkdown(indentation: Int) -> [Markdown.InlineMarkup] {
     compactMap {
       try? ($0 as? NodeMarkdownInlineSupport)?.exportInlineMarkdown(indentation: indentation)
     }
   }
 
-  func exportAsBlockMarkdown() -> [SwiftMarkdown.BlockMarkup] {
+  func exportAsBlockMarkdown() -> [Markdown.BlockMarkup] {
     compactMap {
       try? ($0 as? NodeMarkdownBlockSupport)?.exportBlockMarkdown()
     }

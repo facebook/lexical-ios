@@ -9,54 +9,54 @@ import Foundation
 import Lexical
 import LexicalLinkPlugin
 import LexicalListPlugin
-import SwiftMarkdown
+import Markdown
 
 private func makeIndentation(_ count: Int) -> String {
   String(repeating: "\u{009}", count: count)
 }
 
 public protocol NodeMarkdownBlockSupport: Lexical.Node {
-  func exportBlockMarkdown() throws -> SwiftMarkdown.BlockMarkup
+  func exportBlockMarkdown() throws -> Markdown.BlockMarkup
 }
 
 public protocol NodeMarkdownInlineSupport: Lexical.Node {
-  func exportInlineMarkdown(indentation: Int) throws -> SwiftMarkdown.InlineMarkup
+  func exportInlineMarkdown(indentation: Int) throws -> Markdown.InlineMarkup
 }
 
 extension Lexical.ParagraphNode: NodeMarkdownBlockSupport {
-  public func exportBlockMarkdown() throws -> SwiftMarkdown.BlockMarkup {
-    return SwiftMarkdown.Paragraph(getChildren().exportAsInlineMarkdown(indentation: getIndent()))
+  public func exportBlockMarkdown() throws -> Markdown.BlockMarkup {
+    return Markdown.Paragraph(getChildren().exportAsInlineMarkdown(indentation: getIndent()))
   }
 }
 
 extension Lexical.TextNode: NodeMarkdownInlineSupport {
-  public func exportInlineMarkdown(indentation: Int) throws -> SwiftMarkdown.InlineMarkup {
+  public func exportInlineMarkdown(indentation: Int) throws -> Markdown.InlineMarkup {
     let format = getFormat()
-    var node: SwiftMarkdown.InlineMarkup = SwiftMarkdown.Text(makeIndentation(indentation) + getTextPart())
+    var node: Markdown.InlineMarkup = Markdown.Text(makeIndentation(indentation) + getTextPart())
 
     if format.code {
       // NOTE (mani) - code must always come first
-      node = SwiftMarkdown.InlineCode(makeIndentation(indentation) + getTextPart())
+      node = Markdown.InlineCode(makeIndentation(indentation) + getTextPart())
     }
 
     if format.bold {
-      node = SwiftMarkdown.Strong(node)
+      node = Markdown.Strong(node)
     }
 
     if format.strikethrough {
-      node = SwiftMarkdown.Strikethrough(node)
+      node = Markdown.Strikethrough(node)
     }
 
     if format.italic {
       // TODO (mani) - underline + italic both use Emphasis node
       // should we create a separate node?
-      node = SwiftMarkdown.Emphasis(node)
+      node = Markdown.Emphasis(node)
     }
 
     if format.underline {
       // TODO (mani) - underline + italic both use Emphasis node
       // should we create a separate node?
-      node = SwiftMarkdown.Emphasis(node)
+      node = Markdown.Emphasis(node)
     }
 
     if format.superScript {
@@ -79,17 +79,17 @@ extension LexicalListPlugin.ListNode: NodeMarkdownBlockSupport {
   // incorrect markdown. Assume indentations are not properly supported.
   // Also, no support for checkmarks in Lexical AFAIK.
 
-  public func exportBlockMarkdown() throws -> SwiftMarkdown.BlockMarkup {
+  public func exportBlockMarkdown() throws -> Markdown.BlockMarkup {
     let children = getChildren().exportAsBlockMarkdown()
-      .compactMap { $0 as? SwiftMarkdown.ListItem }
+      .compactMap { $0 as? Markdown.ListItem }
     switch getListType() {
     case .bullet:
-      return SwiftMarkdown.UnorderedList(children)
+      return Markdown.UnorderedList(children)
     case .check:
       // TODO (mani) - how does lexical mark a checked item?
-      return SwiftMarkdown.UnorderedList(children)
+      return Markdown.UnorderedList(children)
     case .number:
-      var list = SwiftMarkdown.OrderedList(children)
+      var list = Markdown.OrderedList(children)
       let start = getStart()
       if start > 0 {
         list.startIndex = UInt(start)
@@ -100,10 +100,10 @@ extension LexicalListPlugin.ListNode: NodeMarkdownBlockSupport {
 }
 
 extension LexicalListPlugin.ListItemNode: NodeMarkdownBlockSupport {
-  public func exportBlockMarkdown() throws -> SwiftMarkdown.BlockMarkup {
-    let children: [SwiftMarkdown.BlockMarkup] = getChildren().compactMap {
+  public func exportBlockMarkdown() throws -> Markdown.BlockMarkup {
+    let children: [Markdown.BlockMarkup] = getChildren().compactMap {
       if let inline = try? ($0 as? NodeMarkdownInlineSupport)?.exportInlineMarkdown(indentation: getIndent()) {
-        return SwiftMarkdown.Paragraph(inline)
+        return Markdown.Paragraph(inline)
       } else {
         return try? ($0 as? NodeMarkdownBlockSupport)?.exportBlockMarkdown()
       }
@@ -111,51 +111,51 @@ extension LexicalListPlugin.ListItemNode: NodeMarkdownBlockSupport {
 
     if let parent = getParent() as? ListNode, parent.getListType() == .check {
       // TODO (mani) - how does lexical mark a checked item?
-      return SwiftMarkdown.ListItem(checkbox: nil, children)
+      return Markdown.ListItem(checkbox: nil, children)
     } else {
-      return SwiftMarkdown.ListItem(children)
+      return Markdown.ListItem(children)
     }
   }
 }
 
 extension LexicalLinkPlugin.LinkNode: NodeMarkdownInlineSupport {
-  public func exportInlineMarkdown(indentation: Int) throws -> SwiftMarkdown.InlineMarkup {
-    SwiftMarkdown.Link(destination: getURL(),
+  public func exportInlineMarkdown(indentation: Int) throws -> Markdown.InlineMarkup {
+    Markdown.Link(destination: getURL(),
                        getChildren()
                         .exportAsInlineMarkdown(indentation: getIndent())
-                        .compactMap { $0 as? SwiftMarkdown.RecurringInlineMarkup })
+                        .compactMap { $0 as? Markdown.RecurringInlineMarkup })
   }
 }
 
 extension Lexical.CodeNode: NodeMarkdownBlockSupport {
-  public func exportBlockMarkdown() throws -> SwiftMarkdown.BlockMarkup {
+  public func exportBlockMarkdown() throws -> Markdown.BlockMarkup {
     // TODO (mani) - do code blocks have formatting?
     // TODO (mani) - indentation for codeblocks?
-    SwiftMarkdown.CodeBlock(getTextContent())
+    Markdown.CodeBlock(getTextContent())
   }
 }
 
 extension Lexical.LineBreakNode: NodeMarkdownInlineSupport {
-  public func exportInlineMarkdown(indentation: Int) throws -> SwiftMarkdown.InlineMarkup {
-    SwiftMarkdown.LineBreak()
+  public func exportInlineMarkdown(indentation: Int) throws -> Markdown.InlineMarkup {
+    Markdown.LineBreak()
   }
 }
 
 extension Lexical.QuoteNode: NodeMarkdownBlockSupport {
-  public func exportBlockMarkdown() throws -> SwiftMarkdown.BlockMarkup {
-    SwiftMarkdown.BlockQuote(
+  public func exportBlockMarkdown() throws -> Markdown.BlockMarkup {
+    Markdown.BlockQuote(
       getChildren()
         .exportAsInlineMarkdown(indentation: getIndent())
         .map {
-          SwiftMarkdown.Paragraph($0)
+          Markdown.Paragraph($0)
         }
     )
   }
 }
 
 extension Lexical.HeadingNode: NodeMarkdownBlockSupport {
-  public func exportBlockMarkdown() throws -> SwiftMarkdown.BlockMarkup {
-    SwiftMarkdown.Heading(
+  public func exportBlockMarkdown() throws -> Markdown.BlockMarkup {
+    Markdown.Heading(
       level: getTag().intValue,
       getChildren().exportAsInlineMarkdown(indentation: getIndent())
     )

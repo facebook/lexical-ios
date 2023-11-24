@@ -7,7 +7,7 @@
 
 import Foundation
 import Lexical
-import SwiftMarkdown
+import Markdown
 
 open class LexicalMarkdown: Plugin {
   public init() {}
@@ -27,6 +27,6 @@ open class LexicalMarkdown: Plugin {
       return ""
     }
 
-    return SwiftMarkdown.Document(root.getChildren().exportAsBlockMarkdown()).format()
+    return Markdown.Document(root.getChildren().exportAsBlockMarkdown()).format()
   }
 }

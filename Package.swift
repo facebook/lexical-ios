@@ -114,7 +114,7 @@ let package = Package(
         "Lexical",
         "LexicalLinkPlugin",
         "LexicalListPlugin",
-        .product(name: "SwiftMarkdown", package: "swift-markdown")
+        .product(name: "Markdown", package: "swift-markdown")
       ],
       path: "./Plugins/LexicalMarkdown/LexicalMarkdown"),
     .testTarget(
@@ -122,7 +122,7 @@ let package = Package(
       dependencies: [
         "Lexical",
         "LexicalMarkdown",
-        .product(name: "SwiftMarkdown", package: "swift-markdown"),
+        .product(name: "Markdown", package: "swift-markdown"),
       ],
       path: "./Plugins/LexicalMarkdown/LexicalMarkdownTests"),
   ]
