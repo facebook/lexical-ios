@@ -829,7 +829,7 @@ public class Editor: NSObject {
 
   // MARK: Node Transforms
 
-  /// Adds a Transform, allowing you to make changes in response to an EditorState update.
+  /// Registers a Transform, allowing you to make changes in response to an EditorState update.
   /// - Parameters:
   ///   - nodeType: The node type you want to listen for changes to
   ///   - transform: Code to run allowing you to further modify the node
@@ -841,7 +841,7 @@ public class Editor: NSObject {
   /// followed by an update. This is highly discouraged as it triggers an additional reconciliation pass. Additionally, each
   /// cycle creates a brand new EditorState object which can interfere with plugins like HistoryPlugin (undo-redo)
   /// if not handled correctly.
-  public func addNodeTransform(nodeType: NodeType, transform: @escaping NodeTransform) -> () -> Void {
+  public func registerNodeTransform(nodeType: NodeType, transform: @escaping NodeTransform) -> () -> Void {
     // NB: In the web code, closures can be compared for identity but in Swift, closures are
     //     by design not Equatable. Therefore, we generate a tag for each closure passed in
     //     and use that for our removal/cleanup logic.
@@ -866,6 +866,11 @@ public class Editor: NSObject {
         strongSelf.nodeTransforms[nodeType] = transforms
       }
     }
+  }
+  
+  @available(*, deprecated, renamed: "registerNodeTransform(nodeType:transform:)")
+  public func addNodeTransform(nodeType: NodeType, transform: @escaping NodeTransform) -> () -> Void {
+    registerNodeTransform(nodeType: nodeType, transform: transform)
   }
 
   internal func parseEditorState(json: Data) throws -> EditorState {
