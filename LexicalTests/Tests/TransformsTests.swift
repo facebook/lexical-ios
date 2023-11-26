@@ -45,7 +45,7 @@ class TransformTests: XCTestCase {
     for (index, key) in transforms.enumerated() {
       let nextKey = index < transforms.count - 1 ? transforms[index + 1] : TransformTests.lastTransformKey
 
-      let teardown = editor.addNodeTransform(nodeType: NodeType.text, transform: { [weak self] node in
+      let teardown = editor.registerNodeTransform(nodeType: NodeType.text, transform: { [weak self] node in
         guard let strongSelf = self else {
           XCTFail("strongSelf reference not found for text transform")
           return
@@ -70,7 +70,7 @@ class TransformTests: XCTestCase {
       teardowns.append(teardown)
     }
 
-    let infiniteTransform = editor.addNodeTransform(nodeType: NodeType.text, transform: { [weak self] node in
+    let infiniteTransform = editor.registerNodeTransform(nodeType: NodeType.text, transform: { [weak self] node in
       guard let strongSelf = self else {
         XCTFail("strongSelf reference not found for text transform")
         return
@@ -91,7 +91,7 @@ class TransformTests: XCTestCase {
       }
     })
 
-    let combinedTransform = editor.addNodeTransform(nodeType: NodeType.text, transform: { [weak self] node in
+    let combinedTransform = editor.registerNodeTransform(nodeType: NodeType.text, transform: { [weak self] node in
       guard let strongSelf = self else {
         XCTFail("strongSelf reference not found for text transform")
         return

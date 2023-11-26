@@ -10,7 +10,10 @@ import Lexical
 import UIKit
 
 extension NodeType {
-  static let listItem = NodeType(rawValue: "listItem")
+  // don't make this `listItem` keep it all lowercased
+  // so that it matches the JavaScript node type declaration
+  // in an attempt to make the 2 contexts compatible
+  static let listItem = NodeType(rawValue: "listitem")
 }
 
 public class ListItemNode: ElementNode {
