@@ -121,9 +121,9 @@ extension LexicalListPlugin.ListItemNode: NodeMarkdownBlockSupport {
 extension LexicalLinkPlugin.LinkNode: NodeMarkdownInlineSupport {
   public func exportInlineMarkdown(indentation: Int) throws -> Markdown.InlineMarkup {
     Markdown.Link(destination: getURL(),
-                       getChildren()
-                        .exportAsInlineMarkdown(indentation: getIndent())
-                        .compactMap { $0 as? Markdown.RecurringInlineMarkup })
+                  getChildren()
+                    .exportAsInlineMarkdown(indentation: getIndent())
+                    .compactMap { $0 as? Markdown.RecurringInlineMarkup })
   }
 }
 
