@@ -122,6 +122,12 @@ internal func onPasteFromUITextView(editor: Editor, pasteboard: UIPasteboard) th
   editor.frontend?.showPlaceholderText()
 }
 
+internal func onLinkTappedFromUITextView(editor: Editor, URL: URL) throws {
+  if UIApplication.shared.canOpenURL(URL) {
+    UIApplication.shared.open(URL)
+  }
+}
+
 public func shouldInsertTextAfterOrBeforeTextNode(selection: RangeSelection, node: TextNode) -> Bool {
   var shouldInsertTextBefore = false
   var shouldInsertTextAfter = false
@@ -398,6 +404,17 @@ public func registerRichText(editor: Editor) {
 
   _ = editor.registerCommand(type: .updatePlaceholderVisibility) { [weak editor] payload in
     editor?.frontend?.showPlaceholderText()
+    return true
+  }
+  
+  _ = editor.registerCommand(type: .linkTapped) { [weak editor] payload in
+    guard let editor else { return false }
+    do {
+      guard let URL = payload as? URL else { return false }
+      try onLinkTappedFromUITextView(editor: editor, URL: URL)
+    } catch {
+      print("\(error)")
+    }
     return true
   }
 }
