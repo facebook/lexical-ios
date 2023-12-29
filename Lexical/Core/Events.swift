@@ -125,6 +125,20 @@ internal func onPasteFromUITextView(editor: Editor, pasteboard: UIPasteboard) th
 internal func onLinkTappedFromUITextView(editor: Editor, URL: URL) throws {
   if UIApplication.shared.canOpenURL(URL) {
     UIApplication.shared.open(URL)
+  } else {
+    let title = "Error"
+    let message = "Invalid URL"
+    let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    let okButton = UIAlertAction(title: "OK", style: .cancel)
+    alertController.addAction(okButton)
+    
+    let keyWindow = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+    if var topController = keyWindow?.rootViewController {
+      while let presentedViewController = topController.presentedViewController {
+        topController = presentedViewController
+      }
+      topController.present(alertController, animated: true)
+    }
   }
 }
 

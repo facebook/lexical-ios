@@ -433,16 +433,7 @@ private class TextViewDelegate: NSObject, UITextViewDelegate {
       }
       try selection.applyNativeSelection(nativeSelection)
     }
-    let handledByLexical = textView.editor.dispatchCommand(type: .linkTapped, payload: URL)
-
-    if handledByLexical {
-      return false
-    }
-
-    if !textView.isEditable {
-      return true
-    }
-
-    return textView.lexicalDelegate?.textView(textView, shouldInteractWith: URL, in: characterRange, interaction: interaction) ?? false
+    
+    return textView.lexicalDelegate?.textView(textView, shouldInteractWith: URL, in: characterRange, interaction: interaction) ?? !textView.isEditable
   }
 }
