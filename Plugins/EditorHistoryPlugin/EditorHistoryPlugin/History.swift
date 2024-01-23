@@ -324,7 +324,7 @@ func getChangeType(
     let prevAnchorNode = nextNodeMap[prevSelection.anchor.key]
 
     if let nextAnchorNode = nextNodeMap[nextSelection.anchor.key] as? TextNode,
-       (prevAnchorNode != nil),
+       prevAnchorNode != nil,
        !prevEditorState.getNodeMap().keys.contains(nextAnchorNode.key),
        nextAnchorNode.getTextPartSize() == 1,
        nextSelection.anchor.offset == 1 {
