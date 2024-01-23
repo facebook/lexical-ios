@@ -152,7 +152,7 @@ public func cloneContents(selection: RangeSelection) throws -> (
   var nodesLength = nodes.count
   let firstNode = nodes[0]
   if let firstNodeParent = firstNode.getParent(),
-     (!firstNodeParent.canBeEmpty() || isRootNode(node: firstNodeParent)) {
+     !firstNodeParent.canBeEmpty() || isRootNode(node: firstNodeParent) {
     let parentChildren = firstNodeParent.children
     let parentChildrenLength = parentChildren.count
     if parentChildrenLength == nodesLength {

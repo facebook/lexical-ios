@@ -187,7 +187,7 @@ private func updateNodeLocationFor(nodeKey: NodeKey, nodeIsAfterChangedNode: Boo
 
   var isAfterChangedNode = nodeIsAfterChangedNode
 
-  if let elementNode = getNodeByKey(key: nodeKey) as? ElementNode, (isAfterChangedNode || changedNodeParents.contains(nodeKey)) {
+  if let elementNode = getNodeByKey(key: nodeKey) as? ElementNode, isAfterChangedNode || changedNodeParents.contains(nodeKey) {
     for child in elementNode.getChildren() {
       updateNodeLocationFor(nodeKey: child.getKey(), nodeIsAfterChangedNode: isAfterChangedNode, changedNodeKey: changedNodeKey, changedNodeParents: changedNodeParents, delta: delta)
       if child.getKey() == changedNodeKey || changedNodeParents.contains(child.getKey()) {
