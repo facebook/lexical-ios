@@ -67,10 +67,6 @@ public class ListNode: ElementNode {
     return node
   }
 
-  override public func encode(to encoder: Encoder) throws {
-    try super.encode(to: encoder)
-  }
-
   override public func clone() -> Self {
     Self(listType: listType, start: start, key: key)
   }

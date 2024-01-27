@@ -40,10 +40,6 @@ public class SelectableImageNode: SelectableDecoratorNode {
     return .selectableImage
   }
 
-  override public func encode(to encoder: Encoder) throws {
-    try super.encode(to: encoder)
-  }
-
   override public func clone() -> Self {
     Self(url: url?.absoluteString ?? "", size: size, sourceID: sourceID, key: key)
   }

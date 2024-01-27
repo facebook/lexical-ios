@@ -32,10 +32,6 @@ public class ListItemNode: ElementNode {
     try super.init(from: decoder)
   }
 
-  override open func encode(to encoder: Encoder) throws {
-    try super.encode(to: encoder)
-  }
-
   override public func clone() -> Self {
     Self(key)
   }
