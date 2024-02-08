@@ -266,7 +266,7 @@ public class Editor: NSObject {
   ///   - listener: The code to run when the command is dispatched.
   ///   - priority: The priority for your handler. Higher priority handlers run before lower priority handlers.
   /// - Returns: A closure to remove the command handler.
-  public func registerCommand(type: CommandType, listener: @escaping CommandListener, priority: CommandPriority = CommandPriority.Editor) -> RemovalHandler {
+  public func registerCommand(type: CommandType, listener: @escaping CommandListener, priority: CommandPriority = CommandPriority.Editor, shouldWrapInUpdateBlock: Bool = true) -> RemovalHandler {
     let uuid = UUID()
 
     if self.commands[type] == nil {
@@ -282,7 +282,9 @@ public class Editor: NSObject {
       )
     }
 
-    self.commands[type]?[priority]?[uuid] = listener
+    let wrapper = CommandListenerWithMetadata(listener: listener, shouldWrapInUpdateBlock: shouldWrapInUpdateBlock)
+
+    self.commands[type]?[priority]?[uuid] = wrapper
 
     return { [weak self] in
       guard let self else { return }

@@ -78,7 +78,8 @@ public func triggerCommandListeners(activeEditor: Editor, type: CommandType, pay
       }
 
       // TODO: handle throws
-      for listener in listeners {
+      for wrapper in listeners {
+        let listener = wrapper.listener
         if listener(payload) {
           handled = true
           return
@@ -87,8 +88,17 @@ public func triggerCommandListeners(activeEditor: Editor, type: CommandType, pay
     }
   }
 
+  var shouldWrapInUpdateBlock = false
+  for p in (listenersInPriorityOrder ?? [:]).values {
+    for metadata in p.values {
+      if metadata.shouldWrapInUpdateBlock {
+        shouldWrapInUpdateBlock = true
+      }
+    }
+  }
+
   do {
-    if !activeEditor.isUpdating {
+    if shouldWrapInUpdateBlock && !activeEditor.isUpdating {
       try activeEditor.update(closure)
     } else {
       try closure()
