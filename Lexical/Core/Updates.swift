@@ -134,6 +134,13 @@ internal func runWithStateLexicalScopeProperties(activeEditor: Editor?, activeEd
   Thread.current.threadDictionary[activeEditorThreadDictionaryKey] = activeEditor
   Thread.current.threadDictionary[activeEditorStateThreadDictionaryKey] = activeEditorState
   Thread.current.threadDictionary[readOnlyModeThreadDictionaryKey] = readOnlyMode
+  
+  defer {
+    Thread.current.threadDictionary[activeEditorThreadDictionaryKey] = previousActiveEditor
+    Thread.current.threadDictionary[activeEditorStateThreadDictionaryKey] = previousActiveEditorState
+    Thread.current.threadDictionary[readOnlyModeThreadDictionaryKey] = previousReadOnly
+    Thread.current.threadDictionary[previousParentUpdateBlocksThreadDictionaryKey] = previousParentUpdateBlocks
+  }
 
   if let activeEditor {
     var newParentUpdateBlocks = previousParentUpdateBlocks
@@ -142,9 +149,4 @@ internal func runWithStateLexicalScopeProperties(activeEditor: Editor?, activeEd
   }
 
   try closure()
-
-  Thread.current.threadDictionary[activeEditorThreadDictionaryKey] = previousActiveEditor
-  Thread.current.threadDictionary[activeEditorStateThreadDictionaryKey] = previousActiveEditorState
-  Thread.current.threadDictionary[readOnlyModeThreadDictionaryKey] = previousReadOnly
-  Thread.current.threadDictionary[previousParentUpdateBlocksThreadDictionaryKey] = previousParentUpdateBlocks
 }
