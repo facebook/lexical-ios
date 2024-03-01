@@ -134,7 +134,7 @@ internal func runWithStateLexicalScopeProperties(activeEditor: Editor?, activeEd
   Thread.current.threadDictionary[activeEditorThreadDictionaryKey] = activeEditor
   Thread.current.threadDictionary[activeEditorStateThreadDictionaryKey] = activeEditorState
   Thread.current.threadDictionary[readOnlyModeThreadDictionaryKey] = readOnlyMode
-  
+
   defer {
     Thread.current.threadDictionary[activeEditorThreadDictionaryKey] = previousActiveEditor
     Thread.current.threadDictionary[activeEditorStateThreadDictionaryKey] = previousActiveEditorState
