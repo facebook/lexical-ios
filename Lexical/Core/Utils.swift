@@ -138,32 +138,14 @@ public func createCodeHighlightNode(text: String, highlightType: String?) -> Cod
   CodeHighlightNode(text: text, highlightType: highlightType)
 }
 
-public func toggleTextFormatType(format: TextFormat, type: TextFormatType, alignWithFormat: TextFormat?) -> TextFormat {
-  var activeFormat = format
-  let isStateFlagPresent = format.isTypeSet(type: type)
-  var flag = false
-
-  if let alignWithFormat {
-    // remove the type from format
-    if isStateFlagPresent && !alignWithFormat.isTypeSet(type: type) {
-      flag = false
-    }
-
-    // add the type to format
-    if alignWithFormat.isTypeSet(type: type) {
-      flag = true
-    }
+public func toggleTextFormatType(format: TextFormatType,
+                                 type: TextFormatType,
+                                 alignWithFormat: TextFormatType?) -> TextFormatType {
+  if let alignWithFormat = alignWithFormat {
+    return alignWithFormat.contains(type) ? format.union(type) : format.subtracting(type)
   } else {
-    if isStateFlagPresent {
-      flag = false
-    } else {
-      flag = true
-    }
+    return format.symmetricDifference(type)
   }
-
-  activeFormat.updateFormat(type: type, value: flag)
-
-  return activeFormat
 }
 
 public func isElementNode(node: Node?) -> Bool {

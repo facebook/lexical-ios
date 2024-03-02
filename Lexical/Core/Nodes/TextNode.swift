@@ -11,133 +11,24 @@ public enum TextNodeThemeSubtype {
   public static let code = "code"
 }
 
-public struct SerializedTextFormat: OptionSet, Codable {
-  public let rawValue: Int
-
-  public static let bold = SerializedTextFormat(rawValue: 1 << 0)
-  public static let italic = SerializedTextFormat(rawValue: 1 << 1)
-  public static let strikethrough = SerializedTextFormat(rawValue: 1 << 2)
-  public static let underline = SerializedTextFormat(rawValue: 1 << 3)
-  public static let code = SerializedTextFormat(rawValue: 1 << 4)
-  public static let subScript = SerializedTextFormat(rawValue: 1 << 5)
-  public static let superScript = SerializedTextFormat(rawValue: 1 << 6)
-
-  public init(rawValue: Int) {
-    self.rawValue = rawValue
-  }
-
-  // On encode, convert from TextFormat -> SerializedTextFormat
-  public static func convertToSerializedTextFormat(from textFormat: TextFormat) -> SerializedTextFormat {
-    var serialTextFormat = SerializedTextFormat()
-    if textFormat.bold {
-      serialTextFormat.insert(.bold)
-    }
-    if textFormat.italic {
-      serialTextFormat.insert(.italic)
-    }
-    if textFormat.underline {
-      serialTextFormat.insert(.underline)
-    }
-    if textFormat.strikethrough {
-      serialTextFormat.insert(.strikethrough)
-    }
-    if textFormat.code {
-      serialTextFormat.insert(.code)
-    }
-    if textFormat.subScript {
-      serialTextFormat.insert(.subScript)
-    }
-    if textFormat.superScript {
-      serialTextFormat.insert(.superScript)
-    }
-
-    return serialTextFormat
-  }
-
-  // On decode, convert from SerializedTextFormat -> TextFormat
-  public static func convertToTextFormat(from serialTextFormat: SerializedTextFormat) -> TextFormat {
-    var textFormat = TextFormat()
-    if serialTextFormat.contains(.bold) {
-      textFormat.bold = true
-    }
-    if serialTextFormat.contains(.italic) {
-      textFormat.italic = true
-    }
-    if serialTextFormat.contains(.underline) {
-      textFormat.underline = true
-    }
-    if serialTextFormat.contains(.strikethrough) {
-      textFormat.strikethrough = true
-    }
-    if serialTextFormat.contains(.code) {
-      textFormat.code = true
-    }
-    if serialTextFormat.contains(.subScript) {
-      textFormat.subScript = true
-    }
-    if serialTextFormat.contains(.superScript) {
-      textFormat.superScript = true
-    }
-
-    return textFormat
-  }
-}
-
-public struct TextFormat: Equatable, Codable {
-
-  public var bold: Bool
-  public var italic: Bool
-  public var underline: Bool
-  public var strikethrough: Bool
-  public var code: Bool
-  public var subScript: Bool
-  public var superScript: Bool
-
-  public init() {
-    self.bold = false
-    self.italic = false
-    self.underline = false
-    self.strikethrough = false
-    self.code = false
-    self.subScript = false
-    self.superScript = false
-  }
-
-  public func isTypeSet(type: TextFormatType) -> Bool {
-    switch type {
-    case .bold:
-      return bold
-    case .italic:
-      return italic
-    case .underline:
-      return underline
-    case .strikethrough:
-      return strikethrough
+extension TextFormatType {
+  func makeAttributedStringKey(with theme: Theme) -> [NSAttributedString.Key: Any] {
+    switch self {
+    case .bold: return [.bold: true]
+    case .italic: return [.italic: true]
+    case .underline: return [.underlineStyle: NSUnderlineStyle.single.rawValue]
+    case .strikethrough: return [.strikethroughStyle: NSUnderlineStyle.single.rawValue]
     case .code:
-      return code
-    case .subScript:
-      return subScript
-    case .superScript:
-      return superScript
-    }
-  }
-
-  public mutating func updateFormat(type: TextFormatType, value: Bool) {
-    switch type {
-    case .bold:
-      bold = value
-    case .italic:
-      italic = value
-    case .underline:
-      underline = value
-    case .strikethrough:
-      strikethrough = value
-    case .code:
-      code = value
-    case .subScript:
-      subScript = value
-    case .superScript:
-      superScript = value
+      if let themeDict = theme.getValue(.text, withSubtype: TextNodeThemeSubtype.code) {
+        return themeDict
+      } else {
+        return [
+          .fontFamily: "Courier",
+          .backgroundColor: UIColor.lightGray
+        ]
+      }
+    default:
+      return [:]
     }
   }
 }
@@ -194,7 +85,7 @@ open class TextNode: Node {
 
   private var text: String = ""
   public var mode: Mode = .normal
-  var format: TextFormat = TextFormat()
+  var format = TextFormatType()
   var detail = TextNodeDetail()
   var style: String = ""
 
@@ -221,8 +112,7 @@ open class TextNode: Node {
 
     self.text = try container.decode(String.self, forKey: .text)
     self.mode = try container.decode(Mode.self, forKey: .mode)
-    let serializedFormat = try container.decode(SerializedTextFormat.self, forKey: .format)
-    self.format = SerializedTextFormat.convertToTextFormat(from: serializedFormat)
+    self.format = try container.decode(TextFormatType.self, forKey: .format)
     let serializedDetail = try container.decode(SerializedTextNodeDetail.self, forKey: .detail)
     self.detail = SerializedTextNodeDetail.convertToTextDetail(from: serializedDetail)
     self.style = try container.decode(String.self, forKey: .style)
@@ -233,7 +123,7 @@ open class TextNode: Node {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(self.text, forKey: .text)
     try container.encode(self.mode, forKey: .mode)
-    try container.encode(SerializedTextFormat.convertToSerializedTextFormat(from: self.format).rawValue, forKey: .format)
+    try container.encode(self.format, forKey: .format)
     try container.encode(SerializedTextNodeDetail.convertToSerializedTextNodeDetail(from: self.detail).rawValue, forKey: .detail)
     try container.encode(self.style, forKey: .style)
   }
@@ -261,12 +151,12 @@ open class TextNode: Node {
 
   public func setBold(_ isBold: Bool) throws {
     try errorOnReadOnly()
-    try getWritable().format.bold = isBold
+    try getWritable().format.toggle(.bold)
   }
 
   public func setItalic(_ isItalic: Bool) throws {
     try errorOnReadOnly()
-    try getWritable().format.italic = isItalic
+    try getWritable().format.toggle(.italic)
   }
 
   public func canInsertTextAfter() -> Bool {
@@ -278,39 +168,25 @@ open class TextNode: Node {
   }
 
   override open func getAttributedStringAttributes(theme: Theme) -> [NSAttributedString.Key: Any] {
-    var attributeDictionary = super.getAttributedStringAttributes(theme: theme)
+    let attributeDictionary = super.getAttributedStringAttributes(theme: theme)
 
     // TODO: Remove this once codeHighlight node is implemented
     if let parent, let _ = getNodeByKey(key: parent) as? CodeNode {
-      format = TextFormat()
+      format = TextFormatType()
     }
 
-    if format.bold {
-      attributeDictionary[.bold] = true
-    }
-
-    if format.italic {
-      attributeDictionary[.italic] = true
-    }
-
-    if format.underline {
-      attributeDictionary[.underlineStyle] = NSUnderlineStyle.single.rawValue
-    }
-
-    if format.strikethrough {
-      attributeDictionary[.strikethroughStyle] = NSUnderlineStyle.single.rawValue
-    }
-
-    if format.code {
-      if let themeDict = theme.getValue(.text, withSubtype: TextNodeThemeSubtype.code) {
-        attributeDictionary.merge(themeDict) { (_, new) in new }
-      } else {
-        attributeDictionary[NSAttributedString.Key.fontFamily] = "Courier"
-        attributeDictionary[NSAttributedString.Key.backgroundColor] = UIColor.lightGray
-      }
-    }
-
-    return attributeDictionary
+    return attributeDictionary.merging(
+      TextFormatType
+        .allCases
+        .filter {
+          format.contains($0)
+        }
+        .reduce([:]) { partialResult, type in
+          return partialResult.merging(type.makeAttributedStringKey(with: theme)) { _, new in new }
+        }, 
+      uniquingKeysWith: { _, new in
+        return new
+      })
   }
 
   public func isInert() -> Bool {
@@ -395,13 +271,13 @@ open class TextNode: Node {
     return true
   }
 
-  public func getFormat() -> TextFormat {
+  public func getFormat() -> TextFormatType {
     let node = getLatest() as TextNode
     return node.format
   }
 
   @discardableResult
-  public func setFormat(format: TextFormat) throws -> TextNode {
+  public func setFormat(format: TextFormatType) throws -> TextNode {
     try errorOnReadOnly()
     let node = try getWritable() as TextNode
     node.format = format
@@ -565,15 +441,24 @@ open class TextNode: Node {
         focusType: .text)
     }
     guard let selection = selection as? RangeSelection else {
-      return try makeRangeSelection(anchorKey: key, anchorOffset: updatedAnchorOffset, focusKey: key, focusOffset: updatedAnchorOffset, anchorType: .text, focusType: .text)
+      return try makeRangeSelection(anchorKey: key, 
+                                    anchorOffset: updatedAnchorOffset,
+                                    focusKey: key,
+                                    focusOffset: updatedAnchorOffset,
+                                    anchorType: .text,
+                                    focusType: .text)
     }
 
-    selection.setTextNodeRange(anchorNode: self, anchorOffset: updatedAnchorOffset, focusNode: self, focusOffset: updatedFocusOffset)
+    selection.setTextNodeRange(anchorNode: self, 
+                               anchorOffset: updatedAnchorOffset,
+                               focusNode: self, 
+                               focusOffset: updatedFocusOffset)
 
     return selection
   }
 
-  public func getFormatFlags(type: TextFormatType, alignWithFormat: TextFormat? = nil) -> TextFormat {
+  public func getFormatFlags(type: TextFormatType,
+                             alignWithFormat: TextFormatType? = nil) -> TextFormatType {
     let node = getLatest() as TextNode
     let format = node.format
     return toggleTextFormatType(format: format, type: type, alignWithFormat: alignWithFormat)
@@ -716,15 +601,12 @@ extension TextNode: CustomDebugStringConvertible {
   }
 }
 
-extension TextFormat: CustomDebugStringConvertible {
+extension TextFormatType: CustomDebugStringConvertible {
   public var debugDescription: String {
-    var debugStyleStatus = [String]()
-    if bold { debugStyleStatus.append("bold") }
-    if italic { debugStyleStatus.append("italic") }
-    if underline { debugStyleStatus.append("underline") }
-    if strikethrough { debugStyleStatus.append("strikeThrough") }
-    if code { debugStyleStatus.append("code") }
-    return debugStyleStatus.joined(separator: ", ")
+    TextFormatType.allCases.compactMap {
+      return self.contains($0) ? $0.description : nil
+    }
+    .joined(separator: ", ")
   }
 }
 
