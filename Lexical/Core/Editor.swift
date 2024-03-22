@@ -688,11 +688,17 @@ public class Editor: NSObject {
       mountDecoratorSubviewsIfNecessary()
     }
 
+    if isInsideNestedEditorBlock {
+      return
+    }
+
     // These have to be outside of the above runWithStateLexicalScopeProperties{} closure, because: if any update block is triggered from inside that
     // closure, it counts as a nested update. But listeners, which happen after we've run the reconciler, should not count as nested for this purpose;
     // if an update is triggered from within an update listener, it needs to run the reconciler a second time.
-    triggerUpdateListeners(activeEditor: self, activeEditorState: editorState, previousEditorState: previousEditorStateForListeners, dirtyNodes: dirtyNodesForListeners)
-    try triggerTextContentListeners(activeEditor: self, activeEditorState: editorState, previousEditorState: previousEditorStateForListeners)
+    try runWithStateLexicalScopeProperties(activeEditor: self, activeEditorState: pendingEditorState, readOnlyMode: true) {
+      triggerUpdateListeners(activeEditor: self, activeEditorState: pendingEditorState, previousEditorState: previousEditorStateForListeners, dirtyNodes: dirtyNodesForListeners)
+      try triggerTextContentListeners(activeEditor: self, activeEditorState: pendingEditorState, previousEditorState: previousEditorStateForListeners)
+    }
 
     frontend?.isUpdatingNativeSelection = false
 
