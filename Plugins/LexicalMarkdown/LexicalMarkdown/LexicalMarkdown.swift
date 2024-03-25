@@ -23,10 +23,13 @@ open class LexicalMarkdown: Plugin {
 
   public class func generateMarkdown(from editor: Editor,
                                      selection: BaseSelection?) throws -> String {
-    guard let root = editor.getEditorState().getRootNode() else {
-      return ""
+    var markdownString = ""
+    try editor.read {
+      guard let root = getRoot() else {
+        throw LexicalError.invariantViolation("Expected root node")
+      }
+      markdownString = Markdown.Document(root.getChildren().exportAsBlockMarkdown()).format()
     }
-
-    return Markdown.Document(root.getChildren().exportAsBlockMarkdown()).format()
+    return markdownString
   }
 }
