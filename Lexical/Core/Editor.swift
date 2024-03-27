@@ -604,7 +604,7 @@ public class Editor: NSObject {
       return
     }
 
-    let isInsideNestedEditorBlock = (isEditorPresentInUpdateStack(self)) && !isReadOnlyMode()
+    let isInsideNestedEditorBlock = (isEditorPresentInUpdateStack(self))
     let previousEditorStateForListeners = editorState
     let dirtyNodesForListeners = dirtyNodes
 

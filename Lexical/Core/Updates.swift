@@ -142,7 +142,7 @@ internal func runWithStateLexicalScopeProperties(activeEditor: Editor?, activeEd
     Thread.current.threadDictionary[previousParentUpdateBlocksThreadDictionaryKey] = previousParentUpdateBlocks
   }
 
-  if let activeEditor {
+  if let activeEditor, readOnlyMode == false {
     var newParentUpdateBlocks = previousParentUpdateBlocks
     newParentUpdateBlocks.append(activeEditor)
     Thread.current.threadDictionary[previousParentUpdateBlocksThreadDictionaryKey] = newParentUpdateBlocks
