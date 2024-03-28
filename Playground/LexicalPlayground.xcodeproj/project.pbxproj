@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -24,6 +24,20 @@
 		06F7CF942A542E4E0024CD5A /* LexicalInlineImagePlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 06F7CF932A542E4E0024CD5A /* LexicalInlineImagePlugin */; };
 		06F7CF962A545C7C0024CD5A /* lexical-logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 06F7CF952A545C7C0024CD5A /* lexical-logo.png */; };
 		3C48FEE42B04F2C5009BBFA2 /* LexicalMarkdown in Frameworks */ = {isa = PBXBuildFile; productRef = 3C48FEE32B04F2C5009BBFA2 /* LexicalMarkdown */; };
+		C4DA5E7B2B3F224000759CA4 /* EditorHistoryPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = C4DA5E7A2B3F224000759CA4 /* EditorHistoryPlugin */; };
+		C4DA5E7D2B3F224000759CA4 /* Lexical in Frameworks */ = {isa = PBXBuildFile; productRef = C4DA5E7C2B3F224000759CA4 /* Lexical */; };
+		C4DA5E7F2B3F224000759CA4 /* LexicalHTML in Frameworks */ = {isa = PBXBuildFile; productRef = C4DA5E7E2B3F224000759CA4 /* LexicalHTML */; };
+		C4DA5E812B3F224000759CA4 /* LexicalInlineImagePlugin in Frameworks */ = {isa = PBXBuildFile; productRef = C4DA5E802B3F224000759CA4 /* LexicalInlineImagePlugin */; };
+		C4DA5E832B3F224000759CA4 /* LexicalLinkPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = C4DA5E822B3F224000759CA4 /* LexicalLinkPlugin */; };
+		C4DA5E862B3F228600759CA4 /* EditorHistoryPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = C4DA5E852B3F228600759CA4 /* EditorHistoryPlugin */; };
+		C4DA5E882B3F228600759CA4 /* Lexical in Frameworks */ = {isa = PBXBuildFile; productRef = C4DA5E872B3F228600759CA4 /* Lexical */; };
+		C4DA5E8A2B3F228600759CA4 /* LexicalHTML in Frameworks */ = {isa = PBXBuildFile; productRef = C4DA5E892B3F228600759CA4 /* LexicalHTML */; };
+		C4DA5E8C2B3F228600759CA4 /* LexicalInlineImagePlugin in Frameworks */ = {isa = PBXBuildFile; productRef = C4DA5E8B2B3F228600759CA4 /* LexicalInlineImagePlugin */; };
+		C4DA5E8E2B3F228600759CA4 /* LexicalLinkPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = C4DA5E8D2B3F228600759CA4 /* LexicalLinkPlugin */; };
+		C4DA5E902B3F228600759CA4 /* LexicalListHTMLSupport in Frameworks */ = {isa = PBXBuildFile; productRef = C4DA5E8F2B3F228600759CA4 /* LexicalListHTMLSupport */; };
+		C4DA5E922B3F228600759CA4 /* LexicalListPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = C4DA5E912B3F228600759CA4 /* LexicalListPlugin */; };
+		C4DA5E942B3F228600759CA4 /* LexicalMarkdown in Frameworks */ = {isa = PBXBuildFile; productRef = C4DA5E932B3F228600759CA4 /* LexicalMarkdown */; };
+		C4DA5E962B3F228600759CA4 /* SelectableDecoratorNode in Frameworks */ = {isa = PBXBuildFile; productRef = C4DA5E952B3F228600759CA4 /* SelectableDecoratorNode */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,14 +59,28 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C4DA5E962B3F228600759CA4 /* SelectableDecoratorNode in Frameworks */,
+				C4DA5E8A2B3F228600759CA4 /* LexicalHTML in Frameworks */,
+				C4DA5E922B3F228600759CA4 /* LexicalListPlugin in Frameworks */,
+				C4DA5E8C2B3F228600759CA4 /* LexicalInlineImagePlugin in Frameworks */,
+				C4DA5E8E2B3F228600759CA4 /* LexicalLinkPlugin in Frameworks */,
+				C4DA5E812B3F224000759CA4 /* LexicalInlineImagePlugin in Frameworks */,
 				0656CFA229D48391009CA08F /* LexicalListPlugin in Frameworks */,
 				3C48FEE42B04F2C5009BBFA2 /* LexicalMarkdown in Frameworks */,
 				065B5C862A22291C003A38DB /* SelectableDecoratorNode in Frameworks */,
 				069E59DB2A1EBF1700CA4296 /* LexicalHTML in Frameworks */,
 				065F9DF72A5EC1D600C95087 /* EditorHistoryPlugin in Frameworks */,
+				C4DA5E7B2B3F224000759CA4 /* EditorHistoryPlugin in Frameworks */,
+				C4DA5E7D2B3F224000759CA4 /* Lexical in Frameworks */,
+				C4DA5E942B3F228600759CA4 /* LexicalMarkdown in Frameworks */,
+				C4DA5E832B3F224000759CA4 /* LexicalLinkPlugin in Frameworks */,
+				C4DA5E882B3F228600759CA4 /* Lexical in Frameworks */,
 				069E59DF2A1F7EFB00CA4296 /* LexicalListHTMLSupport in Frameworks */,
+				C4DA5E902B3F228600759CA4 /* LexicalListHTMLSupport in Frameworks */,
+				C4DA5E862B3F228600759CA4 /* EditorHistoryPlugin in Frameworks */,
 				0630DC162A2F624D009EB23B /* LexicalLinkPlugin in Frameworks */,
 				0656CF9929D23743009CA08F /* Lexical in Frameworks */,
+				C4DA5E7F2B3F224000759CA4 /* LexicalHTML in Frameworks */,
 				06F7CF942A542E4E0024CD5A /* LexicalInlineImagePlugin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -136,6 +164,20 @@
 				065B5C852A22291C003A38DB /* SelectableDecoratorNode */,
 				065F9DF62A5EC1D600C95087 /* EditorHistoryPlugin */,
 				3C48FEE32B04F2C5009BBFA2 /* LexicalMarkdown */,
+				C4DA5E7A2B3F224000759CA4 /* EditorHistoryPlugin */,
+				C4DA5E7C2B3F224000759CA4 /* Lexical */,
+				C4DA5E7E2B3F224000759CA4 /* LexicalHTML */,
+				C4DA5E802B3F224000759CA4 /* LexicalInlineImagePlugin */,
+				C4DA5E822B3F224000759CA4 /* LexicalLinkPlugin */,
+				C4DA5E852B3F228600759CA4 /* EditorHistoryPlugin */,
+				C4DA5E872B3F228600759CA4 /* Lexical */,
+				C4DA5E892B3F228600759CA4 /* LexicalHTML */,
+				C4DA5E8B2B3F228600759CA4 /* LexicalInlineImagePlugin */,
+				C4DA5E8D2B3F228600759CA4 /* LexicalLinkPlugin */,
+				C4DA5E8F2B3F228600759CA4 /* LexicalListHTMLSupport */,
+				C4DA5E912B3F228600759CA4 /* LexicalListPlugin */,
+				C4DA5E932B3F228600759CA4 /* LexicalMarkdown */,
+				C4DA5E952B3F228600759CA4 /* SelectableDecoratorNode */,
 			);
 			productName = LexicalPlayground;
 			productReference = 0656CF7529D1E438009CA08F /* LexicalPlayground.app */;
@@ -166,6 +208,7 @@
 			);
 			mainGroup = 0656CF6C29D1E437009CA08F;
 			packageReferences = (
+				C4DA5E842B3F228600759CA4 /* XCLocalSwiftPackageReference ".." */,
 			);
 			productRefGroup = 0656CF7629D1E438009CA08F /* Products */;
 			projectDirPath = "";
@@ -412,6 +455,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		C4DA5E842B3F228600759CA4 /* XCLocalSwiftPackageReference ".." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		0630DC152A2F624D009EB23B /* LexicalLinkPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -450,9 +500,65 @@
 			productName = LexicalInlineImagePlugin;
 		};
 		3C48FEE32B04F2C5009BBFA2 /* LexicalMarkdown */ = {
- 			isa = XCSwiftPackageProductDependency;
- 			productName = LexicalMarkdown;
- 		};
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalMarkdown;
+		};
+		C4DA5E7A2B3F224000759CA4 /* EditorHistoryPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = EditorHistoryPlugin;
+		};
+		C4DA5E7C2B3F224000759CA4 /* Lexical */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Lexical;
+		};
+		C4DA5E7E2B3F224000759CA4 /* LexicalHTML */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalHTML;
+		};
+		C4DA5E802B3F224000759CA4 /* LexicalInlineImagePlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalInlineImagePlugin;
+		};
+		C4DA5E822B3F224000759CA4 /* LexicalLinkPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalLinkPlugin;
+		};
+		C4DA5E852B3F228600759CA4 /* EditorHistoryPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = EditorHistoryPlugin;
+		};
+		C4DA5E872B3F228600759CA4 /* Lexical */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Lexical;
+		};
+		C4DA5E892B3F228600759CA4 /* LexicalHTML */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalHTML;
+		};
+		C4DA5E8B2B3F228600759CA4 /* LexicalInlineImagePlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalInlineImagePlugin;
+		};
+		C4DA5E8D2B3F228600759CA4 /* LexicalLinkPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalLinkPlugin;
+		};
+		C4DA5E8F2B3F228600759CA4 /* LexicalListHTMLSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalListHTMLSupport;
+		};
+		C4DA5E912B3F228600759CA4 /* LexicalListPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalListPlugin;
+		};
+		C4DA5E932B3F228600759CA4 /* LexicalMarkdown */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalMarkdown;
+		};
+		C4DA5E952B3F228600759CA4 /* SelectableDecoratorNode */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SelectableDecoratorNode;
+		};
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0656CF6D29D1E438009CA08F /* Project object */;

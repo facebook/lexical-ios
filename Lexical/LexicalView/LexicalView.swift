@@ -494,8 +494,8 @@ extension LexicalView: LexicalTextViewDelegate {
     } catch {
       print("Error received in LexicalView(shouldInteractWith): \(error.localizedDescription)")
     }
-
-    return delegate?.textView(self, shouldInteractWith: URL, in: selection, interaction: interaction) ?? false
+    
+    return editor.dispatchCommand(type: .linkTapped, payload: URL)
   }
 
   func textViewDidBeginEditing(textView: TextView) {
