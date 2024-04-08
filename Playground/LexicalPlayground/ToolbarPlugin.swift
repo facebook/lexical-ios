@@ -140,7 +140,17 @@ public class ToolbarPlugin: Plugin {
     let insertImage = UIBarButtonItem(image: UIImage(systemName: "photo"), menu: self.imageMenu)
     self.insertImageButton = insertImage
 
-    toolbar.items = [undo, redo, paragraph, styling, link, decreaseIndent, increaseIndent, insertImage]
+    let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+      
+    toolbar.items = [undo, spacer,
+                     redo, spacer,
+                     paragraph, spacer,
+                     styling, spacer,
+                     link, spacer,
+                     decreaseIndent, spacer,
+                     increaseIndent, spacer,
+                     insertImage]
+      toolbar.barTintColor = .systemGray5
   }
 
   private enum ParagraphMenuSelectedItemType {

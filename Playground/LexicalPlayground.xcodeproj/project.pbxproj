@@ -450,9 +450,9 @@
 			productName = LexicalInlineImagePlugin;
 		};
 		3C48FEE32B04F2C5009BBFA2 /* LexicalMarkdown */ = {
- 			isa = XCSwiftPackageProductDependency;
- 			productName = LexicalMarkdown;
- 		};
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalMarkdown;
+		};
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0656CF6D29D1E438009CA08F /* Project object */;
