@@ -93,3 +93,26 @@ func searchInNode<Payload: Equatable>(node: Node, comparison: (Node) -> (RangeSe
     ranges.append((range, currentPayloadResolved))
   }
 }
+
+public func allNodeKeysSortedByLocation() -> [NodeKey] {
+  guard let editor = getActiveEditor() else {
+    return []
+  }
+  return editor.rangeCache.map { $0 }
+    .sorted { a, b in
+      // return true if a<b
+      let itemA = a.value
+      let itemB = b.value
+      if itemA.location < itemB.location {
+        return true
+      }
+      if itemA.location > itemB.location {
+        return false
+      }
+      // we have the same location
+      return itemA.range.length > itemB.range.length
+    }
+    .map { element in
+      element.key
+    }
+}

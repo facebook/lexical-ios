@@ -10,13 +10,13 @@ import Lexical
 import Markdown
 
 extension Array where Element == Node {
-  func exportAsInlineMarkdown(indentation: Int) -> [Markdown.InlineMarkup] {
+  public func exportAsInlineMarkdown(indentation: Int) -> [Markdown.InlineMarkup] {
     compactMap {
       try? ($0 as? NodeMarkdownInlineSupport)?.exportInlineMarkdown(indentation: indentation)
     }
   }
 
-  func exportAsBlockMarkdown() -> [Markdown.BlockMarkup] {
+  public func exportAsBlockMarkdown() -> [Markdown.BlockMarkup] {
     compactMap {
       try? ($0 as? NodeMarkdownBlockSupport)?.exportBlockMarkdown()
     }
