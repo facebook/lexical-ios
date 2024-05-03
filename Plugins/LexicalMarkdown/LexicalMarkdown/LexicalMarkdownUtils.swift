@@ -10,9 +10,9 @@ import Lexical
 import Markdown
 
 extension Array where Element == Node {
-  public func exportAsInlineMarkdown(indentation: Int) -> [Markdown.InlineMarkup] {
+  public func exportAsInlineMarkdown() -> [Markdown.InlineMarkup] {
     compactMap {
-      try? ($0 as? NodeMarkdownInlineSupport)?.exportInlineMarkdown(indentation: indentation)
+      try? ($0 as? NodeMarkdownInlineSupport)?.exportInlineMarkdown()
     }
   }
 

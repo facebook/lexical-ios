@@ -20,23 +20,23 @@ public protocol NodeMarkdownBlockSupport: Lexical.Node {
 }
 
 public protocol NodeMarkdownInlineSupport: Lexical.Node {
-  func exportInlineMarkdown(indentation: Int) throws -> Markdown.InlineMarkup
+  func exportInlineMarkdown() throws -> Markdown.InlineMarkup
 }
 
 extension Lexical.ParagraphNode: NodeMarkdownBlockSupport {
   public func exportBlockMarkdown() throws -> Markdown.BlockMarkup {
-    return Markdown.Paragraph(getChildren().exportAsInlineMarkdown(indentation: getIndent()))
+    return Markdown.Paragraph(getChildren().exportAsInlineMarkdown())
   }
 }
 
 extension Lexical.TextNode: NodeMarkdownInlineSupport {
-  public func exportInlineMarkdown(indentation: Int) throws -> Markdown.InlineMarkup {
+  public func exportInlineMarkdown() throws -> Markdown.InlineMarkup {
     let format = getFormat()
-    var node: Markdown.InlineMarkup = Markdown.Text(makeIndentation(indentation) + getTextPart())
+    var node: Markdown.InlineMarkup = Markdown.Text(getTextPart())
 
     if format.code {
       // NOTE (mani) - code must always come first
-      node = Markdown.InlineCode(makeIndentation(indentation) + getTextPart())
+      node = Markdown.InlineCode(getTextPart())
     }
 
     if format.bold {
@@ -101,28 +101,40 @@ extension LexicalListPlugin.ListNode: NodeMarkdownBlockSupport {
 
 extension LexicalListPlugin.ListItemNode: NodeMarkdownBlockSupport {
   public func exportBlockMarkdown() throws -> Markdown.BlockMarkup {
-    let children: [Markdown.BlockMarkup] = getChildren().compactMap {
-      if let inline = try? ($0 as? NodeMarkdownInlineSupport)?.exportInlineMarkdown(indentation: getIndent()) {
-        return Markdown.Paragraph(inline)
-      } else {
-        return try? ($0 as? NodeMarkdownBlockSupport)?.exportBlockMarkdown()
+    var blocks: [BlockMarkup] = []
+    var inlineAccumulator: [InlineMarkup] = []
+    for child in getChildren() {
+      if let child = child as? NodeMarkdownBlockSupport {
+        if inlineAccumulator.count > 0 {
+          blocks.append(Paragraph(inlineAccumulator))
+          inlineAccumulator = []
+        }
+        blocks.append(try child.exportBlockMarkdown())
+        continue
       }
+      if let child = child as? NodeMarkdownInlineSupport {
+        inlineAccumulator.append(try child.exportInlineMarkdown())
+        continue
+      }
+    }
+    if inlineAccumulator.count > 0 {
+      blocks.append(Paragraph(inlineAccumulator))
     }
 
     if let parent = getParent() as? ListNode, parent.getListType() == .check {
       // TODO (mani) - how does lexical mark a checked item?
-      return Markdown.ListItem(checkbox: nil, children)
+      return Markdown.ListItem(checkbox: nil, blocks)
     } else {
-      return Markdown.ListItem(children)
+      return Markdown.ListItem(blocks)
     }
   }
 }
 
 extension LexicalLinkPlugin.LinkNode: NodeMarkdownInlineSupport {
-  public func exportInlineMarkdown(indentation: Int) throws -> Markdown.InlineMarkup {
+  public func exportInlineMarkdown() throws -> Markdown.InlineMarkup {
     Markdown.Link(destination: getURL(),
                   getChildren()
-                    .exportAsInlineMarkdown(indentation: getIndent())
+                    .exportAsInlineMarkdown()
                     .compactMap { $0 as? Markdown.RecurringInlineMarkup })
   }
 }
@@ -136,7 +148,7 @@ extension Lexical.CodeNode: NodeMarkdownBlockSupport {
 }
 
 extension Lexical.LineBreakNode: NodeMarkdownInlineSupport {
-  public func exportInlineMarkdown(indentation: Int) throws -> Markdown.InlineMarkup {
+  public func exportInlineMarkdown() throws -> Markdown.InlineMarkup {
     Markdown.LineBreak()
   }
 }
@@ -145,7 +157,7 @@ extension Lexical.QuoteNode: NodeMarkdownBlockSupport {
   public func exportBlockMarkdown() throws -> Markdown.BlockMarkup {
     Markdown.BlockQuote(
       getChildren()
-        .exportAsInlineMarkdown(indentation: getIndent())
+        .exportAsInlineMarkdown()
         .map {
           Markdown.Paragraph($0)
         }
@@ -157,7 +169,7 @@ extension Lexical.HeadingNode: NodeMarkdownBlockSupport {
   public func exportBlockMarkdown() throws -> Markdown.BlockMarkup {
     Markdown.Heading(
       level: getTag().intValue,
-      getChildren().exportAsInlineMarkdown(indentation: getIndent())
+      getChildren().exportAsInlineMarkdown()
     )
   }
 }
