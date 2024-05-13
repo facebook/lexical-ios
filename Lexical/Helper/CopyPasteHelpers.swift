@@ -8,6 +8,7 @@
 import Foundation
 import MobileCoreServices
 import UIKit
+import UniformTypeIdentifiers
 
 internal func setPasteboard(selection: BaseSelection, pasteboard: UIPasteboard) throws {
   guard let editor = getActiveEditor() else {
@@ -23,23 +24,44 @@ internal func setPasteboard(selection: BaseSelection, pasteboard: UIPasteboard) 
     completionHandler?(data, nil)
   }
 
-  pasteboard.items =
-    [
-      [(kUTTypeRTF as String): try getAttributedStringFromFrontend().data(
-        from: NSRange(location: 0, length: getAttributedStringFromFrontend().length),
-        documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])],
-      [LexicalConstants.pasteboardIdentifier: encodedData]
-    ]
+  if #available(iOS 14.0, *) {
+    pasteboard.items =
+      [
+        [(UTType.rtf.identifier ): try getAttributedStringFromFrontend().data(
+          from: NSRange(location: 0, length: getAttributedStringFromFrontend().length),
+          documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])],
+        [LexicalConstants.pasteboardIdentifier: encodedData]
+      ]
+  } else {
+    pasteboard.items =
+      [
+        [(kUTTypeRTF as String): try getAttributedStringFromFrontend().data(
+          from: NSRange(location: 0, length: getAttributedStringFromFrontend().length),
+          documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])],
+        [LexicalConstants.pasteboardIdentifier: encodedData]
+      ]
+  }
 }
 
 internal func insertDataTransferForRichText(selection: RangeSelection, pasteboard: UIPasteboard) throws {
-  let itemSet = pasteboard.itemSet(
-    withPasteboardTypes: [
-      (kUTTypeUTF8PlainText as String),
-      (kUTTypeURL as String),
-      LexicalConstants.pasteboardIdentifier
-    ]
-  )
+  let itemSet: IndexSet?
+  if #available(iOS 14.0, *) {
+    itemSet = pasteboard.itemSet(
+      withPasteboardTypes: [
+        (UTType.utf8PlainText.identifier),
+        (UTType.url.identifier),
+        LexicalConstants.pasteboardIdentifier
+      ]
+    )
+  } else {
+    itemSet = pasteboard.itemSet(
+      withPasteboardTypes: [
+        (kUTTypeUTF8PlainText as String),
+        (kUTTypeURL as String),
+        LexicalConstants.pasteboardIdentifier
+      ]
+    )
+  }
 
   if let pasteboardData = pasteboard.data(
       forPasteboardType: LexicalConstants.pasteboardIdentifier,
@@ -52,24 +74,47 @@ internal func insertDataTransferForRichText(selection: RangeSelection, pasteboar
     return
   }
 
-  if let pasteboardRTFData = pasteboard.data(
-      forPasteboardType: (kUTTypeRTF as String),
-      inItemSet: itemSet)?.last {
-    let attributedString = try NSAttributedString(
-      data: pasteboardRTFData,
-      options: [.documentType: NSAttributedString.DocumentType.rtf],
-      documentAttributes: nil
-    )
+  if #available(iOS 14.0, *) {
+    if let pasteboardRTFData = pasteboard.data(
+        forPasteboardType: (UTType.rtf.identifier),
+        inItemSet: itemSet)?.last {
+      let attributedString = try NSAttributedString(
+        data: pasteboardRTFData,
+        options: [.documentType: NSAttributedString.DocumentType.rtf],
+        documentAttributes: nil
+      )
+      try insertRTF(selection: selection, attributedString: attributedString)
+      return
+    }
+  } else {
+    if let pasteboardRTFData = pasteboard.data(
+        forPasteboardType: (kUTTypeRTF as String),
+        inItemSet: itemSet)?.last {
+      let attributedString = try NSAttributedString(
+        data: pasteboardRTFData,
+        options: [.documentType: NSAttributedString.DocumentType.rtf],
+        documentAttributes: nil
+      )
 
-    try insertRTF(selection: selection, attributedString: attributedString)
-    return
+      try insertRTF(selection: selection, attributedString: attributedString)
+      return
+    }
   }
 
-  if let pasteboardStringData = pasteboard.data(
-      forPasteboardType: (kUTTypeUTF8PlainText as String),
-      inItemSet: itemSet)?.last {
-    try insertPlainText(selection: selection, text: String(decoding: pasteboardStringData, as: UTF8.self))
-    return
+  if #available(iOS 14.0, *) {
+    if let pasteboardStringData = pasteboard.data(
+        forPasteboardType: (UTType.utf8PlainText.identifier),
+        inItemSet: itemSet)?.last {
+      try insertPlainText(selection: selection, text: String(decoding: pasteboardStringData, as: UTF8.self))
+      return
+    }
+  } else {
+    if let pasteboardStringData = pasteboard.data(
+        forPasteboardType: (kUTTypeUTF8PlainText as String),
+        inItemSet: itemSet)?.last {
+      try insertPlainText(selection: selection, text: String(decoding: pasteboardStringData, as: UTF8.self))
+      return
+    }
   }
 
   if let url = pasteboard.urls?.first as? URL {
