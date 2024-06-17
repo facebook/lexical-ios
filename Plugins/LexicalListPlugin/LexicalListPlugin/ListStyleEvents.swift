@@ -236,8 +236,7 @@ public func mergeLists(list1: ListNode, list2: ListNode) throws {
     isNestedListNode(node: listItem1),
     isNestedListNode(node: listItem2),
     let child1 = listItem1.getFirstChild() as? ListNode,
-    let child2 = listItem2.getFirstChild() as? ListNode
-  {
+    let child2 = listItem2.getFirstChild() as? ListNode {
     try mergeLists(list1: child1, list2: child2)
     try listItem2.remove()
   }

@@ -154,8 +154,7 @@ public class ListItemNode: ElementNode {
       isNestedListNode(node: prevSibling),
       isNestedListNode(node: nextSibling),
       let list1 = prevSibling.getFirstChild() as? ListNode,
-      let list2 = nextSibling.getFirstChild() as? ListNode
-    {
+      let list2 = nextSibling.getFirstChild() as? ListNode {
       try mergeLists(list1: list1, list2: list2)
       try nextSibling.remove()
     } else if let nextSibling {
