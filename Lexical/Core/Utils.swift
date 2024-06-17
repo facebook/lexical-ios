@@ -567,8 +567,7 @@ public func getAdjacentNode(
     let focusNode = try focus.getNode()
     if
       (isBackward && focusOffset == 0) ||
-        (!isBackward && focusOffset == focusNode.getTextContentSize())
-    {
+        (!isBackward && focusOffset == focusNode.getTextContentSize()) {
       let possibleNode = isBackward
         ? focusNode.getPreviousSibling()
         : focusNode.getNextSibling()

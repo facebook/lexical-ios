@@ -575,8 +575,7 @@ private func resolveSelectionPointOnBoundary(
       if
         let prevSibling = prevSibling as? ElementNode,
         !isCollapsed,
-        prevSibling.isInline()
-      {
+        prevSibling.isInline() {
         point.key = prevSibling.key
         point.offset = prevSibling.getChildrenSize()
         point.type = .element
@@ -644,8 +643,7 @@ internal func normalizeSelectionPointsForBoundaries(
     if
       editor.isComposing(),
       editor.compositionKey != anchor.key,
-      let lastSelection = lastSelection as? RangeSelection
-    {
+      let lastSelection = lastSelection as? RangeSelection {
       let lastAnchor = lastSelection.anchor
       let lastFocus = lastSelection.focus
       anchor.key = lastAnchor.key
