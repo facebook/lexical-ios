@@ -39,7 +39,10 @@ class ViewController: UIViewController, UIToolbarDelegate {
     let theme = Theme()
     theme.indentSize = 40.0
     theme.link = [
-      .foregroundColor: UIColor.systemBlue,
+      .foregroundColor: UIColor.link,
+    ]
+    theme.code = [
+      .font: UIFont.monospacedSystemFont(ofSize: 16.0, weight: .regular),
     ]
 
     let editorConfig = EditorConfig(theme: theme, plugins: [toolbarPlugin, listPlugin, hierarchyPlugin, imagePlugin, linkPlugin, editorHistoryPlugin])
@@ -76,6 +79,9 @@ class ViewController: UIViewController, UIToolbarDelegate {
                                  y: toolbar.frame.maxY,
                                  width: view.bounds.width,
                                  height: view.bounds.height - toolbar.frame.maxY - safeAreaInsets.bottom - hierarchyViewHeight)
+        
+      lexicalView.textViewBackgroundColor = .systemGray6
+        
       hierarchyView.frame = CGRect(x: 0,
                                    y: lexicalView.frame.maxY,
                                    width: view.bounds.width,
