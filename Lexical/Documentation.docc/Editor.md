@@ -13,7 +13,7 @@
 - ``registerTextContentListener(listener:)``
 - ``registerCommand(type:listener:priority:)``
 - ``registerNode(nodeType:constructor:)``
-- ``addNodeTransform(nodeType:transform:)``
+- ``registerNodeTransform(nodeType:transform:)``
 - ``registerCustomDrawing(customAttribute:layer:granularity:handler:)``
 - ``registerErrorListener(listener:)``
 
