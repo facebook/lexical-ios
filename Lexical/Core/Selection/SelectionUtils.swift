@@ -234,7 +234,7 @@ func createEmptyRangeSelection() -> RangeSelection {
   let anchor = Point(key: kRootNodeKey, offset: 0, type: .element)
   let focus = Point(key: kRootNodeKey, offset: 0, type: .element)
 
-  return RangeSelection(anchor: anchor, focus: focus, format: TextFormat())
+  return RangeSelection(anchor: anchor, focus: focus, format: TextFormatType())
 }
 
 /// When we create a selection, we try to use the previous selection where possible, unless an actual user selection change has occurred.
@@ -259,7 +259,7 @@ func createSelection(editor: Editor) throws -> BaseSelection? {
 
     if let anchor = try pointAtStringLocation(range.location, searchDirection: nativeSelection.affinity, rangeCache: editor.rangeCache),
        let focus = try pointAtStringLocation(range.location + range.length, searchDirection: nativeSelection.affinity, rangeCache: editor.rangeCache) {
-      return RangeSelection(anchor: anchor, focus: focus, format: TextFormat())
+      return RangeSelection(anchor: anchor, focus: focus, format: TextFormatType())
     }
 
     return nil
@@ -285,7 +285,7 @@ func makeRangeSelection(
   let selection = RangeSelection(
     anchor: Point(key: anchorKey, offset: anchorOffset, type: anchorType),
     focus: Point(key: focusKey, offset: focusOffset, type: focusType),
-    format: TextFormat())
+    format: TextFormatType())
 
   selection.dirty = true
   editorState.selection = selection
@@ -434,7 +434,10 @@ func moveSelectionPointToEnd(point: Point, node: Node) {
   }
 }
 
-func transferStartingElementPointToTextPoint(start: Point, end: Point, format: TextFormat, style: String) throws {
+func transferStartingElementPointToTextPoint(start: Point, 
+                                             end: Point,
+                                             format: TextFormatType,
+                                             style: String) throws {
   guard let element = try start.getNode() as? ElementNode else { return }
 
   var placementNode = element.getChildAtIndex(index: start.offset)

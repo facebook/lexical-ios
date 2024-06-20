@@ -49,7 +49,7 @@ public class CodeHighlightNode: TextNode {
   }
 
   // Prevent formatting (bold, underline, etc)
-  override public func setFormat(format: TextFormat) throws -> CodeHighlightNode {
+  override public func setFormat(format: TextFormatType) throws -> CodeHighlightNode {
     return try self.getWritable()
   }
 }

@@ -70,14 +70,50 @@ public enum DirtyType {
   case fullReconcile
 }
 
-@objc public enum TextFormatType: Int {
-  case bold
-  case italic
-  case underline
-  case strikethrough
-  case code
-  case subScript
-  case superScript
+public struct TextFormatType: OptionSet, CaseIterable, Codable {
+  public let rawValue: UInt
+
+  public static let bold = TextFormatType(rawValue: 1 << 0)
+  public static let italic = TextFormatType(rawValue: 1 << 1)
+  public static let strikethrough = TextFormatType(rawValue: 1 << 2)
+  public static let underline = TextFormatType(rawValue: 1 << 3)
+  public static let code = TextFormatType(rawValue: 1 << 4)
+  public static let subScript = TextFormatType(rawValue: 1 << 5)
+  public static let superScript = TextFormatType(rawValue: 1 << 6)
+
+//  Not yet supported. Is here because Javacript library supports this.
+//  Once this is supported, add it to `allCases` too
+//  static let highlight = TextFormatType(rawValue: 1 << 7)
+
+  static public var allCases: [TextFormatType] {
+    [.bold, .italic, .strikethrough, .underline, .code, .subScript, .superScript]
+  }
+
+  public var description: String {
+    switch self {
+    case .bold: return "bold"
+    case .code: return "code"
+    case .italic: return "italic"
+    case .strikethrough: return "strikethrough"
+    case .subScript: return "subscript"
+    case .superScript: return "superscript"
+    case .underline: return "underline"
+    default: return ""
+    }
+  }
+
+  public init(rawValue: UInt) {
+    self.rawValue = rawValue
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+    self.rawValue = try container.decode(UInt.self)
+  }
+
+  public mutating func toggle(_ value: TextFormatType) {
+    self = symmetricDifference(value)
+  }
 }
 
 enum Direction: String, Codable {
