@@ -7,7 +7,7 @@
 
 import UIKit
 
-public class LayoutManager: NSLayoutManager {
+public class LayoutManager: NSLayoutManager, @unchecked Sendable {
   internal weak var editor: Editor? {
     get {
       if let textStorage = textStorage as? TextStorage {
