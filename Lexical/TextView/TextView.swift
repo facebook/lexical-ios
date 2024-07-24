@@ -431,14 +431,16 @@ private class TextViewDelegate: NSObject, UITextViewDelegate {
   public func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
     guard let textView = textView as? TextView else { return false }
 
-    let nativeSelection = NativeSelection(range: characterRange, affinity: .backward)
-    try? textView.editor.update {
-      guard let selection = try getSelection() as? RangeSelection else {
-        // TODO: cope with non range selections. Should just make a range selection here
-        return
-      }
-      try selection.applyNativeSelection(nativeSelection)
-    }
+      // TODO: consider updating `.linkTapped` payload to include this native selection if we want that behavior.
+//    let nativeSelection = NativeSelection(range: characterRange, affinity: .backward)
+//    try? textView.editor.update {
+//      guard let selection = try getSelection() as? RangeSelection else {
+//        // TODO: cope with non range selections. Should just make a range selection here
+//        return
+//      }
+//      try selection.applyNativeSelection(nativeSelection)
+//    }
+      
     let handledByLexical = textView.editor.dispatchCommand(type: .linkTapped, payload: URL)
 
     if handledByLexical {
