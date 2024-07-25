@@ -16,7 +16,11 @@ extension CommandType {
 }
 
 open class ListPlugin: Plugin {
-  public init() {}
+  private var withPlaceholders: Bool
+
+  public init(withPlaceholders: Bool = false) {
+    self.withPlaceholders = withPlaceholders
+  }
 
   weak var editor: Editor?
 
@@ -28,13 +32,13 @@ open class ListPlugin: Plugin {
 
       _ = editor.registerCommand(type: .insertUnorderedList, listener: { [weak editor] payload in
         guard let editor else { return false }
-        try? insertList(editor: editor, listType: .bullet)
+        try? insertList(editor: editor, listType: .bullet, withPlaceholders: self.withPlaceholders)
         return true
       })
 
       _ = editor.registerCommand(type: .insertOrderedList, listener: { [weak editor] payload in
         guard let editor else { return false }
-        try? insertList(editor: editor, listType: .number)
+        try? insertList(editor: editor, listType: .number, withPlaceholders: self.withPlaceholders)
         return true
       })
 
