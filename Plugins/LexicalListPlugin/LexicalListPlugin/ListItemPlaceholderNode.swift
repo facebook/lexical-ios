@@ -40,11 +40,6 @@ public class ListItemPlaceholderNode: TextNode {
     if let listItemParent = parent as? ListItemNode, listItemParent.getChildrenSize() == 0 {
       try listItemParent.remove()
     }
-
-    // If the ListNode is now empty, remove it
-    if let listParent = parent?.getParent() as? ListNode, listParent.getChildrenSize() == 0 {
-      try listParent.remove()
-    }
   }
 
 }

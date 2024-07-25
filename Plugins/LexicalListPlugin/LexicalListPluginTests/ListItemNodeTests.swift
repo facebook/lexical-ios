@@ -170,7 +170,10 @@ class ListItemNodeTests: XCTestCase {
       }
 
       try listItemNode.remove()
-      XCTAssertEqual(rootNode.getChildrenSize(), 0)
+      
+      // Check that the list has been replaced with a paragraph
+      XCTAssertEqual(rootNode.getChildrenSize(), 1)
+      XCTAssertTrue(rootNode.getFirstChild() is ParagraphNode)
     }
   }
 

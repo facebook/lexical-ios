@@ -180,9 +180,11 @@ public class ListItemNode: ElementNode {
       }
     }
 
-    // If the parent list is now empty, remove it
+    // If the parent list is now empty, replace it with a paragraph node
     if let parentList = parentList as? ListNode, parentList.getChildrenSize() == 0 {
-      try parentList.remove()
+      let paragraphNode = createParagraphNode()
+      try parentList.replace(replaceWith: paragraphNode)
+      try paragraphNode.select(anchorOffset: nil, focusOffset: nil)
     }
   }
 
