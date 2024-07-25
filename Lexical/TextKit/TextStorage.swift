@@ -75,6 +75,9 @@ public class TextStorage: NSTextStorage {
     backingAttributedString.replaceCharacters(in: range, with: str)
     edited(.editedCharacters, range: range, changeInLength: (str as NSString).length - range.length)
     endEditing()
+
+    guard let editor, let frontend = editor.frontend else { return }
+    frontend.showPlaceholderText()
   }
 
   private func performControllerModeUpdate(_ str: String, range: NSRange) {
@@ -128,6 +131,9 @@ public class TextStorage: NSTextStorage {
     backingAttributedString.setAttributes(attrs, range: range)
     edited(.editedAttributes, range: range, changeInLength: 0)
     endEditing()
+
+    guard let editor, let frontend = editor.frontend else { return }
+    frontend.showPlaceholderText()
   }
 
   public var extraLineFragmentAttributes: [NSAttributedString.Key: Any]? {
