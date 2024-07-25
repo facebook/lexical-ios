@@ -18,6 +18,7 @@ public class ListItemPlaceholderNode: TextNode {
   public override init() {
     super.init()
     try? self.setText(Self.placeholderCharacter)
+    self.mode = .token
   }
 
   public required init(from decoder: Decoder) throws {
