@@ -29,7 +29,7 @@ public class ListItemPlaceholderNode: TextNode {
   }
 
   override public class func getType() -> NodeType {
-    .listItem
+    .listItemPlaceholder
   }
 
   override public func remove() throws {

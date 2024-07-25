@@ -144,10 +144,11 @@ class ListItemNodeTests: XCTestCase {
       XCTAssertEqual(listItemNode.getChildrenSize(), 1, "Original list item should still have one child")
       XCTAssertTrue(listItemNode.getFirstChild() is ListItemPlaceholderNode,
                     "Original list item should still contain a placeholder")
+      XCTAssertTrue(listItemNode.getFirstChild()?.type == .listItemPlaceholder, "Placeholder should be listItemPlaceholder type")
 
       // Add text to the first list item
-      let textNode = TextNode(text: "Hello, world!")
-      try listItemNode.append([textNode])
+      try listItemNode.select(anchorOffset: nil, focusOffset: nil)
+      editor.dispatchCommand(type: .insertText, payload: "Hello, world!")
 
       // Verify that the text was added
       XCTAssertEqual(listItemNode.getChildrenSize(), 1, "List item should have one child after adding text")
