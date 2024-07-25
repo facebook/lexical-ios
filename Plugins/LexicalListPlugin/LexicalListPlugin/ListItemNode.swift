@@ -50,7 +50,16 @@ public class ListItemNode: ElementNode {
     node?.value = value
   }
 
+  private func isOnlyPlaceholder() -> Bool {
+    return getChildrenSize() == 1 && getFirstChild() is ListItemPlaceholderNode
+  }
+
   override public func append(_ nodesToAppend: [Node]) throws {
+    // If this node only contains the placeholder, remove it before appending new nodes
+    if isOnlyPlaceholder() {
+      try self.getFirstChild()?.remove()
+    }
+
     for node in nodesToAppend {
       if let node = node as? ElementNode, self.canMergeWith(node: node) {
         let children = node.getChildren()
@@ -59,6 +68,11 @@ public class ListItemNode: ElementNode {
       } else {
         try super.append([node])
       }
+    }
+
+    // If we've appended nodes and the list item is now empty, add the placeholder
+    if self.getChildrenSize() == 0 {
+      try super.append([ListItemPlaceholderNode()])
     }
   }
 
@@ -146,6 +160,7 @@ public class ListItemNode: ElementNode {
   override public func remove() throws {
     let prevSibling = self.getPreviousSibling()
     let nextSibling = self.getNextSibling()
+    let parentList = self.getParent()
     try super.remove()
 
     if
@@ -164,16 +179,32 @@ public class ListItemNode: ElementNode {
         try updateChildrenListItemValue(list: parent, children: nil)
       }
     }
+
+    // If the parent list is now empty, remove it
+    if let parentList = parentList as? ListNode, parentList.getChildrenSize() == 0 {
+      try parentList.remove()
+    }
   }
 
   override public func insertNewAfter(selection: RangeSelection?) throws -> Node? {
     let newElement = ListItemNode()
     _ = try self.insertAfter(nodeToInsert: newElement)
 
+    // If the current node is empty (only has the placeholder), remove it
+    if isOnlyPlaceholder() {
+      try self.remove()
+    }
+
     return newElement
   }
 
   override public func collapseAtStart(selection: RangeSelection) throws -> Bool {
+    // If this node only contains the placeholder, remove it and the list item
+    if isOnlyPlaceholder() {
+      try self.remove()
+      return true
+    }
+
     let paragraph = createParagraphNode()
     let children = self.getChildren()
     try paragraph.append(children)

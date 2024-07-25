@@ -38,7 +38,7 @@ public func createListNode(listType: ListType, start: Int = 1) -> ListNode {
   return ListNode(listType: listType, start: start)
 }
 
-private func createListOrMerge(node: ElementNode, listType: ListType) throws -> ListNode {
+private func createListOrMerge(node: ElementNode, listType: ListType, withPlaceholders: Bool = false) throws -> ListNode {
   if let node = node as? ListNode {
     return node
   }
@@ -48,7 +48,16 @@ private func createListOrMerge(node: ElementNode, listType: ListType) throws -> 
   let listItem = ListItemNode()
   //  listItem.setFormat(node.getFormatType());
   try listItem.setIndent(node.getIndent())
-  try listItem.append(node.getChildren())
+
+  if node.getChildren().isEmpty {
+    if withPlaceholders {
+      let placeholder = ListItemPlaceholderNode()
+      try listItem.append([placeholder])
+      try placeholder.select(anchorOffset: nil, focusOffset: nil)
+    }
+  } else {
+    try listItem.append(node.getChildren())
+  }
 
   if let previousSibling = previousSibling as? ListNode, listType == previousSibling.getListType() {
     try previousSibling.append([listItem])
@@ -90,7 +99,10 @@ private func getListItemValue(listItem: ListItemNode) throws -> Int {
 
   let siblings = listItem.getPreviousSiblings()
   for sibling in siblings {
-    if let sibling = sibling as? ListItemNode, let firstChild = sibling.getFirstChild(), !(firstChild is ListNode) {
+    if let sibling = sibling as? ListItemNode,
+       let firstChild = sibling.getFirstChild(),
+       !(firstChild is ListNode),
+       !(firstChild is ListItemPlaceholderNode) {
       value += 1
     }
   }
@@ -131,7 +143,7 @@ public func updateChildrenListItemValue(
  * @param editor - The lexical editor.
  * @param listType - The type of list, "number" | "bullet" | "check".
  */
-public func insertList(editor: Editor, listType: ListType) throws {
+public func insertList(editor: Editor, listType: ListType, withPlaceholders: Bool = false) throws {
   try editor.update {
     guard let selection = try getSelection() else {
       throw LexicalError.invariantViolation("no selection")
@@ -155,6 +167,13 @@ public func insertList(editor: Editor, listType: ListType) throws {
           //          listItem.setFormat(anchorNode.getFormatType())
           try listItem.setIndent(anchorNode.getIndent())
         }
+
+        if withPlaceholders {
+          let placeholder = ListItemPlaceholderNode()
+          try listItem.append([placeholder])
+          try placeholder.select(anchorOffset: nil, focusOffset: nil)
+        }
+
         try list.append([listItem])
       } else if let anchorNode = anchorNode as? ListItemNode {
         let parent = try anchorNode.getParentOrThrow()
@@ -169,7 +188,7 @@ public func insertList(editor: Editor, listType: ListType) throws {
         if let node = node as? ElementNode,
            node.isEmpty(),
            !handled.contains(node.getKey()) {
-          _ = try createListOrMerge(node: node, listType: listType)
+          _ = try createListOrMerge(node: node, listType: listType, withPlaceholders: withPlaceholders)
           continue
         }
 
@@ -195,7 +214,7 @@ public func insertList(editor: Editor, listType: ListType) throws {
                 isRootNode(node: nextParent) &&
                   !handled.contains(parentKey) {
                 handled.insert(parentKey)
-                _ = try createListOrMerge(node: parentIterator, listType: listType)
+                _ = try createListOrMerge(node: parentIterator, listType: listType, withPlaceholders: withPlaceholders)
                 break
               }
 
@@ -313,6 +332,13 @@ internal func handleIndent(_ listItemNode: ListItemNode) throws {
       try newListItem.append([newList])
       try newList.append([listItemNode])
 
+      // If the listItemNode is empty (contains only a placeholder), add a new placeholder to the newListItem
+      if listItemNode.getChildrenSize() == 1 && listItemNode.getFirstChild() is ListItemPlaceholderNode {
+        let placeholder = ListItemPlaceholderNode()
+        try newListItem.append([placeholder])
+        try placeholder.select(anchorOffset: nil, focusOffset: nil)
+      }
+
       if let previousSibling {
         _ = try previousSibling.insertAfter(nodeToInsert: newListItem)
       } else if let nextSibling {
@@ -349,7 +375,7 @@ internal func handleOutdent(_ listItemNode: ListItemNode) throws {
   if let greatGrandparentList = greatGrandparentList as? ListNode,
      let grandparentListItem = grandparentListItem as? ListItemNode,
      let parentList = parentList as? ListNode {
-    // if it's the first child in it's parent list, insert it into the
+    // if it's the first child in its parent list, insert it into the
     // great grandparent list before the grandparent
     let firstChild = parentList.getFirstChild()
     let lastChild = parentList.getLastChild()
@@ -360,7 +386,7 @@ internal func handleOutdent(_ listItemNode: ListItemNode) throws {
       if parentList.isEmpty() {
         try grandparentListItem.remove()
       }
-      // if it's the last child in it's parent list, insert it into the
+      // if it's the last child in its parent list, insert it into the
       // great grandparent list after the grandparent.
     } else if let lastChild, listItemNode.isSameNode(lastChild) {
       _ = try grandparentListItem.insertAfter(nodeToInsert: listItemNode)
@@ -385,6 +411,12 @@ internal func handleOutdent(_ listItemNode: ListItemNode) throws {
       // replace the grandparent list item (now between the siblings) with the outdented list item.
       _ = try grandparentListItem.replace(replaceWith: listItemNode)
     }
+
+    // If the listItemNode is empty (contains only a placeholder), remove it
+    if listItemNode.getChildrenSize() == 1 && listItemNode.getFirstChild() is ListItemPlaceholderNode {
+      try listItemNode.remove()
+    }
+
     try updateChildrenListItemValue(list: parentList)
     try updateChildrenListItemValue(list: greatGrandparentList)
   }

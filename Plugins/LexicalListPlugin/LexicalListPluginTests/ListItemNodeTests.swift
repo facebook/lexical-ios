@@ -91,4 +91,119 @@ class ListItemNodeTests: XCTestCase {
       XCTAssertEqual(nestedItem2Attrs?.listItemCharacter, "2.")
     }
   }
+
+  func testInsertListWithPlaceholders() throws {
+    guard let editor else {
+      XCTFail("Editor unexpectedly nil")
+      return
+    }
+
+    try editor.update {
+      guard let rootNode = getActiveEditorState()?.getRootNode() else {
+        XCTFail("Root node not found")
+        return
+      }
+
+      try insertList(editor: editor, listType: .bullet, withPlaceholders: true)
+      print("root node: \(rootNode.getChildren())")
+
+      XCTAssertEqual(rootNode.getChildrenSize(), 1)
+      guard let listNode = rootNode.getFirstChild() as? ListNode else {
+        XCTFail("List node not created")
+        return
+      }
+      XCTAssertEqual(listNode.getChildrenSize(), 1)
+      guard let listItemNode = listNode.getFirstChild() as? ListItemNode else {
+        XCTFail("List item node not created")
+        return
+      }
+      XCTAssertEqual(listItemNode.getChildrenSize(), 1)
+      XCTAssertTrue(listItemNode.getFirstChild() is ListItemPlaceholderNode)
+    }
+  }
+
+  func testAppendToListItemWithPlaceholder() throws {
+    guard let editor else {
+      XCTFail("Editor unexpectedly nil")
+      return
+    }
+
+    try editor.update {
+      guard let rootNode = getActiveEditorState()?.getRootNode() else {
+        XCTFail("Root node not found")
+        return
+      }
+
+      try insertList(editor: editor, listType: .bullet, withPlaceholders: true)
+
+      guard let listNode = rootNode.getFirstChild() as? ListNode,
+            let listItemNode = listNode.getFirstChild() as? ListItemNode else {
+        XCTFail("List structure not created correctly")
+        return
+      }
+
+      try listItemNode.append([TextNode(text: "New content")])
+
+      XCTAssertFalse(listItemNode.getFirstChild() is ListItemPlaceholderNode)
+      XCTAssertEqual(listItemNode.getTextContent(), "New content")
+    }
+  }
+
+  func testRemoveEmptyListItemWithPlaceholder() throws {
+    guard let editor else {
+      XCTFail("Editor unexpectedly nil")
+      return
+    }
+
+    try editor.update {
+      guard let rootNode = getActiveEditorState()?.getRootNode() else {
+        XCTFail("Root node not found")
+        return
+      }
+
+      try insertList(editor: editor, listType: .bullet, withPlaceholders: true)
+
+      guard let listNode = rootNode.getFirstChild() as? ListNode,
+            let listItemNode = listNode.getFirstChild() as? ListItemNode else {
+        XCTFail("List structure not created correctly")
+        return
+      }
+
+      try listItemNode.remove()
+      XCTAssertEqual(rootNode.getChildrenSize(), 0)
+    }
+  }
+
+
+  func testGetAttributedStringAttributesWithPlaceholder() throws {
+    guard let editor else {
+      XCTFail("Editor unexpectedly nil")
+      return
+    }
+
+    try editor.update {
+      guard let rootNode = getActiveEditorState()?.getRootNode() else {
+        XCTFail("Root node not found")
+        return
+      }
+
+      try insertList(editor: editor, listType: .bullet, withPlaceholders: true)
+
+      guard let listNode = rootNode.getFirstChild() as? ListNode,
+            let listItemNode = listNode.getFirstChild() as? ListItemNode else {
+        XCTFail("List structure not created correctly")
+        return
+      }
+
+      let theme = editor.getTheme()
+
+      let placeholderAttributes = listItemNode.getAttributedStringAttributes(theme: theme)
+      XCTAssertNotNil(placeholderAttributes[.listItem])
+
+      try listItemNode.append([TextNode(text: "Content")])
+      let contentAttributes = listItemNode.getAttributedStringAttributes(theme: theme)
+      XCTAssertNotNil(contentAttributes[.listItem])
+    }
+  }
+
 }
