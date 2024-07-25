@@ -34,8 +34,8 @@ private func isSelectingEmptyListItem(
  * @param start - Where an ordered list starts its count, start = 1 if left undefined.
  * @returns The new ListNode
  */
-public func createListNode(listType: ListType, start: Int = 1) -> ListNode {
-  return ListNode(listType: listType, start: start)
+public func createListNode(listType: ListType, start: Int = 1, withPlaceholders: Bool = false) -> ListNode {
+  return ListNode(listType: listType, start: start, withPlaceholders: withPlaceholders)
 }
 
 private func createListOrMerge(node: ElementNode, listType: ListType, withPlaceholders: Bool = false) throws -> ListNode {
@@ -77,7 +77,7 @@ private func createListOrMerge(node: ElementNode, listType: ListType, withPlaceh
     try node.remove()
     return nextSibling
   } else {
-    let list = createListNode(listType: listType)
+    let list = createListNode(listType: listType, withPlaceholders: withPlaceholders)
     try list.append([listItem])
     try node.replace(replaceWith: list)
     try updateChildrenListItemValue(list: list, children: nil)
@@ -158,7 +158,7 @@ public func insertList(editor: Editor, listType: ListType, withPlaceholders: Boo
     let anchorNodeParent = anchorNode.getParent()
 
     if isSelectingEmptyListItem(anchorNode: anchorNode, nodes: nodes) {
-      let list = createListNode(listType: listType)
+      let list = createListNode(listType: listType, withPlaceholders: withPlaceholders)
 
       if isRootNode(node: anchorNodeParent) {
         try anchorNode.replace(replaceWith: list)
@@ -199,7 +199,7 @@ public func insertList(editor: Editor, listType: ListType, withPlaceholders: Boo
 
             if let parent = parentIterator as? ListNode {
               if !handled.contains(parentKey) {
-                let newListNode = createListNode(listType: listType)
+                let newListNode = createListNode(listType: listType, withPlaceholders: withPlaceholders)
                 try newListNode.append(parent.getChildren())
                 try parent.replace(replaceWith: newListNode)
                 try updateChildrenListItemValue(list: newListNode, children: nil)
@@ -328,7 +328,7 @@ internal func handleIndent(_ listItemNode: ListItemNode) throws {
 
     if let parent = parent as? ListNode {
       let newListItem = ListItemNode()
-      let newList = createListNode(listType: parent.getListType())
+      let newList = createListNode(listType: parent.getListType(), withPlaceholders: parent.withPlaceholders)
       try newListItem.append([newList])
       try newList.append([listItemNode])
 
@@ -398,11 +398,11 @@ internal func handleOutdent(_ listItemNode: ListItemNode) throws {
       // otherwise, we need to split the siblings into two new nested lists
       let listType = parentList.getListType()
       let previousSiblingsListItem = ListItemNode()
-      let previousSiblingsList = createListNode(listType: listType)
+      let previousSiblingsList = createListNode(listType: listType, withPlaceholders: parentList.withPlaceholders)
       try previousSiblingsListItem.append([previousSiblingsList])
       try previousSiblingsList.append(listItemNode.getPreviousSiblings())
       let nextSiblingsListItem = ListItemNode()
-      let nextSiblingsList = createListNode(listType: listType)
+      let nextSiblingsList = createListNode(listType: listType, withPlaceholders: parentList.withPlaceholders)
       try nextSiblingsListItem.append([nextSiblingsList])
       try nextSiblingsList.append(listItemNode.getNextSiblings())
       // put the sibling nested lists on either side of the grandparent list item in the great grandparent.

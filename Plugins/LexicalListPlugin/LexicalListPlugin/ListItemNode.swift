@@ -189,12 +189,20 @@ public class ListItemNode: ElementNode {
   }
 
   override public func insertNewAfter(selection: RangeSelection?) throws -> Node? {
+    guard let listNode = try self.getParentOrThrow() as? ListNode else {
+      throw LexicalError.invariantViolation("list node is not parent of list item node")
+    }
+
     let newElement = ListItemNode()
+    if listNode.withPlaceholders {
+      let placeholder = ListItemPlaceholderNode()
+      try newElement.append([placeholder])
+      try placeholder.select(anchorOffset: nil, focusOffset: nil)
+    }
     _ = try self.insertAfter(nodeToInsert: newElement)
 
-    // If the current node is empty (only has the placeholder), remove it
     if isOnlyPlaceholder() {
-      try self.remove()
+      try newElement.select(anchorOffset: 0, focusOffset: 0)
     }
 
     return newElement

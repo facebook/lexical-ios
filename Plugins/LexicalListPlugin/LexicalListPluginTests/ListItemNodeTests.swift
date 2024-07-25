@@ -119,6 +119,59 @@ class ListItemNodeTests: XCTestCase {
       }
       XCTAssertEqual(listItemNode.getChildrenSize(), 1)
       XCTAssertTrue(listItemNode.getFirstChild() is ListItemPlaceholderNode)
+
+      // Simulate hitting enter on the empty list item
+      guard let newNode = try listItemNode.insertNewAfter(selection: nil) as? ListItemNode else {
+        XCTFail("Failed to insert new list item")
+        return
+      }
+
+      // Verify that a new list item was created
+      XCTAssertEqual(listNode.getChildrenSize(), 2, "A new list item should be created")
+
+      // Verify that the original list item still exists
+      XCTAssertTrue(listNode.getChildren().contains(where: { $0.key == listItemNode.key }),
+                    "The original list item should still exist")
+
+      print("children: \(newNode) \(newNode.getChildren())")
+
+      // Verify that the new list item has a placeholder
+      XCTAssertEqual(newNode.getChildrenSize(), 1, "New list item should have one child")
+      XCTAssertTrue(newNode.getFirstChild() is ListItemPlaceholderNode,
+                    "New list item should contain a placeholder")
+
+      // Verify that the original list item still has its placeholder
+      XCTAssertEqual(listItemNode.getChildrenSize(), 1, "Original list item should still have one child")
+      XCTAssertTrue(listItemNode.getFirstChild() is ListItemPlaceholderNode,
+                    "Original list item should still contain a placeholder")
+
+      // Add text to the first list item
+      let textNode = TextNode(text: "Hello, world!")
+      try listItemNode.append([textNode])
+
+      // Verify that the text was added
+      XCTAssertEqual(listItemNode.getChildrenSize(), 1, "List item should have one child after adding text")
+      XCTAssertTrue(listItemNode.getFirstChild() is TextNode, "List item should contain a text node")
+      XCTAssertEqual((listItemNode.getFirstChild() as? TextNode)?.getTextContent(), "Hello, world!", "Text content should match")
+
+      // Simulate hitting enter after the text
+      guard let newNodeAfterText = try listItemNode.insertNewAfter(selection: nil) as? ListItemNode else {
+        XCTFail("Failed to insert new list item after text")
+        return
+      }
+
+      // Verify that a new list item was created
+      XCTAssertEqual(listNode.getChildrenSize(), 3, "A new list item should be created after text")
+
+      // Verify that the original list item still contains the text
+      XCTAssertEqual(listItemNode.getChildrenSize(), 1, "Original list item should still have one child")
+      XCTAssertTrue(listItemNode.getFirstChild() is TextNode, "Original list item should still contain the text node")
+      XCTAssertEqual((listItemNode.getFirstChild() as? TextNode)?.getTextContent(), "Hello, world!", "Text content should remain unchanged")
+
+      // Verify that the new list item has a placeholder
+      XCTAssertEqual(newNodeAfterText.getChildrenSize(), 1, "New list item after text should have one child")
+      XCTAssertTrue(newNodeAfterText.getFirstChild() is ListItemPlaceholderNode,
+                    "New list item after text should contain a placeholder")
     }
   }
 

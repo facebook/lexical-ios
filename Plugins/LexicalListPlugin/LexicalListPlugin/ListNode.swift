@@ -21,11 +21,13 @@ extension NodeType {
 public class ListNode: ElementNode {
   private var listType: ListType = .bullet
   private var start: Int = 1
+  public var withPlaceholders: Bool = false
 
-  public required convenience init(listType: ListType, start: Int, key: NodeKey? = nil) {
+  public required convenience init(listType: ListType, start: Int, key: NodeKey? = nil, withPlaceholders: Bool = false) {
     self.init(key)
     self.listType = listType
     self.start = start
+    self.withPlaceholders = withPlaceholders
   }
 
   override public init() {
