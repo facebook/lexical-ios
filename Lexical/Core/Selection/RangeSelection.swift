@@ -353,9 +353,13 @@ public class RangeSelection: BaseSelection {
 
     if selectedNodesLength == 1 {
       if firstNode.isToken() {
-        let textNode = TextNode(text: text)
-        try textNode.select(anchorOffset: nil, focusOffset: nil)
-        try firstNode.replace(replaceWith: textNode)
+        if text.lengthAsNSString() == 0 {
+          try firstNode.remove()
+        } else {
+          let textNode = TextNode(text: text)
+          try textNode.select(anchorOffset: nil, focusOffset: nil)
+          try firstNode.replace(replaceWith: textNode)
+        }
         return
       }
       let firstNodeFormat = firstNode.getFormat()
