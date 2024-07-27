@@ -140,25 +140,31 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
       }
     }
 
-    // If there is no text, we need to update typingAttributes to ensure any attributes (like padding from list items) are removed.
-    if text.isEmpty {
-      do {
-        try editor.read {
-          guard let editor = getActiveEditor(),
-                let root = getRoot(),
-                let firstChild = root.getFirstChild()
-          else { return }
+    resetTypingAttributes(selectedRange)
+  }
 
-          let attributes = AttributeUtils.attributedStringStyles(
-            from: firstChild,
-            state: editor.getEditorState(),
-            theme: editor.getTheme()
-          )
-          typingAttributes = attributes
+  private func resetTypingAttributes(_ selection: NSRange) {
+    do {
+      try editor.read {
+        guard let editor = getActiveEditor(),
+              let point = try pointAtStringLocation(
+                selection.location,
+                searchDirection: .forward,
+                rangeCache: editor.rangeCache)
+        else {
+          return
         }
-      } catch {
-        print("failed resetting lexical state")
+
+        let node = try point.getNode()
+        let attributes = AttributeUtils.attributedStringStyles(
+          from: node,
+          state: editor.getEditorState(),
+          theme: editor.getTheme()
+        )
+        typingAttributes = attributes
       }
+    } catch {
+      print("Failed resetting typing attributes: \(error)")
     }
   }
 

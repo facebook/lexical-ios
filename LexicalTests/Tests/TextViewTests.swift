@@ -378,4 +378,88 @@ class TextViewTests: XCTestCase {
     textView.insertText("…")
     XCTAssertEqual(textView.text, "He…")
   }
+
+  func testTypingAttributesWithCustomNodeDeletion() throws {
+    let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
+    let textView = view.textView
+    let editor = view.editor
+
+    class CustomPaddingNode: ElementNode {
+
+      override required init() {
+        super.init()
+      }
+
+      public required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
+      }
+
+      override func getAttributedStringAttributes(theme: Theme) -> [NSAttributedString.Key: Any] {
+        var attributes = super.getAttributedStringAttributes(theme: theme)
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.headIndent = 20.0
+        paragraphStyle.firstLineHeadIndent = 20.0
+        attributes[.paragraphStyle] = paragraphStyle
+        return attributes
+      }
+
+      override public func clone() -> Self {
+        Self()
+      }
+
+      override class func getType() -> NodeType {
+        return NodeType(rawValue: "TestNode")
+      }
+    }
+
+    try editor.registerNode(nodeType: .testNode, class: CustomPaddingNode.self)
+
+    var customNodeKey: NodeKey = ""
+    try editor.update {
+      guard let root = getRoot() else {
+        XCTFail("Root node not found")
+        return
+      }
+
+      let paragraphNode = ParagraphNode()
+      try paragraphNode.append([TextNode(text: "Regular paragraph")])
+      try root.append([paragraphNode])
+
+      let customNode = CustomPaddingNode()
+      try customNode.append([TextNode(text: "Custom padded text")])
+      try root.append([customNode])
+      customNodeKey = customNode.key
+      try customNode.select(anchorOffset: nil, focusOffset: nil)
+    }
+
+    // Force layout to ensure attributes are applied
+    textView.layoutManager.ensureLayout(for: textView.textContainer)
+
+    // Simulate typing to trigger typing attributes update
+    textView.insertText("")
+
+    // Verify that typing attributes include head indent
+    let typingAttributesWithCustomNode = textView.typingAttributes
+    if let paragraphStyle = typingAttributesWithCustomNode[.paragraphStyle] as? NSParagraphStyle {
+      XCTAssertEqual(paragraphStyle.headIndent, 20.0, "Head indent should be 20.0")
+    } else {
+      XCTFail("Paragraph style not found in typing attributes")
+    }
+
+    try editor.update {
+      guard let customNode = getNodeByKey(key: customNodeKey) as? CustomPaddingNode else {
+        XCTFail("Custom node not found")
+        return
+      }
+      try customNode.remove()
+    }
+
+    textView.deleteBackward()
+
+    // Verify that typing attributes no longer include head indent
+    let typingAttributesAfterDeletion = textView.typingAttributes
+    print(typingAttributesAfterDeletion)
+    let paragraphStyle = typingAttributesAfterDeletion[.paragraphStyle] as? NSParagraphStyle
+    XCTAssertNil(paragraphStyle, "Paragraph style has been cleared")
+  }
 }
