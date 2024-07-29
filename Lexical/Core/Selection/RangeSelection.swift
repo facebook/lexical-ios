@@ -361,6 +361,18 @@ public class RangeSelection: BaseSelection {
         try insertText(text)
         return
       }
+
+      // TODO: this is a hack around auto complete selecting the token node and swallowing the change. Need to figure out a cleaner way to integrate this logic.
+      if firstNode.isToken() && selectedNodesLength == 2 {
+        let textNode = TextNode(text: "")
+        try textNode.setFormat(format: format)
+        try textNode.select(anchorOffset: 0, focusOffset: 0)
+        try firstNode.insertAfter(nodeToInsert: textNode)
+        try lastNode?.remove()
+
+        try insertText(text)
+        return
+      }
     }
 
     if selectedNodesLength == 1 {
