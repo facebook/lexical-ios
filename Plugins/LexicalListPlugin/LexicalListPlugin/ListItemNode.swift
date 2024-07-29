@@ -200,7 +200,7 @@ public class ListItemNode: ElementNode {
     if isOnlyPlaceholder() {
       // Remove this ListItemNode
       try self.remove()
-      return .init(skipLineBreak: true, skipSelectStart: true)
+      return .init()
     }
 
     let newElement = ListItemNode()
