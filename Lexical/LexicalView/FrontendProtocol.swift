@@ -38,4 +38,5 @@ internal protocol Frontend: AnyObject {
   func setMarkedTextFromReconciler(_ markedText: NSAttributedString, selectedRange: NSRange)
   func resetSelectedRange()
   func showPlaceholderText()
+  func resetTypingAttributes(for selectedNode: Node)
 }

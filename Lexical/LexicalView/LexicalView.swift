@@ -209,6 +209,10 @@ public extension LexicalViewDelegate {
     textView.resetSelectedRange()
   }
 
+  func resetTypingAttributes(for selectedNode: Node) {
+    textView.resetTypingAttributes(for: selectedNode)
+  }
+
   var interceptNextSelectionChangeAndReplaceWithRange: NSRange? {
     get {
       textView.interceptNextSelectionChangeAndReplaceWithRange

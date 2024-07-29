@@ -273,6 +273,10 @@ internal class LexicalReadOnlySizeCache {
     // no-op
   }
 
+  func resetTypingAttributes(for selectedNode: Node) {
+    // no-op
+  }
+
   func showPlaceholderText() {
     // no-op
   }

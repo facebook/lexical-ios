@@ -140,15 +140,15 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
       }
     }
 
-    resetTypingAttributes(selectedRange)
+    resetTypingAttributes(for: selectedRange)
   }
 
-  private func resetTypingAttributes(_ selection: NSRange) {
+  public func resetTypingAttributes(for selectedRange: NSRange) {
     do {
       try editor.read {
         guard let editor = getActiveEditor(),
               let point = try pointAtStringLocation(
-                selection.location,
+                selectedRange.location,
                 searchDirection: .forward,
                 rangeCache: editor.rangeCache)
         else {
@@ -156,16 +156,20 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
         }
 
         let node = try point.getNode()
-        let attributes = AttributeUtils.attributedStringStyles(
-          from: node,
-          state: editor.getEditorState(),
-          theme: editor.getTheme()
-        )
-        typingAttributes = attributes
+        resetTypingAttributes(for: node)
       }
     } catch {
       print("Failed resetting typing attributes: \(error)")
     }
+  }
+
+  public func resetTypingAttributes(for selectedNode: Node) {
+    let attributes = AttributeUtils.attributedStringStyles(
+      from: selectedNode,
+      state: editor.getEditorState(),
+      theme: editor.getTheme()
+    )
+    typingAttributes = attributes
   }
 
   override public func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
