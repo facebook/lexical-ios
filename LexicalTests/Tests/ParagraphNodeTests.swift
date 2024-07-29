@@ -41,7 +41,8 @@ class ParagraphNodeTests: XCTestCase {
         return
       }
 
-      let newNode = try paragraphNode.insertNewAfter(selection: selection)
+      let result = try paragraphNode.insertNewAfter(selection: selection)
+      let newNode = result.element
       XCTAssertNotNil(newNode)
       XCTAssertEqual(newNode?.parent, paragraphNode.parent)
       XCTAssertEqual(newNode?.type, paragraphNode.type)

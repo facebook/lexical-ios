@@ -72,7 +72,8 @@ class CodeNodeTests: XCTestCase {
         return
       }
 
-      let newNode = try codeNode.insertNewAfter(selection: selection)
+      let result = try codeNode.insertNewAfter(selection: selection)
+      let newNode = result.element
       XCTAssertNotNil(newNode)
       XCTAssertEqual(newNode?.parent, codeNode.parent)
       XCTAssertEqual(newNode?.type, NodeType.paragraph)

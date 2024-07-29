@@ -30,6 +30,11 @@ internal func onInsertTextFromUITextView(text: String, editor: Editor, updateMod
 
     if text == "\n" || text == "\u{2029}" {
       try selection.insertParagraph()
+
+      if let updatedSelection = try getSelection(),
+         let selectedNode = try updatedSelection.getNodes().first {
+        editor.frontend?.resetTypingAttributes(for: selectedNode)
+      }
     } else if text == "\u{2028}" {
       try selection.insertLineBreak(selectStart: false)
     } else {

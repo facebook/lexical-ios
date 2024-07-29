@@ -10,6 +10,18 @@ import UIKit
 
 public class RangeSelection: BaseSelection {
 
+  public class InsertNewAfterResult {
+    let element: Node?
+    let skipLineBreak: Bool
+    let skipSelectStart: Bool
+
+    public init(element: ElementNode? = nil, skipLineBreak: Bool = false, skipSelectStart: Bool = false) {
+      self.element = element
+      self.skipLineBreak = skipLineBreak
+      self.skipSelectStart = skipSelectStart
+    }
+  }
+
   public var anchor: Point
   public var focus: Point
   public var dirty: Bool
@@ -826,7 +838,8 @@ public class RangeSelection: BaseSelection {
     let nodesToMoveLength = nodesToMove.count
     if anchorOffset == 0 && nodesToMoveLength > 0 && currentElement.isInline() {
       let parent = try currentElement.getParentOrThrow()
-      let newElement = try parent.insertNewAfter(selection: self)
+      let result = try parent.insertNewAfter(selection: self)
+      let newElement = result.element
       if let newElement = newElement as? ElementNode {
         let children = parent.getChildren()
         for child in children {
@@ -836,10 +849,13 @@ public class RangeSelection: BaseSelection {
       return
     }
 
-    let newElement = try currentElement.insertNewAfter(selection: self)
+    let result = try currentElement.insertNewAfter(selection: self)
+    let newElement = result.element
     if newElement == nil {
-      // Handle as a line break insertion
-      try insertLineBreak(selectStart: false)
+      if !result.skipLineBreak {
+        // Handle as a line break insertion
+        try insertLineBreak(selectStart: false)
+      }
     } else if let newElement = newElement as? ElementNode {
       // If we're at the beginning of the current element, move the new element to be before the current element
       let currentElementFirstChild = currentElement.getFirstChild()
@@ -875,7 +891,9 @@ public class RangeSelection: BaseSelection {
         try newElement.selectPrevious(anchorOffset: nil, focusOffset: nil)
         try newElement.remove()
       } else {
-        _ = try newElement.selectStart()
+        if !result.skipSelectStart {
+          _ = try newElement.selectStart()
+        }
       }
     }
   }

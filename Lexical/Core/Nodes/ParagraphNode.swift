@@ -36,7 +36,7 @@ public class ParagraphNode: ElementNode {
     return [:]
   }
 
-  override open func insertNewAfter(selection: RangeSelection?) throws -> ParagraphNode? {
+  override open func insertNewAfter(selection: RangeSelection?) throws -> RangeSelection.InsertNewAfterResult {
     let newElement = createParagraphNode()
     let direction = getDirection()
     do {
@@ -45,7 +45,7 @@ public class ParagraphNode: ElementNode {
     } catch {
       throw LexicalError.internal("Error in insertNewAfter: \(error.localizedDescription)")
     }
-    return newElement
+    return .init(element: newElement)
   }
 
   public func createParagraphNode() -> ParagraphNode {

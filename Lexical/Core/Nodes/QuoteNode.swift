@@ -38,14 +38,14 @@ public class QuoteNode: ElementNode {
 
   // MARK: - Mutation
 
-  override open func insertNewAfter(selection: RangeSelection?) throws -> Node? {
+  override open func insertNewAfter(selection: RangeSelection?) throws -> RangeSelection.InsertNewAfterResult {
     let newBlock = createParagraphNode()
     let direction = getDirection()
     try newBlock.setDirection(direction: direction)
 
     try insertAfter(nodeToInsert: newBlock)
 
-    return newBlock
+    return .init(element: newBlock)
   }
 
   override public func collapseAtStart(selection: RangeSelection) throws -> Bool {

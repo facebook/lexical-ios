@@ -84,13 +84,13 @@ public class HeadingNode: ElementNode {
 
   // MARK: - Mutation
 
-  override open func insertNewAfter(selection: RangeSelection?) throws -> Node? {
+  override open func insertNewAfter(selection: RangeSelection?) throws -> RangeSelection.InsertNewAfterResult {
     let newElement = createParagraphNode()
 
     try newElement.setDirection(direction: getDirection())
     try insertAfter(nodeToInsert: newElement)
 
-    return newElement
+    return .init(element: newElement)
   }
 
   override public func collapseAtStart(selection: RangeSelection) throws -> Bool {

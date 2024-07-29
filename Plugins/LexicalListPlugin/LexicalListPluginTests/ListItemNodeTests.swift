@@ -121,7 +121,8 @@ class ListItemNodeTests: XCTestCase {
       XCTAssertTrue(listItemNode.getFirstChild() is ListItemPlaceholderNode)
 
       // Simulate hitting enter on the empty list item
-      guard let newNode = try listItemNode.insertNewAfter(selection: nil) as? ListItemNode else {
+      var result = try listItemNode.insertNewAfter(selection: nil)
+      guard let newNode = result.element as? ListItemNode else {
         XCTFail("Failed to insert new list item")
         return
       }
@@ -156,7 +157,8 @@ class ListItemNodeTests: XCTestCase {
       XCTAssertEqual((listItemNode.getFirstChild() as? TextNode)?.getTextContent(), "Hello, world!", "Text content should match")
 
       // Simulate hitting enter after the text
-      guard let newNodeAfterText = try listItemNode.insertNewAfter(selection: nil) as? ListItemNode else {
+      result = try listItemNode.insertNewAfter(selection: nil)
+      guard let newNodeAfterText = result.element as? ListItemNode else {
         XCTFail("Failed to insert new list item after text")
         return
       }

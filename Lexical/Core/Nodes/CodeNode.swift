@@ -116,9 +116,9 @@ public class CodeNode: ElementNode {
     return attributeDictionary
   }
 
-  override open func insertNewAfter(selection: RangeSelection?) throws -> ParagraphNode? {
+  override open func insertNewAfter(selection: RangeSelection?) throws -> RangeSelection.InsertNewAfterResult {
     guard let selection else {
-      return nil
+      return .init()
     }
 
     let children = self.getChildren()
@@ -134,9 +134,9 @@ public class CodeNode: ElementNode {
       try children[childrenLength - 2].remove()
       let newElement = createParagraphNode()
       try self.insertAfter(nodeToInsert: newElement)
-      return newElement
+      return .init(element: newElement)
     } else {
-      return nil
+      return .init()
     }
   }
 }

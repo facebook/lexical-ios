@@ -47,13 +47,13 @@ public class AutoLinkNode: LinkNode {
     Self(url: url, key: key)
   }
 
-  override open func insertNewAfter(selection: RangeSelection?) throws -> Node? {
+  override open func insertNewAfter(selection: RangeSelection?) throws -> RangeSelection.InsertNewAfterResult {
     if let element = try getParentOrThrow().insertNewAfter(selection: selection) as? ElementNode {
       let linkNode = AutoLinkNode(url: url, key: nil)
       try element.append([linkNode])
-      return linkNode
+      return .init(element: linkNode)
     }
 
-    return nil
+    return .init()
   }
 }

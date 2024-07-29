@@ -414,7 +414,7 @@ open class ElementNode: Node {
   }
 
   // These are intended to be extends for specific element heuristics.
-  open func insertNewAfter(selection: RangeSelection?) throws -> Node? {
+  open func insertNewAfter(selection: RangeSelection?) throws -> RangeSelection.InsertNewAfterResult {
     throw LexicalError.internal("Subclasses need to implement this method")
   }
 

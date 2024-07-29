@@ -192,15 +192,16 @@ public class ListItemNode: ElementNode {
     }
   }
 
-  override public func insertNewAfter(selection: RangeSelection?) throws -> Node? {
+  override public func insertNewAfter(selection: RangeSelection?) throws -> RangeSelection.InsertNewAfterResult {
     guard let listNode = try self.getParentOrThrow() as? ListNode else {
       throw LexicalError.invariantViolation("list node is not parent of list item node")
     }
-    
+
     if isOnlyPlaceholder() {
       // Remove this ListItemNode
       try self.remove()
-      return nil
+      try self.selectPrevious(anchorOffset: nil, focusOffset: nil)
+      return .init(skipLineBreak: true)
     }
 
     let newElement = ListItemNode()
@@ -208,14 +209,13 @@ public class ListItemNode: ElementNode {
       let placeholder = ListItemPlaceholderNode()
       try newElement.append([placeholder])
       try placeholder.select(anchorOffset: nil, focusOffset: nil)
+    } else {
+      try newElement.select(anchorOffset: nil, focusOffset: nil)
     }
+
     _ = try self.insertAfter(nodeToInsert: newElement)
 
-    if isOnlyPlaceholder() {
-      try newElement.select(anchorOffset: 0, focusOffset: 0)
-    }
-
-    return newElement
+    return .init(element: newElement, skipSelectStart: true)
   }
 
   override public func collapseAtStart(selection: RangeSelection) throws -> Bool {
