@@ -200,8 +200,7 @@ public class ListItemNode: ElementNode {
     if isOnlyPlaceholder() {
       // Remove this ListItemNode
       try self.remove()
-      try self.selectPrevious(anchorOffset: nil, focusOffset: nil)
-      return .init(skipLineBreak: true)
+      return .init(skipLineBreak: true, skipSelectStart: true)
     }
 
     let newElement = ListItemNode()

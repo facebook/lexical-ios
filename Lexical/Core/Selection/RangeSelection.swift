@@ -11,9 +11,9 @@ import UIKit
 public class RangeSelection: BaseSelection {
 
   public class InsertNewAfterResult {
-    let element: Node?
-    let skipLineBreak: Bool
-    let skipSelectStart: Bool
+    public let element: Node?
+    public let skipLineBreak: Bool
+    public let skipSelectStart: Bool
 
     public init(element: ElementNode? = nil, skipLineBreak: Bool = false, skipSelectStart: Bool = false) {
       self.element = element
