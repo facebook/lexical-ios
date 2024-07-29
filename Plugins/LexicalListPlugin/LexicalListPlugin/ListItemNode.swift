@@ -180,10 +180,14 @@ public class ListItemNode: ElementNode {
       }
     }
 
-    // If the parent list is now empty, replace it with a paragraph node
-    if let parentList = parentList as? ListNode, parentList.getChildrenSize() == 0 {
+    if let parentList = parentList as? ListNode {
       let paragraphNode = createParagraphNode()
-      try parentList.replace(replaceWith: paragraphNode)
+
+      if parentList.getChildrenSize() == 0 {
+        try parentList.replace(replaceWith: paragraphNode)
+      } else {
+        try parentList.insertAfter(nodeToInsert: paragraphNode)
+      }
       try paragraphNode.select(anchorOffset: nil, focusOffset: nil)
     }
   }
@@ -191,6 +195,12 @@ public class ListItemNode: ElementNode {
   override public func insertNewAfter(selection: RangeSelection?) throws -> Node? {
     guard let listNode = try self.getParentOrThrow() as? ListNode else {
       throw LexicalError.invariantViolation("list node is not parent of list item node")
+    }
+    
+    if isOnlyPlaceholder() {
+      // Remove this ListItemNode
+      try self.remove()
+      return nil
     }
 
     let newElement = ListItemNode()
