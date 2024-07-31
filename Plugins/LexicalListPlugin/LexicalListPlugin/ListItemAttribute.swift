@@ -11,6 +11,9 @@ import Lexical
 
 extension NSAttributedString.Key {
   public static let listItem: NSAttributedString.Key = .init(rawValue: "list_item")
+  public static let checkedListItem: NSAttributedString.Key = .init(rawValue: "checked_list_item")
+  public static let checkRectHeight: NSAttributedString.Key = .init(rawValue: "check_rect_height")
+  public static let checkSymbolName: NSAttributedString.Key = .init(rawValue: "check_symbol_name")
 }
 
 internal struct ListItemAttribute: Hashable, Equatable {
@@ -19,4 +22,6 @@ internal struct ListItemAttribute: Hashable, Equatable {
 
   var listItemCharacter: String
   var characterIndentationPixels: CGFloat
+  var listType: ListType
+  var isChecked: Bool
 }

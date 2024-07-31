@@ -10,6 +10,8 @@ import Foundation
 @objc public protocol Plugin {
   func setUp(editor: Editor)
   func tearDown()
+    @objc optional func hitTest(at point: CGPoint, lineFragmentRect: CGRect, firstCharacterRect: CGRect, attributes: [NSAttributedString.Key : Any]) -> Bool
+    @objc optional func handleTap(at point: CGPoint, lineFragmentRect: CGRect, firstCharacterRect: CGRect, attributes: [NSAttributedString.Key : Any]) -> Bool
 }
 
 extension Plugin {

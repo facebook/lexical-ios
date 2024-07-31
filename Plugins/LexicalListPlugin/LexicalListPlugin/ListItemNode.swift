@@ -17,8 +17,12 @@ extension NodeType {
 }
 
 public class ListItemNode: ElementNode {
+  private enum CodingKeys: String, CodingKey {
+    case isChecked
+  }
 
   private var value: Int = 0
+  private var isChecked: Bool = false
 
   override public init() {
     super.init()
@@ -30,10 +34,22 @@ public class ListItemNode: ElementNode {
 
   public required init(from decoder: Decoder) throws {
     try super.init(from: decoder)
+
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    self.isChecked = try container.decodeIfPresent(Bool.self, forKey: .isChecked) ?? false
+  }
+
+  public override func encode(to encoder: Encoder) throws {
+    try super.encode(to: encoder)
+
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(isChecked, forKey: .isChecked)
   }
 
   override public func clone() -> Self {
-    Self(key)
+    let clone = Self(key)
+    clone.isChecked = self.isChecked
+    return clone
   }
 
   override public class func getType() -> NodeType {
@@ -48,6 +64,18 @@ public class ListItemNode: ElementNode {
   public func setValue(value: Int) {
     let node = try? self.getWritable()
     node?.value = value
+  }
+
+  public func getIsChecked() -> Bool {
+    return getLatest().isChecked
+  }
+
+  @discardableResult
+  public func setIsChecked(_ checked: Bool) throws -> ListItemNode {
+    try errorOnReadOnly()
+    let node = try getWritable() as ListItemNode
+    node.isChecked = checked
+    return node
   }
 
   private func isOnlyPlaceholder() -> Bool {
@@ -308,13 +336,17 @@ public class ListItemNode: ElementNode {
     }
 
     var character = ""
+    var listType: ListType = .bullet
+    var isChecked = false
 
     if let listNode {
       switch listNode.getListType() {
       case .bullet:
+        listType = .bullet
         character = "\u{2022}"
 
       case .number:
+        listType = .number
         let start = listNode.getStart()
 
         // Count previous siblings
@@ -333,7 +365,16 @@ public class ListItemNode: ElementNode {
         character = String("\(start + prevItemsCount).")
 
       case .check:
-        break
+        listType = .check
+        character = node.getIsChecked() ? "☑" : "☐"
+        isChecked = node.getIsChecked()
+        if isChecked {
+          let checkedAttributes = theme.checkedListItem ?? [:]
+          attributes.merge(checkedAttributes) { _, new in new }
+//          attributes[.strikethroughStyle] = NSUnderlineStyle.single.rawValue
+//          attributes[.strikethroughColor] = UIColor(named: "PinePrimary") ?? UIColor.label
+//          attributes[.foregroundColor] = UIColor.label.withAlphaComponent(0.5)
+        }
       }
     }
 
@@ -341,7 +382,9 @@ public class ListItemNode: ElementNode {
     attributes[.listItem] = ListItemAttribute(
       itemNodeKey: node.key,
       listItemCharacter: character,
-      characterIndentationPixels: (CGFloat(getIndent() + 1) - 0.8) * theme.indentSize
+      characterIndentationPixels: (CGFloat(getIndent() + 1) - 0.8) * theme.indentSize,
+      listType: listType,
+      isChecked: isChecked
     )
 
     return attributes

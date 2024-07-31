@@ -54,6 +54,8 @@ public extension LexicalViewDelegate {
   /// The underlying UITextView. Note that this should not be accessed unless there's no way to do what you want
   /// using the Lexical API.
   @objc public let textView: TextView
+  private var overlayView: LexicalOverlayView
+
   let responderForNodeSelection: ResponderForNodeSelection
 
   @objc public init(editorConfig: EditorConfig, featureFlags: FeatureFlags, placeholderText: LexicalPlaceholderText? = nil) {
@@ -62,6 +64,7 @@ public extension LexicalViewDelegate {
     self.textView.clipsToBounds = true
     self.textView.accessibilityTraits = .staticText
     self.placeholderText = placeholderText
+    self.overlayView = LexicalOverlayView(textView: textView)
 
     guard let textStorage = textView.textStorage as? TextStorage else {
       fatalError()
@@ -78,8 +81,8 @@ public extension LexicalViewDelegate {
     }
 
     addSubview(self.textView)
-
     defaultViewMargins = textView.textContainerInset
+    addSubview(overlayView)
   }
 
   required init?(coder: NSCoder) {
@@ -380,6 +383,8 @@ public extension LexicalViewDelegate {
     super.layoutSubviews()
 
     textView.frame = CGRect(x: 0, y: 0, width: bounds.width, height: bounds.height)
+      overlayView.frame = textView.frame // Ensure overlay covers the textView
+
   }
 
   /// Convenience method to clear editor and show placeholder text

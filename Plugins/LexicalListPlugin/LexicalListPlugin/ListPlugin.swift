@@ -12,6 +12,7 @@ import UIKit
 extension CommandType {
   public static let insertUnorderedList = CommandType(rawValue: "insertUnorderedList")
   public static let insertOrderedList = CommandType(rawValue: "insertOrderedList")
+  public static let insertCheckList = CommandType(rawValue: "insertCheckList")
   public static let removeList = CommandType(rawValue: "removeList")
 }
 
@@ -40,6 +41,12 @@ open class ListPlugin: Plugin {
       _ = editor.registerCommand(type: .insertOrderedList, listener: { [weak editor] payload in
         guard let editor else { return false }
         try? insertList(editor: editor, listType: .number, withPlaceholders: self.withPlaceholders)
+        return true
+      })
+
+      _ = editor.registerCommand(type: .insertCheckList, listener: { [weak editor] payload in
+        guard let editor else { return false }
+        try? insertList(editor: editor, listType: .check, withPlaceholders: self.withPlaceholders)
         return true
       })
 
@@ -74,7 +81,33 @@ open class ListPlugin: Plugin {
         attributes.removeValue(forKey: .strikethroughStyle)
         let bulletDrawRect = firstLineFragment.inset(by: UIEdgeInsets(top: spacingBefore, left: attributeValue.characterIndentationPixels, bottom: 0, right: 0))
 
-        attributeValue.listItemCharacter.draw(in: bulletDrawRect, withAttributes: attributes)
+        if attributeValue.listType == .check {
+          let configuration = UIImage.SymbolConfiguration(pointSize: bulletDrawRect.height, weight: .regular)
+          let theme = editor.getTheme()
+
+          let attributes: [NSAttributedString.Key : Any] = theme.listItem ?? [:]
+          let checkedAtributes: [NSAttributedString.Key : Any] = theme.checkedListItem ?? [:]
+          let uncheckedSymbolName = attributes[.checkSymbolName] as? String ?? "sqaure"
+          let checkedSymbolName = checkedAtributes[.checkSymbolName] as? String ?? "checkmark.square.fill"
+
+          let symbolName = attributeValue.isChecked ? checkedSymbolName : uncheckedSymbolName
+          if let image = UIImage(systemName: symbolName, withConfiguration: configuration) {
+
+            let foregroundColor = attributes[.foregroundColor] as? UIColor ?? UIColor.label
+            let checkedForegroundColor = checkedAtributes[.foregroundColor] as? UIColor ?? UIColor.label
+
+            let textColor = attributeValue.isChecked ? checkedForegroundColor : foregroundColor
+            let tintedImage = image.withTintColor(textColor, renderingMode: .alwaysOriginal)
+
+            let height = attributes[.checkRectHeight] as? CGFloat ?? bulletDrawRect.height
+            let imageRect = CGRect(x: bulletDrawRect.minX, y: bulletDrawRect.minY, width: height, height: height)
+            tintedImage.draw(in: imageRect)
+          }
+        } else {
+          // For bullet and number lists, use the existing drawing method
+          attributeValue.listItemCharacter.draw(in: bulletDrawRect, withAttributes: attributes)
+        }
+
       }
     } catch {
       print("\(error)")
@@ -82,5 +115,44 @@ open class ListPlugin: Plugin {
   }
 
   public func tearDown() {
+  }
+
+  public func hitTest(at point: CGPoint, lineFragmentRect: CGRect, firstCharacterRect: CGRect, attributes: [NSAttributedString.Key : Any]) -> Bool {
+    guard let listItemAttribute = attributes[.listItem] as? ListItemAttribute,
+          listItemAttribute.listType == .check else {
+      return false
+    }
+
+    let isWithinCheckboxRange = point.x < firstCharacterRect.minX - 5
+    return isWithinCheckboxRange
+  }
+
+  public func handleTap(at point: CGPoint, lineFragmentRect: CGRect, firstCharacterRect: CGRect, attributes: [NSAttributedString.Key : Any]) -> Bool {
+    guard let listItemAttribute = attributes[.listItem] as? ListItemAttribute else {
+      return false
+    }
+
+    var handled = false
+    do {
+      try editor?.update {
+        guard let editorState = getActiveEditorState(),
+              let node = editorState.getNodeMap()[listItemAttribute.itemNodeKey] as? ListItemNode else {
+          return
+        }
+
+        let isChecked = node.getIsChecked()
+        try node.setIsChecked(!isChecked)
+
+        // TODO: make this configurable
+        let impact = UIImpactFeedbackGenerator(style: .rigid)
+        impact.prepare()
+        impact.impactOccurred()
+        handled = true
+      }
+    } catch {
+      print("failed updating node: \(error)")
+    }
+
+    return handled
   }
 }
