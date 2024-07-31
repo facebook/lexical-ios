@@ -171,23 +171,23 @@ internal func insertRTF(selection: RangeSelection, attributedString: NSAttribute
 
       if (attribute.attributes.first(where: { $0.key == .font })?.value as? UIFont)?
           .fontDescriptor.symbolicTraits.contains(.traitBold) ?? false {
-        textNode.format.bold = true
+        textNode.format.insert(.bold)
       }
 
       if (attribute.attributes.first(where: { $0.key == .font })?.value as? UIFont)?
           .fontDescriptor.symbolicTraits.contains(.traitItalic) ?? false {
-        textNode.format.italic = true
+        textNode.format.insert(.italic)
       }
 
       if let underlineAttribute = attribute.attributes[.underlineStyle] {
         if underlineAttribute as? NSNumber != 0 {
-          textNode.format.underline = true
+          textNode.format.insert(.underline)
         }
       }
 
       if let strikethroughAttribute = attribute.attributes[.strikethroughStyle] {
         if strikethroughAttribute as? NSNumber != 0 {
-          textNode.format.strikethrough = true
+          textNode.format.insert(.strikethrough)
         }
       }
 
