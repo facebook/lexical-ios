@@ -371,9 +371,6 @@ public class ListItemNode: ElementNode {
         if isChecked {
           let checkedAttributes = theme.checkedListItem ?? [:]
           attributes.merge(checkedAttributes) { _, new in new }
-//          attributes[.strikethroughStyle] = NSUnderlineStyle.single.rawValue
-//          attributes[.strikethroughColor] = UIColor(named: "PinePrimary") ?? UIColor.label
-//          attributes[.foregroundColor] = UIColor.label.withAlphaComponent(0.5)
         }
       }
     }

@@ -93,10 +93,10 @@ open class ListPlugin: Plugin {
           let symbolName = attributeValue.isChecked ? checkedSymbolName : uncheckedSymbolName
           if let image = UIImage(systemName: symbolName, withConfiguration: configuration) {
 
-            let foregroundColor = attributes[.foregroundColor] as? UIColor ?? UIColor.label
-            let checkedForegroundColor = checkedAtributes[.foregroundColor] as? UIColor ?? UIColor.label
+            let checkForegroundColor = attributes[.checkForegroundColor] as? UIColor ?? UIColor.label
+            let checkedCheckForegroundColor = checkedAtributes[.checkForegroundColor] as? UIColor ?? UIColor.label
 
-            let textColor = attributeValue.isChecked ? checkedForegroundColor : foregroundColor
+            let textColor = attributeValue.isChecked ? checkedCheckForegroundColor : checkForegroundColor
             let tintedImage = image.withTintColor(textColor, renderingMode: .alwaysOriginal)
 
             let height = attributes[.checkRectHeight] as? CGFloat ?? bulletDrawRect.height
@@ -123,7 +123,7 @@ open class ListPlugin: Plugin {
       return false
     }
 
-    let isWithinCheckboxRange = point.x < firstCharacterRect.minX - 5
+    let isWithinCheckboxRange = point.x < firstCharacterRect.minX
     return isWithinCheckboxRange
   }
 

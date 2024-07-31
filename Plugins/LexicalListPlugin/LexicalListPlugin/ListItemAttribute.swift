@@ -14,6 +14,7 @@ extension NSAttributedString.Key {
   public static let checkedListItem: NSAttributedString.Key = .init(rawValue: "checked_list_item")
   public static let checkRectHeight: NSAttributedString.Key = .init(rawValue: "check_rect_height")
   public static let checkSymbolName: NSAttributedString.Key = .init(rawValue: "check_symbol_name")
+  public static let checkForegroundColor: NSAttributedString.Key = .init(rawValue: "check_foreground_color")
 }
 
 internal struct ListItemAttribute: Hashable, Equatable {
