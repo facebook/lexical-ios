@@ -34,7 +34,7 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
   private let useInputDelegateProxy: Bool
   private let inputDelegateProxy: InputDelegateProxy
 
-  fileprivate var textViewDelegate: TextViewDelegate = TextViewDelegate()
+  fileprivate var textViewDelegate: TextViewDelegate
 
   // MARK: - Init
 
@@ -64,6 +64,7 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
 
     useInputDelegateProxy = featureFlags.proxyTextViewInputDelegate
     inputDelegateProxy = InputDelegateProxy()
+    textViewDelegate = TextViewDelegate(editor: editor)
 
     super.init(frame: .zero, textContainer: textContainer)
 
@@ -422,6 +423,12 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
 }
 
 private class TextViewDelegate: NSObject, UITextViewDelegate {
+  private var editor: Editor
+
+  init(editor: Editor) {
+    self.editor = editor
+  }
+
   public func textViewDidChangeSelection(_ textView: UITextView) {
     guard let textView = textView as? TextView else { return }
 
@@ -451,11 +458,15 @@ private class TextViewDelegate: NSObject, UITextViewDelegate {
 
   public func textViewDidBeginEditing(_ textView: UITextView) {
     guard let textView = textView as? TextView else { return }
+
+    editor.dispatchCommand(type: .beginEditing)
     textView.lexicalDelegate?.textViewDidBeginEditing(textView: textView)
   }
 
   public func textViewDidEndEditing(_ textView: UITextView) {
     guard let textView = textView as? TextView else { return }
+
+    editor.dispatchCommand(type: .endEditing)
     textView.lexicalDelegate?.textViewDidEndEditing(textView: textView)
   }
 

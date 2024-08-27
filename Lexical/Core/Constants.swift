@@ -102,6 +102,8 @@ public struct CommandType: RawRepresentable, Hashable {
   }
 
   public static let selectionChange = CommandType(rawValue: "selectionChange")
+  public static let beginEditing = CommandType(rawValue: "beginEditing")
+  public static let endEditing = CommandType(rawValue: "endEditing")
   public static let click = CommandType(rawValue: "click")
   public static let deleteCharacter = CommandType(rawValue: "deleteCharacter")
   public static let insertLineBreak = CommandType(rawValue: "insertLineBreak")
