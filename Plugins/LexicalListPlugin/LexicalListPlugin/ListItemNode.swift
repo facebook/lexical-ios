@@ -79,7 +79,7 @@ public class ListItemNode: ElementNode {
   }
 
   private func isOnlyPlaceholder() -> Bool {
-    return getChildrenSize() == 1 && getFirstChild() is ListItemPlaceholderNode
+    return getChildrenSize() == 1 && getFirstChild() is PlaceholderNode
   }
 
   override public func append(_ nodesToAppend: [Node]) throws {
@@ -100,7 +100,7 @@ public class ListItemNode: ElementNode {
 
     // If we've appended nodes and the list item is now empty, add the placeholder
     if self.getChildrenSize() == 0 {
-      try super.append([ListItemPlaceholderNode()])
+      try super.append([PlaceholderNode()])
     }
   }
 
@@ -233,7 +233,7 @@ public class ListItemNode: ElementNode {
 
     let newElement = ListItemNode()
     if listNode.withPlaceholders {
-      let placeholder = ListItemPlaceholderNode()
+      let placeholder = PlaceholderNode()
       try newElement.append([placeholder])
       try placeholder.select(anchorOffset: nil, focusOffset: nil)
     } else {

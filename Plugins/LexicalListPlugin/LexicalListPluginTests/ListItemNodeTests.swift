@@ -118,7 +118,7 @@ class ListItemNodeTests: XCTestCase {
         return
       }
       XCTAssertEqual(listItemNode.getChildrenSize(), 1)
-      XCTAssertTrue(listItemNode.getFirstChild() is ListItemPlaceholderNode)
+      XCTAssertTrue(listItemNode.getFirstChild() is PlaceholderNode)
 
       // Simulate hitting enter on the empty list item
       var result = try listItemNode.insertNewAfter(selection: nil)
@@ -138,12 +138,12 @@ class ListItemNodeTests: XCTestCase {
 
       // Verify that the new list item has a placeholder
       XCTAssertEqual(newNode.getChildrenSize(), 1, "New list item should have one child")
-      XCTAssertTrue(newNode.getFirstChild() is ListItemPlaceholderNode,
+      XCTAssertTrue(newNode.getFirstChild() is PlaceholderNode,
                     "New list item should contain a placeholder")
 
       // Verify that the original list item still has its placeholder
       XCTAssertEqual(listItemNode.getChildrenSize(), 1, "Original list item should still have one child")
-      XCTAssertTrue(listItemNode.getFirstChild() is ListItemPlaceholderNode,
+      XCTAssertTrue(listItemNode.getFirstChild() is PlaceholderNode,
                     "Original list item should still contain a placeholder")
       XCTAssertTrue(listItemNode.getFirstChild()?.type == .listItemPlaceholder, "Placeholder should be listItemPlaceholder type")
 
@@ -173,7 +173,7 @@ class ListItemNodeTests: XCTestCase {
 
       // Verify that the new list item has a placeholder
       XCTAssertEqual(newNodeAfterText.getChildrenSize(), 1, "New list item after text should have one child")
-      XCTAssertTrue(newNodeAfterText.getFirstChild() is ListItemPlaceholderNode,
+      XCTAssertTrue(newNodeAfterText.getFirstChild() is PlaceholderNode,
                     "New list item after text should contain a placeholder")
     }
   }
@@ -200,7 +200,7 @@ class ListItemNodeTests: XCTestCase {
 
       try listItemNode.append([TextNode(text: "New content")])
 
-      XCTAssertFalse(listItemNode.getFirstChild() is ListItemPlaceholderNode)
+      XCTAssertFalse(listItemNode.getFirstChild() is PlaceholderNode)
       XCTAssertEqual(listItemNode.getTextContent(), "New content")
     }
   }

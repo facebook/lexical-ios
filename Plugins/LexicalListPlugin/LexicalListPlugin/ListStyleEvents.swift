@@ -51,7 +51,7 @@ private func createListOrMerge(node: ElementNode, listType: ListType, withPlaceh
 
   if node.getChildren().isEmpty {
     if withPlaceholders {
-      let placeholder = ListItemPlaceholderNode()
+      let placeholder = PlaceholderNode()
       try listItem.append([placeholder])
       try placeholder.select(anchorOffset: nil, focusOffset: nil)
     }
@@ -102,7 +102,7 @@ private func getListItemValue(listItem: ListItemNode) throws -> Int {
     if let sibling = sibling as? ListItemNode,
        let firstChild = sibling.getFirstChild(),
        !(firstChild is ListNode),
-       !(firstChild is ListItemPlaceholderNode) {
+       !(firstChild is PlaceholderNode) {
       value += 1
     }
   }
@@ -169,7 +169,7 @@ public func insertList(editor: Editor, listType: ListType, withPlaceholders: Boo
         }
 
         if withPlaceholders {
-          let placeholder = ListItemPlaceholderNode()
+          let placeholder = PlaceholderNode()
           try listItem.append([placeholder])
           try placeholder.select(anchorOffset: nil, focusOffset: nil)
         }
@@ -333,8 +333,8 @@ internal func handleIndent(_ listItemNode: ListItemNode) throws {
       try newList.append([listItemNode])
 
       // If the listItemNode is empty (contains only a placeholder), add a new placeholder to the newListItem
-      if listItemNode.getChildrenSize() == 1 && listItemNode.getFirstChild() is ListItemPlaceholderNode {
-        let placeholder = ListItemPlaceholderNode()
+      if listItemNode.getChildrenSize() == 1 && listItemNode.getFirstChild() is PlaceholderNode {
+        let placeholder = PlaceholderNode()
         try newListItem.append([placeholder])
         try placeholder.select(anchorOffset: nil, focusOffset: nil)
       }
@@ -413,7 +413,7 @@ internal func handleOutdent(_ listItemNode: ListItemNode) throws {
     }
 
     // If the listItemNode is empty (contains only a placeholder), remove it
-    if listItemNode.getChildrenSize() == 1 && listItemNode.getFirstChild() is ListItemPlaceholderNode {
+    if listItemNode.getChildrenSize() == 1 && listItemNode.getFirstChild() is PlaceholderNode {
       try listItemNode.remove()
     }
 

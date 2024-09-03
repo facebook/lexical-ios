@@ -30,7 +30,6 @@ open class ListPlugin: Plugin {
     do {
       try editor.registerNode(nodeType: NodeType.list, class: ListNode.self)
       try editor.registerNode(nodeType: NodeType.listItem, class: ListItemNode.self)
-      try editor.registerNode(nodeType: NodeType.listItemPlaceholder, class: ListItemPlaceholderNode.self)
 
       _ = editor.registerCommand(type: .insertUnorderedList, listener: { [weak editor] payload in
         guard let editor else { return false }
