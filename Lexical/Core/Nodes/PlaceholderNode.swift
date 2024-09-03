@@ -29,12 +29,18 @@ public class PlaceholderNode: TextNode {
   }
 
   override public func remove() throws {
-      let parent = getParent()
-      try super.remove()
+    let parent = getParent()
+    try super.remove()
 
-      if parent?.getChildrenSize() == 0 {
-          try parent?.remove()
+    if let parent,
+       parent.getChildrenSize() == 0 {
+      if let previousSibling = parent.getPreviousSibling() as? ElementNode,
+         let lastChild = previousSibling.getLastChild() as? ElementNode {
+        try lastChild.selectEnd()
       }
+
+      try parent.remove()
+    }
   }
 
   // Support removing from the parent without also attempting to remove the parent.
