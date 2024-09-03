@@ -861,12 +861,19 @@ public class RangeSelection: BaseSelection {
       return
     }
 
+    let currentParent = try currentElement.getParentOrThrow()
     let result = try currentElement.insertNewAfter(selection: self)
     let newElement = result.element
     if newElement == nil {
       if !result.skipLineBreak {
         // Handle as a line break insertion
         try insertLineBreak(selectStart: false)
+      } else {
+        let paragraphNode = createParagraphNode()
+        let placeholderNode = PlaceholderNode()
+        try paragraphNode.append([placeholderNode])
+        try currentParent.insertAfter(nodeToInsert: paragraphNode)
+        try placeholderNode.select(anchorOffset: nil, focusOffset: nil)
       }
     } else if let newElement = newElement as? ElementNode {
       // If we're at the beginning of the current element, move the new element to be before the current element

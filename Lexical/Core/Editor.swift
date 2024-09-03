@@ -607,8 +607,6 @@ public class Editor: NSObject {
     let isInsideNestedEditorBlock = (isEditorPresentInUpdateStack(self))
     let previousEditorStateForListeners = editorState
     var dirtyNodesForListeners = dirtyNodes
-      print("[begin update] dirty nodes for listeners: \(dirtyNodesForListeners)")
-      print("[begin update] dirtyType: \(dirtyType)")
 
     try runWithStateLexicalScopeProperties(activeEditor: self, activeEditorState: pendingEditorState, readOnlyMode: false) {
       let previouslyUpdating = self.isUpdating

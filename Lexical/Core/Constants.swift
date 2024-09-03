@@ -24,6 +24,7 @@ public struct NodeType: Hashable, RawRepresentable {
   public static let linebreak = NodeType(rawValue: "linebreak")
   public static let code = NodeType(rawValue: "code")
   public static let codeHighlight = NodeType(rawValue: "code-highlight")
+  public static let placeholder = NodeType(rawValue: "placeholder")
 }
 
 public enum Mode: String, Codable {
