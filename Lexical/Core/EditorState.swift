@@ -47,7 +47,7 @@ public class EditorState: NSObject {
     closure: () throws -> V
   ) throws -> V {
     var result: V?
-    try runWithStateLexicalScopeProperties(activeEditor: nil, activeEditorState: activeEditorState, readOnlyMode: true) {
+    try runWithStateLexicalScopeProperties(activeEditor: nil, activeEditorState: activeEditorState, readOnlyMode: true, editorUpdateReason: nil) {
       result = try closure()
     }
     guard let result else {

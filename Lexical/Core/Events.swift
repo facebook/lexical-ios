@@ -12,7 +12,7 @@ import UIKit
 // before calling onInsertTextFromUITextView().
 
 internal func onInsertTextFromUITextView(text: String, editor: Editor, updateMode: UpdateBehaviourModificationMode = UpdateBehaviourModificationMode()) throws {
-  try editor.updateWithCustomBehaviour(mode: updateMode) {
+  try editor.updateWithCustomBehaviour(mode: updateMode, reason: .update) {
     guard let selection = try getSelection() else {
       editor.log(.UITextView, .error, "Expected a selection here")
       return
@@ -164,7 +164,7 @@ func checkIfTokenOrCanTextBeInserted(node: TextNode) -> Bool {
 internal func onSelectionChange(editor: Editor) {
   // Note: we have to detect selection changes here even if an update is in progress, otherwise marked text breaks!
   do {
-    try editor.updateWithCustomBehaviour(mode: UpdateBehaviourModificationMode(suppressReconcilingSelection: true, suppressSanityCheck: true)) {
+    try editor.updateWithCustomBehaviour(mode: UpdateBehaviourModificationMode(suppressReconcilingSelection: true, suppressSanityCheck: true), reason: .update) {
       let nativeSelection = editor.getNativeSelection()
       guard let editorState = getActiveEditorState() else {
         return

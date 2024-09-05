@@ -71,6 +71,14 @@ public enum DirtyType {
   case fullReconcile
 }
 
+public enum EditorUpdateReason: String {
+  case update = "update"
+  case reset = "reset"
+  case parseState = "parseState"
+  case setState = "setState"
+  case errorRecovery = "errorRecovery"
+}
+
 @objc public enum TextFormatType: Int {
   case bold
   case italic
