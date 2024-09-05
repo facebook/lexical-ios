@@ -99,7 +99,7 @@ public class UnknownNode: Node {
 
   private(set) var data: SupportedValue = .null
 
-  override var parent: NodeKey? {
+  override public var parent: NodeKey? {
     didSet {
       if case var .object(values) = data {
         if let value = parent {

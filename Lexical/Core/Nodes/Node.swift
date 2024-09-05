@@ -21,7 +21,7 @@ open class Node: Codable {
   }
 
   public var key: NodeKey
-  var parent: NodeKey?
+  public var parent: NodeKey?
   public var version: Int
 
   public init() {
