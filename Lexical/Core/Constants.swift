@@ -77,6 +77,7 @@ public enum EditorUpdateReason: String {
   case parseState = "parseState"
   case setState = "setState"
   case errorRecovery = "errorRecovery"
+  case initialization = "initialization"
 }
 
 @objc public enum TextFormatType: Int {

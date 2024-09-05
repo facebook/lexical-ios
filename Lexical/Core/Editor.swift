@@ -67,7 +67,7 @@ public class Editor: NSObject {
           textStorage.replaceCharacters(in: NSRange(location: 0, length: textStorage.string.lengthAsNSString()), with: "")
           textStorage.mode = .none
         }
-        try? update {}
+        try? beginUpdate({}, mode: UpdateBehaviourModificationMode(), reason: .initialization)
       }
     }
   }
