@@ -509,7 +509,7 @@ open class Node: Codable {
   /// Returns the text content of the node, typically including its children.
   ///
   /// This is different from ``getTextPart()``, which just returns the text provided by this node.
-  public func getTextContent(includeInert: Bool = false, includeDirectionless: Bool = false) -> String {
+  public func getTextContent(includeInert: Bool = false, includeDirectionless: Bool = false, maxLength: Int? = nil) -> String {
     return ""
   }
 

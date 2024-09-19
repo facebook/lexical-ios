@@ -370,7 +370,7 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
     editor.dispatchCommand(type: .clearEditor)
   }
 
-  func setPlaceholderText(_ text: String, textColor: UIColor, font: UIFont) {
+  public func setPlaceholderText(_ text: String, textColor: UIColor, font: UIFont) {
     placeholderLabel.text = text
     placeholderLabel.textColor = textColor
     placeholderLabel.font = font

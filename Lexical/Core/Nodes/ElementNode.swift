@@ -354,7 +354,7 @@ open class ElementNode: Node {
     return textNodes
   }
 
-  override public func getTextContent(includeInert: Bool = false, includeDirectionless: Bool = false) -> String {
+  override public func getTextContent(includeInert: Bool = false, includeDirectionless: Bool = false, maxLength: Int? = nil) -> String {
     let children = getChildren()
     let preamble = getPreamble()
     let postamble = getPostamble()
@@ -366,6 +366,10 @@ open class ElementNode: Node {
       textContent += child.getTextContent(includeInert: includeInert, includeDirectionless: includeDirectionless)
       if child is LineBreakNode {
         textContent += child.getPostamble()
+      }
+
+      if let maxLength, textContent.lengthAsNSString() >= maxLength {
+        return String(textContent.prefix(maxLength))
       }
     }
 

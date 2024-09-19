@@ -619,14 +619,20 @@ open class TextNode: Node {
 
   override public func getTextContent(
     includeInert: Bool = false,
-    includeDirectionless: Bool = false
+    includeDirectionless: Bool = false,
+    maxLength: Int? = nil
   ) -> String {
     if (!includeInert && isInert()) || (!includeDirectionless && isDirectionless()) {
       return ""
     }
 
     let node = getLatest() as TextNode
-    return node.getTextPart()
+    let text = node.getTextPart()
+    if let maxLength {
+      return String(text.prefix(maxLength))
+    }
+    
+    return text
   }
 
   @discardableResult
