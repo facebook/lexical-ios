@@ -73,7 +73,7 @@ If you want to make programmatic changes to the content of your editor, there ar
 
 * Trigger an update with ``Editor/update(_:)``
 * Setting the editor state via ``Editor/setEditorState(_:)``
-* Applying a change as part of an existing update via ``Editor/addNodeTransform(nodeType:transform:)``
+* Applying a change as part of an existing update via ``Editor/registerNodeTransform(nodeType:transform:)``
 * Using a command listener with ``Editor/registerCommand(type:listener:priority:)``
 
 The most common way to update the editor is to use ``Editor/update(_:)``. Calling this function requires a closure to be passed in that will provide access to mutate the underlying editor state. When starting a fresh update, the current editor state is cloned and used as the starting point. From a technical perspective, this means that Lexical leverages a technique called double-buffering during updates. There's an editor state to represent what is current on the screen, and another work-in-progress editor state that represents future changes.
