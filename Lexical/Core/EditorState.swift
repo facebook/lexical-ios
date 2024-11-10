@@ -109,13 +109,15 @@ public class EditorState: NSObject {
 
    The JSON string is designed to be interoperable with Lexical JavaScript (subject to the individual node classes using matching keys).
    */
-  public func toJSON() throws -> String {
+  public func toJSON(outputFormatting: JSONEncoder.OutputFormatting = []) throws -> String {
     let string: String? = try read {
       guard let rootNode = getRootNode() else {
         throw LexicalError.invariantViolation("Could not get RootNode")
       }
       let persistedEditorState = SerializedEditorState(rootNode: rootNode)
-      let encodedData = try JSONEncoder().encode(persistedEditorState)
+      let encoder = JSONEncoder()
+      encoder.outputFormatting = outputFormatting
+      let encodedData = try encoder.encode(persistedEditorState)
       guard let jsonString = String(data: encodedData, encoding: .utf8) else { return "" }
       return jsonString
     }
