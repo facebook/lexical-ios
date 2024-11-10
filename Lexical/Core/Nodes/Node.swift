@@ -189,13 +189,6 @@ open class Node: Codable {
     return getNodeByKey(key: parent)
   }
 
-  /// Returns the parent of this node from the current state, or nil if none is found.
-  public func getParentFromCurrentState() -> ElementNode? {
-    guard let parent = parent else { return nil }
-
-    return getNodeByKey(key: parent)
-  }
-
   /// Returns a list of the keys of every ancestor of this node, all the way up to the RootNode.
   public func getParentKeys() -> [NodeKey] {
     var parents: [NodeKey] = []
