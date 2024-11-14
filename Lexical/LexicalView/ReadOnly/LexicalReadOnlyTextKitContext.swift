@@ -126,16 +126,16 @@ internal class LexicalReadOnlySizeCache {
 
   let arbitrarilyLargeHeight: CGFloat = 100000
 
-  @objc public func setTextContainerSizeWithUnlimitedHeight(forWidth width: CGFloat) {
-    setTextContainerSize(forWidth: width, maxHeight: nil)
+  @objc public func setTextContainerSizeWithUnlimitedHeight(forWidth width: CGFloat, forceRecalculation: Bool = false) {
+    setTextContainerSize(forWidth: width, maxHeight: nil, forceRecalculation: forceRecalculation)
   }
 
-  @objc public func setTextContainerSizeWithTruncation(forWidth width: CGFloat, maximumHeight maxHeight: CGFloat) {
-    setTextContainerSize(forWidth: width, maxHeight: maxHeight)
+  @objc public func setTextContainerSizeWithTruncation(forWidth width: CGFloat, maximumHeight maxHeight: CGFloat, forceRecalculation: Bool = false) {
+    setTextContainerSize(forWidth: width, maxHeight: maxHeight, forceRecalculation: forceRecalculation)
   }
 
-  private func setTextContainerSize(forWidth width: CGFloat, maxHeight: CGFloat?) {
-    if sizeCache.requiredWidth == width && sizeCache.requiredHeight == maxHeight {
+  private func setTextContainerSize(forWidth width: CGFloat, maxHeight: CGFloat?, forceRecalculation: Bool = false) {
+    if sizeCache.requiredWidth == width && sizeCache.requiredHeight == maxHeight && !forceRecalculation {
       return
     }
 
