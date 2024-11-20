@@ -93,7 +93,7 @@ open class DecoratorNode: Node {
     fatalError("sizeForDecoratorView: base method not extended")
   }
 
-  public func isTopLevel() -> Bool {
+  open func isTopLevel() -> Bool {
     return false
   }
 
@@ -101,11 +101,15 @@ open class DecoratorNode: Node {
     return false
   }
 
-  override public final func getPreamble() -> String {
+  override open func getPreamble() -> String {
     guard let unicodeScalar = Unicode.Scalar(NSTextAttachment.character) else {
       return ""
     }
     return String(Character(unicodeScalar))
+  }
+
+  override open func getPostamble() -> String {
+    return ""
   }
 
   override public func getAttributedStringAttributes(theme: Theme) -> [NSAttributedString.Key: Any] {

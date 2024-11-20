@@ -559,36 +559,6 @@ public class RangeSelection: BaseSelection {
     }
   }
   
-  /// Decorator block nodes can only be direct descendants of the root element.
-  /// Anchor node can be any node, we will determine point of insertion with the help of anchor node and anchor offset
-  /// - Returns: true if node recognized and inserted, false otherwise
-  private func handleDecoratorBlockNode(_ nodes: [Node], _ anchorNode: Node, _ anchorOffset: Int) -> Bool {
-    if nodes.count == 1, let decoratorBlockNode = nodes.first as? DecoratorBlockNode {
-      guard let root = getRoot() else { return false }
-      var insertedNode: Node?
-      let parents = anchorNode.getParents()
-      switch parents.count {
-      case 0: // anchor node is root
-        if root.getChildren().count > anchorOffset {
-          try? insertedNode = root.getChildren()[anchorOffset].insertAfter(nodeToInsert: decoratorBlockNode)
-        } else {
-          try? root.append([decoratorBlockNode])
-        }
-      case 1: // anchor node is a root child, insert block after it
-        try? insertedNode = anchorNode.insertAfter(nodeToInsert: decoratorBlockNode)
-      default: // anchor node is in an element node, find a last ancestor before root and insert block after it
-        try? insertedNode = parents[parents.count-2].insertAfter(nodeToInsert: decoratorBlockNode)
-      }
-      // TODO what do we want to do with the cursor after we've inserted a block?
-      // leaving it where it was is weird (it would remain before the block)
-      // putting it right after is also weird, it would be as high as the block
-      // perhaps the most elegant solution is inserting a paragraph right below it?
-      try? insertedNode?.selectNext(anchorOffset: nil, focusOffset: nil)
-      return true
-    }
-    return false
-  }
-  
   @discardableResult
   public func insertNodes(nodes: [Node], selectStart: Bool = false) throws -> Bool {
     if !isCollapsed() {
@@ -599,11 +569,6 @@ public class RangeSelection: BaseSelection {
     let anchorOffset = anchor.offset
     let anchorNode = try anchor.getNode()
     var target = anchorNode
-
-    let handled = handleDecoratorBlockNode(nodes, anchorNode, anchorOffset)
-    if handled {
-      return true
-    }
     
     if anchor.type == .element {
       if let element = try anchor.getNode() as? ElementNode {
@@ -618,7 +583,7 @@ public class RangeSelection: BaseSelection {
     var siblings: [Node] = []
 
     let nextSiblings = anchorNode.getNextSiblings()
-    let topLevelElement = anchorNode.getTopLevelElementOrThrow()
+    let topLevelElement = anchorNode.getTopLevelElement() ?? anchorNode
 
     if let anchorNode = anchorNode as? TextNode {
       let textContent = anchorNode.getTextPart()
@@ -654,6 +619,24 @@ public class RangeSelection: BaseSelection {
     var didReplaceOrMerge = false
 
     for node in nodes {
+
+      if let node = node as? DecoratorNode {
+        if node == firstNode && node.isTopLevel() {
+          if let unwrappedTarget = target as? ElementNode,
+             unwrappedTarget.isEmpty() &&
+             unwrappedTarget.canReplaceWith(replacement: node) &&
+             isRootNode(node: unwrappedTarget.getParent()) {
+            try target.replace(replaceWith: node)
+            target = node
+            didReplaceOrMerge = true
+            continue
+          }
+        }
+        if !isRootNode(node: topLevelElement) {
+          target = topLevelElement
+        }
+      }
+
       if let node = node as? ElementNode {
         if node == firstNode {
           if let unwrappedTarget = target as? ElementNode,
@@ -709,8 +692,12 @@ public class RangeSelection: BaseSelection {
       didReplaceOrMerge = false
 
       if let unwrappedTarget = target as? ElementNode {
-        if let node = node as? DecoratorNode, node.isTopLevel() {
-          target = try target.insertAfter(nodeToInsert: node)
+        if isTopLevelDecoratorNode(node) {
+          if let root = target as? RootNode {
+            try root.append([node])
+          } else {
+            target = try target.insertAfter(nodeToInsert: node)
+          }
         } else if !isElementNode(node: node) {
           if let firstChild = unwrappedTarget.getFirstChild() {
             try firstChild.insertBefore(nodeToInsert: node)
@@ -728,8 +715,7 @@ public class RangeSelection: BaseSelection {
             target = try target.insertAfter(nodeToInsert: node)
           }
         }
-      } else if !isElementNode(node: node) ||
-                  isDecoratorNode(node) && (node as? DecoratorNode)?.isTopLevel() == true {
+      } else if isTopLevelDecoratorNode(node) {
         target = try target.insertAfter(nodeToInsert: node)
       } else {
         target = try node.getParentOrThrow() // Re-try again with the target being the parent

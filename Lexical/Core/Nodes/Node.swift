@@ -77,14 +77,14 @@ open class Node: Codable {
   /// Provides the **preamble** part of the node's content. Typically the preamble is used for control characters to represent embedded objects (see ``DecoratorNode``).
   ///
   /// In Lexical iOS, a node's content is split into four parts: preamble, children, text, postamble. ``ElementNode`` subclasses can implement preamble/postamble, and TextNode subclasses can implement the text part.
-  public func getPreamble() -> String {
+  open func getPreamble() -> String {
     return ""
   }
 
   /// Provides the **postamble** part of the node's content. Typically the postamble is used for paragraph-trailing newlines.
   ///
   /// In Lexical iOS, a node's content is split into four parts: preamble, children, text, postamble. ``ElementNode`` subclasses can implement preamble/postamble, and TextNode subclasses can implement the text part.
-  public func getPostamble() -> String {
+  open func getPostamble() -> String {
     return ""
   }
 

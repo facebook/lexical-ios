@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Lexical
 import UIKit
 
 extension NodeType {
@@ -42,4 +43,12 @@ open class DecoratorBlockNode: DecoratorNode {
     return CGSizeMake(textViewWidth, 50)
   }
   
+  open override func isTopLevel() -> Bool {
+    return true
+  }
+  
+  override open func getPostamble() -> String {
+    return "\n"
+  }
+
 }
