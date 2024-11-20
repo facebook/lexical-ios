@@ -558,7 +558,7 @@ public class RangeSelection: BaseSelection {
       }
     }
   }
-  
+
   @discardableResult
   public func insertNodes(nodes: [Node], selectStart: Bool = false) throws -> Bool {
     if !isCollapsed() {
@@ -569,7 +569,7 @@ public class RangeSelection: BaseSelection {
     let anchorOffset = anchor.offset
     let anchorNode = try anchor.getNode()
     var target = anchorNode
-    
+
     if anchor.type == .element {
       if let element = try anchor.getNode() as? ElementNode {
         if let placementNode = element.getChildAtIndex(index: anchorOffset - 1) {
