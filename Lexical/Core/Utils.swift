@@ -202,6 +202,13 @@ public func isDecoratorNode(_ node: Node?) -> Bool {
   node is DecoratorNode
 }
 
+public func isTopLevelDecoratorNode(_ node: Node?) -> Bool {
+  if let node = node as? DecoratorNode, node.isTopLevel() {
+    return true
+  }
+  return false  
+}
+
 // TODO: - update function when we add LineBreakNode and DecoratorNode
 public func isLeafNode(_ node: Node?) -> Bool {
   node is TextNode || node is LineBreakNode

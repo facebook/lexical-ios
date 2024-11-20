@@ -35,11 +35,11 @@ public class RootNode: ElementNode {
 
   // Root nodes cannot have a preamble. If they did, there would be no way to make a selection of the
   // beginning of the document. The same applies to postamble.
-  override public final func getPreamble() -> String {
+  override open func getPreamble() -> String {
     return ""
   }
 
-  override public final func getPostamble() -> String {
+  override open func getPostamble() -> String {
     return ""
   }
 

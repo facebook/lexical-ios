@@ -12,6 +12,7 @@ import LexicalInlineImagePlugin
 import LexicalLinkPlugin
 import LexicalListPlugin
 import SelectableDecoratorNode
+import DecoratorBlockNode
 import UIKit
 
 public class ToolbarPlugin: Plugin {
@@ -99,6 +100,7 @@ public class ToolbarPlugin: Plugin {
   var increaseIndentButton: UIBarButtonItem?
   var decreaseIndentButton: UIBarButtonItem?
   var insertImageButton: UIBarButtonItem?
+  var insertBlockButton: UIBarButtonItem?
 
   private func setUpToolbar() {
     let undo = UIBarButtonItem(image: UIImage(systemName: "arrow.uturn.backward"),
@@ -140,7 +142,13 @@ public class ToolbarPlugin: Plugin {
     let insertImage = UIBarButtonItem(image: UIImage(systemName: "photo"), menu: self.imageMenu)
     self.insertImageButton = insertImage
 
-    toolbar.items = [undo, redo, paragraph, styling, link, decreaseIndent, increaseIndent, insertImage]
+    let insertBlock = UIBarButtonItem(image: UIImage(systemName: "rectangle.fill"),
+                                          style: .plain,
+                                          target: self,
+                                          action: #selector(block))
+    self.insertBlockButton = insertBlock
+    
+    toolbar.items = [undo, redo, paragraph, styling, link, decreaseIndent, increaseIndent, insertImage, insertBlock]
   }
 
   private enum ParagraphMenuSelectedItemType {
@@ -348,6 +356,14 @@ public class ToolbarPlugin: Plugin {
   }
   @objc private func link() {
     showLinkEditor()
+  }
+  @objc private func block() {
+    try? editor?.update {
+      let blockNode = DecoratorBlockNode()
+      if let selection = try getSelection() {
+        _ = try selection.insertNodes(nodes: [blockNode], selectStart: false)
+      }
+    }
   }
   @objc private func increaseIndent() {
     editor?.dispatchCommand(type: .indentContent, payload: nil)

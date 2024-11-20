@@ -583,7 +583,7 @@ public class RangeSelection: BaseSelection {
     var siblings: [Node] = []
 
     let nextSiblings = anchorNode.getNextSiblings()
-    let topLevelElement = anchorNode.getTopLevelElementOrThrow()
+    let topLevelElement = anchorNode.getTopLevelElement() ?? anchorNode
 
     if let anchorNode = anchorNode as? TextNode {
       let textContent = anchorNode.getTextPart()
@@ -619,6 +619,24 @@ public class RangeSelection: BaseSelection {
     var didReplaceOrMerge = false
 
     for node in nodes {
+
+      if let node = node as? DecoratorNode {
+        if node == firstNode && node.isTopLevel() {
+          if let unwrappedTarget = target as? ElementNode,
+             unwrappedTarget.isEmpty() &&
+             unwrappedTarget.canReplaceWith(replacement: node) &&
+             isRootNode(node: unwrappedTarget.getParent()) {
+            try target.replace(replaceWith: node)
+            target = node
+            didReplaceOrMerge = true
+            continue
+          }
+        }
+        if !isRootNode(node: topLevelElement) {
+          target = topLevelElement
+        }
+      }
+
       if let node = node as? ElementNode {
         if node == firstNode {
           if let unwrappedTarget = target as? ElementNode,
@@ -674,8 +692,12 @@ public class RangeSelection: BaseSelection {
       didReplaceOrMerge = false
 
       if let unwrappedTarget = target as? ElementNode {
-        if let node = node as? DecoratorNode, node.isTopLevel() {
-          target = try target.insertAfter(nodeToInsert: node)
+        if isTopLevelDecoratorNode(node) {
+          if let root = target as? RootNode {
+            try root.append([node])
+          } else {
+            target = try target.insertAfter(nodeToInsert: node)
+          }
         } else if !isElementNode(node: node) {
           if let firstChild = unwrappedTarget.getFirstChild() {
             try firstChild.insertBefore(nodeToInsert: node)
@@ -693,8 +715,7 @@ public class RangeSelection: BaseSelection {
             target = try target.insertAfter(nodeToInsert: node)
           }
         }
-      } else if !isElementNode(node: node) ||
-                  isDecoratorNode(node) && (node as? DecoratorNode)?.isTopLevel() == true {
+      } else if isTopLevelDecoratorNode(node) {
         target = try target.insertAfter(nodeToInsert: node)
       } else {
         target = try node.getParentOrThrow() // Re-try again with the target being the parent

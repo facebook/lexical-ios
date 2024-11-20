@@ -34,6 +34,9 @@ let package = Package(
       name: "SelectableDecoratorNode",
       targets: ["SelectableDecoratorNode"]),
     .library(
+      name: "DecoratorBlockNode",
+      targets: ["DecoratorBlockNode"]),
+    .library(
       name: "EditorHistoryPlugin",
       targets: ["EditorHistoryPlugin"]),
     .library(
@@ -98,6 +101,11 @@ let package = Package(
       name: "SelectableDecoratorNode",
       dependencies: ["Lexical"],
       path: "./Plugins/SelectableDecoratorNode/SelectableDecoratorNode"),
+    
+    .target(
+      name: "DecoratorBlockNode",
+      dependencies: ["Lexical"],
+      path: "./Plugins/DecoratorBlockNode/DecoratorBlockNode"),
 
     .target(
       name: "EditorHistoryPlugin",

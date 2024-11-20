@@ -24,6 +24,7 @@
 		06F7CF942A542E4E0024CD5A /* LexicalInlineImagePlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 06F7CF932A542E4E0024CD5A /* LexicalInlineImagePlugin */; };
 		06F7CF962A545C7C0024CD5A /* lexical-logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 06F7CF952A545C7C0024CD5A /* lexical-logo.png */; };
 		3C48FEE42B04F2C5009BBFA2 /* LexicalMarkdown in Frameworks */ = {isa = PBXBuildFile; productRef = 3C48FEE32B04F2C5009BBFA2 /* LexicalMarkdown */; };
+		7F15C9D82CECC47F0013B5FB /* DecoratorBlockNode in Frameworks */ = {isa = PBXBuildFile; productRef = 7F15C9D72CECC47F0013B5FB /* DecoratorBlockNode */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +50,7 @@
 				3C48FEE42B04F2C5009BBFA2 /* LexicalMarkdown in Frameworks */,
 				065B5C862A22291C003A38DB /* SelectableDecoratorNode in Frameworks */,
 				069E59DB2A1EBF1700CA4296 /* LexicalHTML in Frameworks */,
+				7F15C9D82CECC47F0013B5FB /* DecoratorBlockNode in Frameworks */,
 				065F9DF72A5EC1D600C95087 /* EditorHistoryPlugin in Frameworks */,
 				069E59DF2A1F7EFB00CA4296 /* LexicalListHTMLSupport in Frameworks */,
 				0630DC162A2F624D009EB23B /* LexicalLinkPlugin in Frameworks */,
@@ -136,6 +138,7 @@
 				065B5C852A22291C003A38DB /* SelectableDecoratorNode */,
 				065F9DF62A5EC1D600C95087 /* EditorHistoryPlugin */,
 				3C48FEE32B04F2C5009BBFA2 /* LexicalMarkdown */,
+				7F15C9D72CECC47F0013B5FB /* DecoratorBlockNode */,
 			);
 			productName = LexicalPlayground;
 			productReference = 0656CF7529D1E438009CA08F /* LexicalPlayground.app */;
@@ -450,9 +453,13 @@
 			productName = LexicalInlineImagePlugin;
 		};
 		3C48FEE32B04F2C5009BBFA2 /* LexicalMarkdown */ = {
- 			isa = XCSwiftPackageProductDependency;
- 			productName = LexicalMarkdown;
- 		};
+			isa = XCSwiftPackageProductDependency;
+			productName = LexicalMarkdown;
+		};
+		7F15C9D72CECC47F0013B5FB /* DecoratorBlockNode */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DecoratorBlockNode;
+		};
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0656CF6D29D1E438009CA08F /* Project object */;
