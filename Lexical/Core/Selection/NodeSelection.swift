@@ -133,7 +133,7 @@ public class NodeSelection: BaseSelection {
     }
     let anchor = Point(key: parent.getKey(), offset: nodeIndexInParent, type: .element)
     let focus = Point(key: parent.getKey(), offset: nodeIndexInParent + 1, type: .element)
-    return RangeSelection(anchor: anchor, focus: focus, format: TextFormat())
+    return RangeSelection(anchor: anchor, focus: focus, format: TextFormatType())
   }
 }
 
