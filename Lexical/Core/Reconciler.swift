@@ -317,13 +317,15 @@ internal enum Reconciler {
       reconcilerState.decoratorsToDecorate.append(key)
     }
 
-    // if the next node has a sibling, and it's a decorator, we need to decorate it to handle any repositioning
-    if let nextSibling = nextNode.getNextSibling() {
+    // for any decorator node siblings after the next node we need to decorate it to handle any repositioning
+    var nextSibling = nextNode.getNextSibling()
+    while nextSibling != nil {
       if let nextSibling = nextSibling as? DecoratorBlockNode {
         reconcilerState.decoratorsToDecorate.append(nextSibling.getDecoratorNode().key)
       } else if let nextSibling = nextSibling as? DecoratorNode {
         reconcilerState.decoratorsToDecorate.append(nextSibling.key)
       }
+      nextSibling = nextSibling?.getNextSibling()
     }
 
     let nextTextLength = nextNode.getTextPart().lengthAsNSString()
