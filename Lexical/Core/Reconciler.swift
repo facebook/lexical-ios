@@ -317,6 +317,15 @@ internal enum Reconciler {
       reconcilerState.decoratorsToDecorate.append(key)
     }
 
+    // if the next node has a sibling, and it's a decorator, we need to decorate it to handle any repositioning
+    if let nextSibling = nextNode.getNextSibling() {
+      if let nextSibling = nextSibling as? DecoratorBlockNode {
+        reconcilerState.decoratorsToDecorate.append(nextSibling.getDecoratorNode().key)
+      } else if let nextSibling = nextSibling as? DecoratorNode {
+        reconcilerState.decoratorsToDecorate.append(nextSibling.key)
+      }
+    }
+
     let nextTextLength = nextNode.getTextPart().lengthAsNSString()
     createAddRemoveRanges(
       key: key,

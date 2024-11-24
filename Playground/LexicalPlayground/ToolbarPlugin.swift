@@ -12,8 +12,40 @@ import LexicalInlineImagePlugin
 import LexicalLinkPlugin
 import LexicalListPlugin
 import SelectableDecoratorNode
-import DecoratorBlockNode
 import UIKit
+
+class SampleDecoratorBlockNode: DecoratorBlockNode {
+  override func createDecoratorNode() -> DecoratorNode {
+    return SampleDecoratorNode()
+  }
+}
+
+extension NodeType {
+  static let sampleDecorator = NodeType(rawValue: "sampleDecorator")
+}
+
+class SampleDecoratorNode: DecoratorNode {
+
+  override public class func getType() -> NodeType {
+    return .sampleDecorator
+  }
+
+  override public func createView() -> UILabel {
+    let view = UILabel(frame: CGRect(origin: CGPoint.zero, size: CGSizeMake(50, 50)))
+    return view
+  }
+
+  override open func decorate(view: UIView) {
+    view.backgroundColor = .lightGray
+  }
+
+  open override func sizeForDecoratorView(
+    textViewWidth: CGFloat, attributes: [NSAttributedString.Key: Any]
+  ) -> CGSize {
+    return CGSizeMake(textViewWidth, 50)
+  }
+
+}
 
 public class ToolbarPlugin: Plugin {
   private var _toolbar: UIToolbar
@@ -100,7 +132,7 @@ public class ToolbarPlugin: Plugin {
   var increaseIndentButton: UIBarButtonItem?
   var decreaseIndentButton: UIBarButtonItem?
   var insertImageButton: UIBarButtonItem?
-  var insertBlockButton: UIBarButtonItem?
+  var insertSampleDecoratorBlock: UIBarButtonItem?
 
   private func setUpToolbar() {
     let undo = UIBarButtonItem(image: UIImage(systemName: "arrow.uturn.backward"),
@@ -142,13 +174,13 @@ public class ToolbarPlugin: Plugin {
     let insertImage = UIBarButtonItem(image: UIImage(systemName: "photo"), menu: self.imageMenu)
     self.insertImageButton = insertImage
 
-    let insertBlock = UIBarButtonItem(image: UIImage(systemName: "rectangle.fill"),
+    let insertSampleDecoratorBlock = UIBarButtonItem(image: UIImage(systemName: "rectangle.fill"),
                                           style: .plain,
                                           target: self,
-                                          action: #selector(block))
-    self.insertBlockButton = insertBlock
-    
-    toolbar.items = [undo, redo, paragraph, styling, link, decreaseIndent, increaseIndent, insertImage, insertBlock]
+                                          action: #selector(sampleDecoratorBlock))
+    self.insertSampleDecoratorBlock = insertSampleDecoratorBlock
+
+    toolbar.items = [undo, redo, paragraph, styling, link, decreaseIndent, increaseIndent, insertImage, insertSampleDecoratorBlock]
   }
 
   private enum ParagraphMenuSelectedItemType {
@@ -357,13 +389,9 @@ public class ToolbarPlugin: Plugin {
   @objc private func link() {
     showLinkEditor()
   }
-  @objc private func block() {
-    try? editor?.update {
-      let blockNode = DecoratorBlockNode()
-      if let selection = try getSelection() {
-        _ = try selection.insertNodes(nodes: [blockNode], selectStart: false)
-      }
-    }
+  @objc private func sampleDecoratorBlock() {
+    guard let editor else { return }
+    try? insertDecoratorBlock(editor: editor, decoratorBlock: SampleDecoratorBlockNode.self)
   }
   @objc private func increaseIndent() {
     editor?.dispatchCommand(type: .indentContent, payload: nil)

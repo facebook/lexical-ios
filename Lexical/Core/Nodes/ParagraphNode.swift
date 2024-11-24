@@ -7,12 +7,12 @@
 
 import UIKit
 
-public class ParagraphNode: ElementNode {
+open class ParagraphNode: ElementNode {
   override public init() {
     super.init()
   }
 
-  override required init(_ key: NodeKey?) {
+  public override required init(_ key: NodeKey?) {
     super.init(key)
   }
 
@@ -20,7 +20,7 @@ public class ParagraphNode: ElementNode {
     try super.init(from: decoder)
   }
 
-  override public class func getType() -> NodeType {
+  override open class func getType() -> NodeType {
     return .paragraph
   }
 
@@ -28,7 +28,7 @@ public class ParagraphNode: ElementNode {
     Self(key)
   }
 
-  override public func getAttributedStringAttributes(theme: Theme) -> [NSAttributedString.Key: Any] {
+  override open func getAttributedStringAttributes(theme: Theme) -> [NSAttributedString.Key: Any] {
     if let paragraph = theme.paragraph {
       return paragraph
     }
@@ -48,7 +48,7 @@ public class ParagraphNode: ElementNode {
     return .init(element: newElement)
   }
 
-  public func createParagraphNode() -> ParagraphNode {
+  open func createParagraphNode() -> ParagraphNode {
     return ParagraphNode()
   }
 }

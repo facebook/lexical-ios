@@ -20,7 +20,7 @@ open class ElementNode: Node {
   var direction: Direction?
   var indent: Int = 0
 
-  func getDirection() -> Direction? {
+  open func getDirection() -> Direction? {
     return direction
   }
 
@@ -84,7 +84,7 @@ open class ElementNode: Node {
   }
 
   @discardableResult
-  func setDirection(direction: Direction?) throws -> ElementNode {
+  open func setDirection(direction: Direction?) throws -> ElementNode {
     try errorOnReadOnly()
     let node = try getWritable() as ElementNode
     node.direction = direction

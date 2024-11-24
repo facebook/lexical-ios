@@ -90,7 +90,7 @@ public enum EditorUpdateReason: String {
   case superScript
 }
 
-enum Direction: String, Codable {
+public enum Direction: String, Codable {
   case ltr
   case rtl
 }
