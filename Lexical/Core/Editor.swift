@@ -230,7 +230,7 @@ public class Editor: NSObject {
 
     return { [weak self] in
       guard let self else { return }
-      self.listeners.update.removeValue(forKey: uuid)
+      self.listeners.errors.removeValue(forKey: uuid)
     }
   }
 
