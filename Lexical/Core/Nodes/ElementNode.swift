@@ -260,7 +260,7 @@ open class ElementNode: Node {
     return true
   }
 
-  open func isInline() -> Bool {
+  override open func isInline() -> Bool {
     return false
   }
 
@@ -304,8 +304,7 @@ open class ElementNode: Node {
       return ""
     }
 
-    guard prevSibling is ElementNode else {
-      // prev is not an element node. Treat it as inline (TODO: inline handling in decorators)
+    guard !prevSibling.isInline() else {
       // Since prev is inline but not an element node, and we're not inline, return a newline
       return "\n"
     }
@@ -321,8 +320,8 @@ open class ElementNode: Node {
       // we have no next sibling, return "" no matter whether we're inline or not
       return ""
     } else if isInline() {
-      if let nextSiblingAsElement = nextSibling as? ElementNode, !nextSiblingAsElement.isInline() {
-        // we're inline but the next sibling is an element but is not inline
+      if let nextSibling, !nextSibling.isInline() {
+        // we're inline but the next sibling is not inline
         return "\n"
       } else {
         // we're inline, next sibling is either a text node or inline

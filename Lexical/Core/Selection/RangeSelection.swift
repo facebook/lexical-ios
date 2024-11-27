@@ -456,8 +456,15 @@ public class RangeSelection: BaseSelection {
       }
 
       // Handle mutations to the last node.
-      if (endPoint.type == .text && (endOffset != 0 || (lastNode?.getTextContent().lengthAsNSString() == 0))) ||
-          (endPoint.type == .element && lastNode?.getIndexWithinParent() ?? 0 < endOffset) {
+      let shouldModifyTextNode =
+        endPoint.type == .text
+        && (endOffset != 0 || (lastNode?.getTextContent().lengthAsNSString() == 0))
+      let shouldModifyElementNode =
+        endPoint.type == .element && (lastNode?.getIndexWithinParent() ?? 0 < endOffset)
+      let shouldModifyDecoratorNode = !isDecoratorBlockNode(lastNode)
+
+      if (shouldModifyTextNode || shouldModifyElementNode) && !isDecoratorNode(lastNode) {
+
         if let lastNodeAsTextNode = lastNode as? TextNode,
            !lastNodeAsTextNode.isToken(),
            endOffset != lastNodeAsTextNode.getTextContentSize() {
@@ -491,7 +498,7 @@ public class RangeSelection: BaseSelection {
       // Either move the remaining nodes of the last parent to after
       // the first child, or remove them entirely. If the last parent
       // is the same as the first parent, this logic also works.
-      let lastNodeChildren = lastElement?.getChildren() ?? []
+      let lastElementChildren = lastElement?.getChildren() ?? []
       let selectedNodesSet = Set(selectedNodes)
       let firstAndLastElementsAreEqual = firstElement == lastElement
 
@@ -501,10 +508,19 @@ public class RangeSelection: BaseSelection {
       // we will incorrectly merge into the starting parent element.
       // TODO: should we keep on traversing parents if we're inside another
       // nested inline element?
-      let insertionTarget = firstElement.isInline() && firstNode.getNextSibling() == nil ? firstElement : firstNode
+      var insertionTarget =
+        firstElement.isInline() && firstNode.getNextSibling() == nil ? firstElement : firstNode
 
-      for (_, lastNodeChild) in lastNodeChildren.enumerated().reversed() {
-        if lastNodeChild.isSameNode(firstNode) || ((lastNodeChild as? ElementNode)?.isParentOf(firstNode) ?? false) {
+      if isRootNode(node: lastElement) && isTextNode(insertionTarget) {
+        insertionTarget = try insertionTarget.getParentOrThrow()
+      }
+
+      for (index, lastNodeChild) in lastElementChildren.enumerated().reversed() {
+        if lastNodeChild.isSameNode(firstNode) {
+          break
+        }
+
+        if let elementChild = lastNodeChild as? ElementNode, elementChild.isParentOf(firstNode) {
           break
         }
 
@@ -685,7 +701,7 @@ public class RangeSelection: BaseSelection {
       didReplaceOrMerge = false
 
       if let unwrappedTarget = target as? ElementNode {
-        if let node = node as? DecoratorNode, node.isTopLevel() {
+        if let node = node as? DecoratorNode, !node.isInline() {
           target = try target.insertAfter(nodeToInsert: node)
         } else if !isElementNode(node: node) {
           if let firstChild = unwrappedTarget.getFirstChild() {
@@ -704,8 +720,7 @@ public class RangeSelection: BaseSelection {
             target = try target.insertAfter(nodeToInsert: node)
           }
         }
-      } else if !isElementNode(node: node) ||
-                        isDecoratorNode(node) && (node as? DecoratorNode)?.isTopLevel() == true {
+      } else if !isElementNode(node: node) || isDecoratorBlockNode(node) {
         target = try target.insertAfter(nodeToInsert: node)
       } else {
         target = try node.getParentOrThrow() // Re-try again with the target being the parent

@@ -74,6 +74,10 @@ open class Node: Codable {
     }
   }
 
+  open func isInline() -> Bool {
+    return true
+  }
+
   /// Provides the **preamble** part of the node's content. Typically the preamble is used for control characters to represent embedded objects (see ``DecoratorNode``).
   ///
   /// In Lexical iOS, a node's content is split into four parts: preamble, children, text, postamble. ``ElementNode`` subclasses can implement preamble/postamble, and TextNode subclasses can implement the text part.

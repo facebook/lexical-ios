@@ -45,6 +45,10 @@ class SampleDecoratorNode: DecoratorNode {
     return CGSizeMake(textViewWidth, 50)
   }
 
+  override open func isInline() -> Bool {
+    return false
+  }
+
 }
 
 public class ToolbarPlugin: Plugin {
@@ -391,7 +395,13 @@ public class ToolbarPlugin: Plugin {
   }
   @objc private func sampleDecoratorBlock() {
     guard let editor else { return }
-    try? insertDecoratorBlock(editor: editor, decoratorBlock: SampleDecoratorBlockNode.self)
+    try? editor.update {
+      let sampleDecoratorNode = SampleDecoratorNode()
+      if let selection = try getSelection() {
+        _ = try selection.insertNodes(nodes: [sampleDecoratorNode], selectStart: false)
+      }
+    }
+//    try? insertDecoratorBlock(editor: editor, decoratorBlock: SampleDecoratorBlockNode.self)
   }
   @objc private func increaseIndent() {
     editor?.dispatchCommand(type: .indentContent, payload: nil)

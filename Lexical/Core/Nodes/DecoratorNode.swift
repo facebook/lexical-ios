@@ -93,10 +93,6 @@ open class DecoratorNode: Node {
     fatalError("sizeForDecoratorView: base method not extended")
   }
 
-  open func isTopLevel() -> Bool {
-    return false
-  }
-
   public func isIsolated() -> Bool {
     return false
   }
