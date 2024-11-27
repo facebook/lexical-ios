@@ -108,6 +108,41 @@ open class DecoratorNode: Node {
     return ""
   }
 
+  // TODO: I tried copying this from element node but it doesn't look like it's getting called
+  @discardableResult
+  public func select(anchorOffset: Int?, focusOffset: Int?) throws -> RangeSelection {
+    try errorOnReadOnly()
+
+    let selection = try getSelection()
+    let childrenCount = 0
+    var updatedAnchorOffset = childrenCount
+    var updatedFocusOffset = childrenCount
+
+    if let anchorOffset {
+      updatedAnchorOffset = anchorOffset
+    }
+
+    if let focusOffset {
+      updatedFocusOffset = focusOffset
+    }
+
+    guard let selection = selection as? RangeSelection else {
+      return try makeRangeSelection(
+        anchorKey: key,
+        anchorOffset: updatedAnchorOffset,
+        focusKey: key,
+        focusOffset: updatedFocusOffset,
+        anchorType: .element,
+        focusType: .element)
+    }
+
+    selection.anchor.updatePoint(key: key, offset: updatedAnchorOffset, type: .element)
+    selection.focus.updatePoint(key: key, offset: updatedFocusOffset, type: .element)
+    selection.dirty = true
+
+    return selection
+  }
+
   override public func getAttributedStringAttributes(theme: Theme) -> [NSAttributedString.Key: Any] {
     let textAttachment = TextAttachment()
 
