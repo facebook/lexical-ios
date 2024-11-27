@@ -93,14 +93,6 @@ open class DecoratorNode: Node {
     fatalError("sizeForDecoratorView: base method not extended")
   }
 
-  open func isTopLevel() -> Bool {
-    return false
-  }
-
-  public func isIsolated() -> Bool {
-    return false
-  }
-
   override open func getPreamble() -> String {
     guard let unicodeScalar = Unicode.Scalar(NSTextAttachment.character) else {
       return ""
@@ -110,6 +102,32 @@ open class DecoratorNode: Node {
 
   override open func getPostamble() -> String {
     return ""
+  }
+
+  @discardableResult
+  public func selectStart() throws -> RangeSelection {
+    guard let indexWithinParent = getIndexWithinParent() else {
+      throw LexicalError.invariantViolation("DecoratorNode has no parent")
+    }
+
+    let parent = try getParentOrThrow()
+    let selectionIndex = max(0, indexWithinParent - 1)
+    if selectionIndex == 0 {
+      return try selectPrevious(anchorOffset: nil, focusOffset: nil)
+    }
+
+    return try parent.select(anchorOffset: selectionIndex, focusOffset: selectionIndex)
+  }
+
+  @discardableResult
+  public func selectEnd() throws -> RangeSelection {
+    guard let indexWithinParent = getIndexWithinParent() else {
+      throw LexicalError.invariantViolation("DecoratorNode has no parent")
+    }
+
+    let parent = try getParentOrThrow()
+    let selectionIndex = indexWithinParent + 1
+    return try parent.select(anchorOffset: selectionIndex, focusOffset: selectionIndex)
   }
 
   override public func getAttributedStringAttributes(theme: Theme) -> [NSAttributedString.Key: Any] {
@@ -122,4 +140,17 @@ open class DecoratorNode: Node {
 
     return [.attachment: textAttachment]
   }
+
+  @discardableResult
+  open func collapseAtStart(selection: RangeSelection) throws -> Bool {
+    if !isInline() {
+      let paragraph = createParagraphNode()
+      try replace(replaceWith: paragraph)
+      try paragraph.selectStart()
+      return true
+    }
+
+    return false
+  }
+
 }

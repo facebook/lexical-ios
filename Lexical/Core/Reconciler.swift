@@ -320,9 +320,7 @@ internal enum Reconciler {
     // for any decorator node siblings after the next node we need to decorate it to handle any repositioning
     var nextSibling = nextNode.getNextSibling()
     while nextSibling != nil {
-      if let nextSibling = nextSibling as? DecoratorBlockNode {
-        reconcilerState.decoratorsToDecorate.append(nextSibling.getDecoratorNode().key)
-      } else if let nextSibling = nextSibling as? DecoratorNode {
+      if let nextSibling = nextSibling as? DecoratorNode {
         reconcilerState.decoratorsToDecorate.append(nextSibling.key)
       }
       nextSibling = nextSibling?.getNextSibling()

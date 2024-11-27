@@ -265,11 +265,6 @@ public class RangeSelection: BaseSelection {
     let style = style
     let anchorNode = try anchor.getNode()
 
-    if anchorNode is DecoratorBlockNode {
-      // we're not allowing inserting text into decorator block node
-      return
-    }
-    
     if isBefore && anchor.type == .element {
       try transferStartingElementPointToTextPoint(start: anchor, end: focus, format: format, style: style)
     } else if !isBefore && focus.type == .element {
@@ -456,8 +451,14 @@ public class RangeSelection: BaseSelection {
       }
 
       // Handle mutations to the last node.
-      if (endPoint.type == .text && (endOffset != 0 || (lastNode?.getTextContent().lengthAsNSString() == 0))) ||
-          (endPoint.type == .element && lastNode?.getIndexWithinParent() ?? 0 < endOffset) {
+      let shouldModifyTextNode =
+        endPoint.type == .text
+        && (endOffset != 0 || (lastNode?.getTextContent().lengthAsNSString() == 0))
+      let shouldModifyElementNode =
+        endPoint.type == .element && (lastNode?.getIndexWithinParent() ?? 0 < endOffset)
+      let shouldModifyDecoratorNode = !isDecoratorBlockNode(lastNode)
+
+      if (shouldModifyTextNode || shouldModifyElementNode) && shouldModifyDecoratorNode {
         if let lastNodeAsTextNode = lastNode as? TextNode,
            !lastNodeAsTextNode.isToken(),
            endOffset != lastNodeAsTextNode.getTextContentSize() {
@@ -491,7 +492,7 @@ public class RangeSelection: BaseSelection {
       // Either move the remaining nodes of the last parent to after
       // the first child, or remove them entirely. If the last parent
       // is the same as the first parent, this logic also works.
-      let lastNodeChildren = lastElement?.getChildren() ?? []
+      let lastElementChildren = lastElement?.getChildren() ?? []
       let selectedNodesSet = Set(selectedNodes)
       let firstAndLastElementsAreEqual = firstElement == lastElement
 
@@ -501,10 +502,19 @@ public class RangeSelection: BaseSelection {
       // we will incorrectly merge into the starting parent element.
       // TODO: should we keep on traversing parents if we're inside another
       // nested inline element?
-      let insertionTarget = firstElement.isInline() && firstNode.getNextSibling() == nil ? firstElement : firstNode
+      var insertionTarget =
+        firstElement.isInline() && firstNode.getNextSibling() == nil ? firstElement : firstNode
 
-      for (_, lastNodeChild) in lastNodeChildren.enumerated().reversed() {
-        if lastNodeChild.isSameNode(firstNode) || ((lastNodeChild as? ElementNode)?.isParentOf(firstNode) ?? false) {
+      if isRootNode(node: lastElement) && isTextNode(insertionTarget) {
+        insertionTarget = try insertionTarget.getParentOrThrow()
+      }
+
+      for (index, lastNodeChild) in lastElementChildren.enumerated().reversed() {
+        if lastNodeChild.isSameNode(firstNode) {
+          break
+        }
+
+        if let elementChild = lastNodeChild as? ElementNode, elementChild.isParentOf(firstNode) {
           break
         }
 
@@ -576,10 +586,6 @@ public class RangeSelection: BaseSelection {
     let anchorNode = try anchor.getNode()
     var target = anchorNode
 
-    if anchorNode is DecoratorBlockNode {
-      return false // there is no insertion into DecoratorBlockNode
-    }
-    
     if anchor.type == .element {
       if let element = try anchor.getNode() as? ElementNode {
         if let placementNode = element.getChildAtIndex(index: anchorOffset - 1) {
@@ -678,39 +684,33 @@ public class RangeSelection: BaseSelection {
         if isTextNode(target) {
           target = topLevelElement
         }
+      } else if isDecoratorBlockNode(node) {
+        if node == firstNode {
+          if let unwrappedTarget = target as? ElementNode,
+             unwrappedTarget.isEmpty() &&
+              unwrappedTarget.canReplaceWith(replacement: node) {
+            try target.replace(replaceWith: node)
+            target = node
+            didReplaceOrMerge = true
+            continue
+          }
+        }
+
+        if isTextNode(target) {
+          target = topLevelElement
+        }
       } else if didReplaceOrMerge && !isDecoratorNode(node) && isRootNode(node: target.getParent()) {
         throw LexicalError.invariantViolation("insertNodes: cannot insert a non-element into a root node")
       }
 
       didReplaceOrMerge = false
 
-      if let unwrappedTarget = target as? ElementNode {
-        if let node = node as? DecoratorNode, node.isTopLevel() {
-          target = try target.insertAfter(nodeToInsert: node)
-        } else if !isElementNode(node: node) {
-          if let firstChild = unwrappedTarget.getFirstChild() {
-            try firstChild.insertBefore(nodeToInsert: node)
-          } else {
-            try unwrappedTarget.append([node])
-          }
-
-          target = node
-        } else {
-          if let elementNode = node as? ElementNode {
-            if !elementNode.canBeEmpty() && elementNode.isEmpty() {
-              continue
-            }
-
-            target = try target.insertAfter(nodeToInsert: node)
-          }
-        }
-      } else if !isElementNode(node: node) ||
-                        isDecoratorNode(node) && (node as? DecoratorNode)?.isTopLevel() == true {
-        target = try target.insertAfter(nodeToInsert: node)
-      } else {
-        target = try node.getParentOrThrow() // Re-try again with the target being the parent
+      let newTarget = try insertNodeIntoTarget(node: node, target: target)
+      guard let newTarget else {
         continue
       }
+
+      target = newTarget
     }
 
     if selectStart {
@@ -779,6 +779,44 @@ public class RangeSelection: BaseSelection {
       }
     }
     return true
+  }
+
+  private func insertNodeIntoTarget(node: Node, target: Node) throws -> Node? {
+    var updatedTarget = target
+
+    if isDecoratorBlockNode(target) {
+      return try target.insertAfter(nodeToInsert: node)
+    }
+
+    if !isElementNode(node: node) {
+      return try target.insertAfter(nodeToInsert: node)
+    }
+
+    guard let elementTarget = target as? ElementNode else {
+      return try insertNodeIntoTarget(node: node, target: try target.getParentOrThrow())
+    }
+
+    if !isElementNode(node: node) && !isDecoratorBlockNode(node) {
+      if let firstChild = elementTarget.getFirstChild() {
+        try firstChild.insertBefore(nodeToInsert: node)
+      } else {
+        try elementTarget.append([node])
+      }
+
+      updatedTarget = node
+    } else {
+      if let elementNode = node as? ElementNode {
+        if !elementNode.canBeEmpty() && elementNode.isEmpty() {
+          return nil
+        }
+
+        updatedTarget = try target.insertAfter(nodeToInsert: node)
+      } else if isDecoratorBlockNode(node) {
+        updatedTarget = try target.insertAfter(nodeToInsert: node)
+      }
+    }
+
+    return updatedTarget
   }
 
   public func getPlaintext() throws -> String {
@@ -972,39 +1010,60 @@ public class RangeSelection: BaseSelection {
         }
       }
 
-      // Handle the deletion around decorator block nodes.
-      if let decoratorBlockNode = anchorNode as? DecoratorBlockNode {
-        // NK TODO this should take into account direction, for right to left text I guess
-        let previousSibling = decoratorBlockNode.getPreviousSibling()
-        if anchor.offset == 1 {
-          try decoratorBlockNode.remove()
-        }
-        if  let previousSiblingAsParagraphNode = previousSibling as? ParagraphNode,
-            let lastTextNodeInPreviousSibling = previousSiblingAsParagraphNode.getLastChild() as? TextNode{
-          try? _ = lastTextNodeInPreviousSibling.select(anchorOffset: nil, focusOffset: nil)
-        }
-        return
-      }
-      
       // Handle the deletion around decorators.
-      let possibleNode = try getAdjacentNode(focus: focus, isBackward: isBackwards)
-      if let possibleNode = possibleNode as? DecoratorNode, !possibleNode.isIsolated() {
-        // Make it possible to move selection from range selection to
-        // node selection on the node.
-        if /* possibleNode.isKeyboardSelectable() && */
-          let anchorNode = anchorNode as? ElementNode,
-          anchorNode.getChildrenSize() == 0 {
-          try anchorNode.remove()
-          let nodeSelection = NodeSelection(nodes: Set([possibleNode.key]))
-          try setSelection(nodeSelection)
+      let adjacentNode = try getAdjacentNode(focus: focus, isBackward: isBackwards)
+      if let adjacentNode = adjacentNode as? DecoratorNode {
+        if adjacentNode.isInline() {
+          // Make it possible to move selection from range selection to
+          // node selection on the node.
+          if /* possibleNode.isKeyboardSelectable() && */
+            let anchorNode = anchorNode as? ElementNode,
+            anchorNode.isEmpty() {
+            try anchorNode.remove()
+            let nodeSelection = NodeSelection(nodes: Set([adjacentNode.key]))
+            try setSelection(nodeSelection)
+          } else {
+            try adjacentNode.selectStart()
+            try adjacentNode.remove()
+            if let editor = getActiveEditor() {
+              editor.dispatchCommand(type: .selectionChange)
+            }
+          }
         } else {
-          try possibleNode.remove()
-          if let editor = getActiveEditor() {
-            editor.dispatchCommand(type: .selectionChange)
+          if let anchorNode = anchorNode as? ElementNode, anchorNode.isEmpty() {
+            try anchorNode.remove()
+            try adjacentNode.selectEnd()
+          } else {
+            if try adjacentNode.collapseAtStart(selection: self) {
+              return
+            } else {
+              try adjacentNode.selectPrevious(anchorOffset: nil, focusOffset: nil)
+              try adjacentNode.remove()
+            }
           }
         }
+
         return
-      } else if !isBackwards, let possibleNode = possibleNode as? ElementNode, let anchorNode = anchorNode as? ElementNode, anchorNode.isEmpty() {
+      } else if isRootNode(node: anchorNode),
+                let adjacentNode = adjacentNode as? ElementNode,
+                let adjacentNodeSibling = adjacentNode.getNextSibling() as? DecoratorNode,
+                !adjacentNodeSibling.isInline() {
+        // A decorator block node's selection is represented as an index within
+        // the root node. We need to handle the case where the cursor is at the
+        // start of a decorator block node and you hit backspace. In this case,
+        // the adjacent node is the node preceding the decorator block node
+        // (adjacentNode here). We check the adjacent node next sibling to see
+        // if it's a decorator node to properly handle this case.
+
+        if adjacentNode.isEmpty() {
+          try adjacentNode.remove()
+          try adjacentNodeSibling.selectStart()
+        } else {
+          try adjacentNode.selectEnd()
+        }
+
+        return
+      } else if !isBackwards, let possibleNode = adjacentNode as? ElementNode, let anchorNode = anchorNode as? ElementNode, anchorNode.isEmpty() {
         try anchorNode.remove()
         try possibleNode.selectStart()
         return

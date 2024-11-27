@@ -14,17 +14,11 @@ import LexicalListPlugin
 import SelectableDecoratorNode
 import UIKit
 
-class SampleDecoratorBlockNode: DecoratorBlockNode {
-  override func createDecoratorNode() -> DecoratorNode {
-    return SampleDecoratorNode()
-  }
-}
-
 extension NodeType {
   static let sampleDecorator = NodeType(rawValue: "sampleDecorator")
 }
 
-class SampleDecoratorNode: DecoratorNode {
+class SampleDecoratorNode: DecoratorBlockNode {
 
   override public class func getType() -> NodeType {
     return .sampleDecorator
@@ -391,7 +385,13 @@ public class ToolbarPlugin: Plugin {
   }
   @objc private func sampleDecoratorBlock() {
     guard let editor else { return }
-    try? insertDecoratorBlock(editor: editor, decoratorBlock: SampleDecoratorBlockNode.self)
+    try? editor.update {
+      let sampleDecoratorNode = SampleDecoratorNode()
+      if let selection = try getSelection() {
+        _ = try selection.insertNodes(nodes: [sampleDecoratorNode], selectStart: false)
+      }
+    }
+//    try? insertDecoratorBlock(editor: editor, decoratorBlock: SampleDecoratorBlockNode.self)
   }
   @objc private func increaseIndent() {
     editor?.dispatchCommand(type: .indentContent, payload: nil)
