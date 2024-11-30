@@ -481,7 +481,7 @@ open class Node: Codable {
     return index
   }
 
-  func isParentOf(_ targetNode: Node) -> Bool {
+  open func isParentOf(_ targetNode: Node) -> Bool {
     var node: Node?
 
     if key == targetNode.key {
