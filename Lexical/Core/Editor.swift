@@ -523,6 +523,10 @@ public class Editor: NSObject {
           superview.addSubview(view)
           node.decoratorWillAppear(view: view)
           decoratorCache[nodeKey] = DecoratorCacheItem.cachedView(view)
+          if node.hasDynamicSize(), let rangeCacheItem = rangeCache[nodeKey] {
+            frontend?.layoutManager.invalidateLayout(forCharacterRange: rangeCacheItem.range, actualCharacterRange: nil)
+          }
+
           self.log(.editor, .verbose, "needsCreation -> cached. Key \(nodeKey). Frame \(view.frame). Superview \(String(describing: view.superview))")
         case .cachedView(let view):
           // This shouldn't be needed if our appear/disappear logic is perfect, but it turns out we do currently need this.

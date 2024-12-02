@@ -93,6 +93,12 @@ open class DecoratorNode: Node {
     fatalError("sizeForDecoratorView: base method not extended")
   }
 
+  /// Override and set to `true` if the DecoratorNode has a dynamic size.
+  /// We'll use this to determine if we should trigger a size calculation after we create the decorator node.
+  open func hasDynamicSize() -> Bool {
+    return false
+  }
+
   override open func getPreamble() -> String {
     guard let unicodeScalar = Unicode.Scalar(NSTextAttachment.character) else {
       return ""
