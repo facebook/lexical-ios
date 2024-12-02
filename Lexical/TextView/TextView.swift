@@ -114,6 +114,16 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
     }
   }
 
+  public override func caretRect(for position: UITextPosition) -> CGRect {
+    let originalRect = super.caretRect(for: position)
+    return CaretAndSelectionRectsAdjuster.adjustCaretRect(originalRect, for: position, in: self)
+  }
+
+  override public func selectionRects(for range: UITextRange) -> [UITextSelectionRect] {
+    let originalRects = super.selectionRects(for: range)
+    return CaretAndSelectionRectsAdjuster.adjustSelectionRects(originalRects, for: range, in: self)
+  }
+
   // MARK: - Incoming events
 
   override public func deleteBackward() {
@@ -495,4 +505,98 @@ private class TextViewDelegate: NSObject, UITextViewDelegate {
 
     return textView.lexicalDelegate?.textView(textView, shouldInteractWith: URL, in: characterRange, interaction: interaction) ?? false
   }
+}
+
+//  The problem we're trying to solve:
+//    If we set a paragraphStyle attribute with a paragraphSpacing value to add some space after a heading for an example
+//    the caret, when in the last line of such a paragraph, will have an abonormally large height and will be effectively
+//    longer for the space added. This also happens if we apply setBlockLevelAttributes padding or margin since it also
+//    uses paragraphStyle.paragraphSpacing under the hood. Also selection carets, or handles, will be affected.
+//
+//  If, at some point, we want to use paragraphStyle.beforeParagraphSpacing, to add some space on the top of the paragraph
+//  we will have to adjust this adjuster. Since we don't have such plans atm I opted to skip it to save time and effort
+//  and also not complicate this code unnecessarily.
+private class CaretAndSelectionRectsAdjuster {
+
+  static func adjustCaretRect(_ originalRect: CGRect, for position: UITextPosition, in textView: UITextView) -> CGRect {
+    var result = originalRect
+    if isCaretOnLastLine(for: position, in: textView) {
+      // Find the caret position as an index in the text
+      let offset = textView.offset(from: textView.beginningOfDocument, to: position)
+      // Retrieve attributes at the caret position
+      let attributes = textView.textStorage.attributes(at: offset, effectiveRange: nil)
+      if let paragraphStyle = attributes[.paragraphStyle] as? NSParagraphStyle {
+        result.size.height = result.size.height - paragraphStyle.paragraphSpacing
+      }
+    }
+
+    return result
+  }
+
+  static func adjustSelectionRects(_ originalRects: [UITextSelectionRect], for range: UITextRange, in textView: UITextView) -> [UITextSelectionRect] {
+    // Create a modified array of selection rects with adjusted heights
+    let modifiedRects = originalRects.map { originalRect -> UITextSelectionRect in
+      let rect = originalRect.rect
+      if originalRect.containsStart {
+        let adjustedRect = adjustCaretRect(rect, for: range.start, in: textView)
+        return CustomSelectionRect(baseRect: originalRect, adjustedRect: adjustedRect)
+      }
+      if originalRect.containsEnd {
+        let adjustedRect = adjustCaretRect(rect, for: range.end, in: textView)
+        return CustomSelectionRect(baseRect: originalRect, adjustedRect: adjustedRect)
+      }
+      // no change
+      return CustomSelectionRect(baseRect: originalRect, adjustedRect: originalRect.rect)
+    }
+
+    return modifiedRects
+  }
+
+  static func isCaretOnLastLine(for position: UITextPosition, in textView: UITextView) -> Bool {
+    let caretOffset = textView.offset(from: textView.beginningOfDocument, to: position)
+
+    // Get the paragraph range containing the caret
+    let nsText = textView.textStorage.string as NSString
+    let paragraphRange = nsText.paragraphRange(for: NSRange(location: caretOffset, length: 0))
+
+    // Check line fragment of the caret
+    let glyphIndex = textView.layoutManager.glyphIndexForCharacter(at: caretOffset)
+    let lineFragmentRect = textView.layoutManager.lineFragmentRect(forGlyphAt: glyphIndex, effectiveRange: nil)
+
+    // Determine the last line of the paragraph
+    let paragraphEndGlyphIndex = textView.layoutManager.glyphIndexForCharacter(at: paragraphRange.upperBound - 1)
+    let lastLineFragmentRect = textView.layoutManager.lineFragmentRect(forGlyphAt: paragraphEndGlyphIndex, effectiveRange: nil)
+
+    // Compare the current caret's line to the last line of the paragraph
+    return lineFragmentRect == lastLineFragmentRect
+  }
+
+}
+
+// Custom UITextSelectionRect subclass for modified rects
+private class CustomSelectionRect: UITextSelectionRect {
+    private let baseRect: UITextSelectionRect
+    private let customRect: CGRect
+
+    init(baseRect: UITextSelectionRect, adjustedRect: CGRect) {
+        self.baseRect = baseRect
+        self.customRect = adjustedRect
+        super.init()
+    }
+
+    override var rect: CGRect {
+        return customRect
+    }
+
+    override var containsStart: Bool {
+        return baseRect.containsStart
+    }
+
+    override var containsEnd: Bool {
+        return baseRect.containsEnd
+    }
+
+    override var isVertical: Bool {
+        return baseRect.isVertical
+    }
 }

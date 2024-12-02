@@ -37,6 +37,7 @@ class ViewController: UIViewController, UIToolbarDelegate {
     let linkPlugin = LinkPlugin()
 
     let theme = Theme()
+    theme.setBlockLevelAttributes(.heading, value: BlockLevelAttributes(marginTop: 0, marginBottom: 0, paddingTop: 0, paddingBottom: 20))
     theme.indentSize = 40.0
     theme.link = [
       .foregroundColor: UIColor.systemBlue,
