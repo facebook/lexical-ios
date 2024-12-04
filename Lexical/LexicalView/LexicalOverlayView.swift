@@ -14,7 +14,7 @@ class LexicalOverlayView: UIView {
   init(textView: UITextView) {
     self.textView = textView
     super.init(frame: .zero)
-    self.backgroundColor = .clear // Make it transparent
+    self.backgroundColor = .clear  // Make it transparent
   }
 
   required init?(coder: NSCoder) {
@@ -26,36 +26,45 @@ class LexicalOverlayView: UIView {
       return self
     }
 
-    return textView?.hitTest(convert(point, to: textView), with: event) ?? super.hitTest(point, with: event)
+    return textView?.hitTest(convert(point, to: textView), with: event)
+      ?? super.hitTest(point, with: event)
   }
 
   func shouldInterceptTap(at point: CGPoint) -> Bool {
     guard let textView = textView as? TextView,
-          let textStorage = textView.textStorage as? TextStorage else { return false }
+      let textStorage = textView.textStorage as? TextStorage
+    else { return false }
+
+    let pointInTextView = convert(point, to: textView)
 
     let pointInTextContainer = CGPoint(
-        x: point.x - textView.textContainerInset.left,
-        y: point.y - textView.textContainerInset.top
+      x: pointInTextView.x - textView.textContainerInset.left,
+      y: pointInTextView.y - textView.textContainerInset.top
     )
 
     let indexOfCharacter = textView.layoutManager.characterIndex(
-        for: pointInTextContainer,
-        in: textView.textContainer,
-        fractionOfDistanceBetweenInsertionPoints: nil
+      for: pointInTextContainer,
+      in: textView.textContainer,
+      fractionOfDistanceBetweenInsertionPoints: nil
     )
-    let glyphIndex = textView.layoutManager.glyphIndex(for: pointInTextContainer, in: textView.textContainer)
-    let lineFragmentRect = textView.layoutManager.lineFragmentRect(forGlyphAt: glyphIndex, effectiveRange: nil)
+    let glyphIndex = textView.layoutManager.glyphIndex(
+      for: pointInTextContainer, in: textView.textContainer)
+    let lineFragmentRect = textView.layoutManager.lineFragmentRect(
+      forGlyphAt: glyphIndex, effectiveRange: nil)
     let firstCharacterRect = textView.layoutManager.boundingRect(
       forGlyphRange: NSRange(location: glyphIndex, length: 1),
       in: textView.textContainer
     )
-    if !lineFragmentRect.contains(point) {
+    if !lineFragmentRect.contains(pointInTextContainer) {
       return false
     }
 
     let attributes = textStorage.attributes(at: indexOfCharacter, effectiveRange: nil)
     for plugin in textView.editor.plugins {
-      if let hit = plugin.hitTest?(at: pointInTextContainer, lineFragmentRect: lineFragmentRect, firstCharacterRect: firstCharacterRect, attributes: attributes), hit {
+      if let hit = plugin.hitTest?(
+        at: pointInTextContainer, lineFragmentRect: lineFragmentRect,
+        firstCharacterRect: firstCharacterRect, attributes: attributes), hit
+      {
         return true
       }
     }
@@ -72,7 +81,8 @@ class LexicalOverlayView: UIView {
 
   private func handleTouchEvent(at point: CGPoint) {
     guard let textView = textView as? TextView,
-          let textStorage = textView.textStorage as? TextStorage else { return }
+      let textStorage = textView.textStorage as? TextStorage
+    else { return }
 
     let pointInTextContainer = CGPoint(
       x: point.x - textView.textContainerInset.left,
@@ -85,8 +95,10 @@ class LexicalOverlayView: UIView {
       fractionOfDistanceBetweenInsertionPoints: nil
     )
     let attributes = textStorage.attributes(at: indexOfCharacter, effectiveRange: nil)
-    let glyphIndex = textView.layoutManager.glyphIndex(for: pointInTextContainer, in: textView.textContainer)
-    let lineFragmentRect = textView.layoutManager.lineFragmentRect(forGlyphAt: glyphIndex, effectiveRange: nil)
+    let glyphIndex = textView.layoutManager.glyphIndex(
+      for: pointInTextContainer, in: textView.textContainer)
+    let lineFragmentRect = textView.layoutManager.lineFragmentRect(
+      forGlyphAt: glyphIndex, effectiveRange: nil)
     let firstCharacterRect = textView.layoutManager.boundingRect(
       forGlyphRange: NSRange(location: glyphIndex, length: 1),
       in: textView.textContainer
