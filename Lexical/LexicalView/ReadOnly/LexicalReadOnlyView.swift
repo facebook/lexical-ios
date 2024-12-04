@@ -24,6 +24,13 @@ import UIKit
     fatalError("init(coder:) has not been implemented")
   }
 
+  override public var intrinsicContentSize: CGSize {
+    if let textKitContext = textKitContext {
+      return textKitContext.requiredSize()
+    }
+    return super.intrinsicContentSize
+  }
+
   // MARK: -
 
   @objc public var textKitContext: LexicalReadOnlyTextKitContext? {
