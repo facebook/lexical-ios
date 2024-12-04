@@ -467,8 +467,8 @@ internal enum Reconciler {
           nextChildrenSet = Set(nextChildren)
         }
 
-        let nextHasPrevKey = nextChildren.contains(prevKey)
-        let prevHasNextKey = prevChildren.contains(nextKey)
+        let nextHasPrevKey = nextChildrenSet!.contains(prevKey)
+        let prevHasNextKey = prevChildrenSet!.contains(nextKey)
 
         if !nextHasPrevKey {
           // Remove prev
