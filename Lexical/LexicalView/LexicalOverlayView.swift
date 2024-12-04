@@ -84,9 +84,11 @@ class LexicalOverlayView: UIView {
       let textStorage = textView.textStorage as? TextStorage
     else { return }
 
+    let pointInTextView = convert(point, to: textView)
+
     let pointInTextContainer = CGPoint(
-      x: point.x - textView.textContainerInset.left,
-      y: point.y - textView.textContainerInset.top
+      x: pointInTextView.x - textView.textContainerInset.left,
+      y: pointInTextView.y - textView.textContainerInset.top
     )
 
     let indexOfCharacter = textView.layoutManager.characterIndex(
