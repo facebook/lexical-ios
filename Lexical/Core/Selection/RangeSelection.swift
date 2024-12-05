@@ -14,11 +14,13 @@ public class RangeSelection: BaseSelection {
     public let element: Node?
     public let skipLineBreak: Bool
     public let skipSelectStart: Bool
+    public let abort: Bool
 
-    public init(element: ElementNode? = nil, skipLineBreak: Bool = false, skipSelectStart: Bool = false) {
+    public init(element: ElementNode? = nil, skipLineBreak: Bool = false, skipSelectStart: Bool = false, abort: Bool = false) {
       self.element = element
       self.skipLineBreak = skipLineBreak
       self.skipSelectStart = skipSelectStart
+      self.abort = abort
     }
   }
 
@@ -900,6 +902,7 @@ public class RangeSelection: BaseSelection {
     if anchorOffset == 0 && nodesToMoveLength > 0 && currentElement.isInline() {
       let parent = try currentElement.getParentOrThrow()
       let result = try parent.insertNewAfter(selection: self)
+      if result.abort { return }
       let newElement = result.element
       if let newElement = newElement as? ElementNode {
         let children = parent.getChildren()
@@ -912,6 +915,7 @@ public class RangeSelection: BaseSelection {
 
     let currentParent = try currentElement.getParentOrThrow()
     let result = try currentElement.insertNewAfter(selection: self)
+    if result.abort { return }
     let newElement = result.element
     if newElement == nil {
       if !result.skipLineBreak {
