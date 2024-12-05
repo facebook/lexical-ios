@@ -412,7 +412,7 @@ open class ElementNode: Node {
     return selection
   }
 
-  public func isEmpty() -> Bool {
+  open func isEmpty() -> Bool {
     return getChildrenSize() == 0
   }
 

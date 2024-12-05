@@ -638,7 +638,7 @@ open class Node: Codable {
 
   /// Inserts a node before this LexicalNode (as the previous sibling).
   @discardableResult
-  open func insertBefore(nodeToInsert: Node) throws -> Node {
+  public func insertBefore(nodeToInsert: Node) throws -> Node {
     try errorOnReadOnly()
     let writableSelf = try getWritable()
     let writableNodeToInsert = try nodeToInsert.getWritable()
