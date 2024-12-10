@@ -429,6 +429,10 @@ public class Editor: NSObject {
     return frontend?.isEmpty ?? true
   }
 
+  public func resetTypingAttributes(for node: Node) {
+    frontend?.resetTypingAttributes(for: node)
+  }
+
   public func clearEditor() throws {
     resetEditor(pendingEditorState: nil)
     dispatchCommand(type: .clearEditor)

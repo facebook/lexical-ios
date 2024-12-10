@@ -225,6 +225,14 @@ public func insertList(editor: Editor, listType: ListType, withPlaceholders: Boo
       }
     }
   }
+
+  try editor.read {
+    guard let selection = try getSelection() as? RangeSelection else {
+      return
+    }
+
+    editor.resetTypingAttributes(for: try selection.anchor.getNode())
+  }
 }
 
 /**

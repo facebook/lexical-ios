@@ -341,6 +341,7 @@ public class ToolbarPlugin: Plugin {
     try? editor?.update {
       if let selection = try getSelection() as? RangeSelection {
         setBlocksType(selection: selection, createElement: creationFunc)
+        editor?.resetTypingAttributes(for: try selection.anchor.getNode())
       }
     }
   }
