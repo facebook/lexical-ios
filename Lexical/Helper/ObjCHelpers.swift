@@ -27,4 +27,8 @@ import Foundation
     }
     return text
   }
+
+  func getTextStorageString() -> String? {
+    return textStorage?.string
+  }
 }

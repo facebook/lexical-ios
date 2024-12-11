@@ -12,4 +12,9 @@ extension String {
     let nsString = self as NSString
     return nsString.length
   }
+
+  public func lengthAsNSString(excludingWhitespace: Bool) -> Int {
+    let nsString = excludingWhitespace ? (self.filter { !$0.isWhitespace }) as NSString : self as NSString
+    return nsString.length
+  }
 }

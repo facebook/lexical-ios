@@ -15,7 +15,10 @@ import UIKit
 
 struct RangeCacheItem {
   var location: Int = 0
+  // the length of the full preamble, including any special characters
   var preambleLength: Int = 0
+  // the length of any special characters in the preamble
+  var preambleSpecialCharacterLength: Int = 0
   var childrenLength: Int = 0
   var textLength: Int = 0
   var postambleLength: Int = 0
@@ -124,11 +127,23 @@ private func evaluateNode(_ nodeKey: NodeKey, stringLocation: Int, searchDirecti
   }
 
   if stringLocation == rangeCacheItem.entireRange().upperBound {
+    if rangeCacheItem.selectableRange().length == 0 {
+      return RangeCacheSearchResult(nodeKey: nodeKey, type: .element, offset: 0)
+    }
+
     return RangeCacheSearchResult(nodeKey: nodeKey, type: .endBoundary, offset: nil)
   }
 
   let preambleEnd = rangeCacheItem.location + rangeCacheItem.preambleLength
   if stringLocation == preambleEnd {
+    if rangeCacheItem.selectableRange().length == 0 {
+      return RangeCacheSearchResult(nodeKey: nodeKey, type: .element, offset: 0)
+    }
+
+    if rangeCacheItem.childrenLength == 0 {
+      return RangeCacheSearchResult(nodeKey: nodeKey, type: .element, offset: 0)
+    }
+
     return RangeCacheSearchResult(nodeKey: nodeKey, type: .startBoundary, offset: nil)
   }
 
@@ -151,6 +166,9 @@ internal extension RangeCacheItem {
   func childrenRange() -> NSRange {
     return NSRange(location: location + preambleLength, length: childrenLength)
   }
+  func selectableRange() -> NSRange {
+    return NSRange(location: location, length: preambleLength + childrenLength + textLength + postambleLength - preambleSpecialCharacterLength)
+  }
 }
 
 private struct RangeCacheSearchResult {
@@ -160,11 +178,11 @@ private struct RangeCacheSearchResult {
 }
 
 private enum RangeCacheSearchResultType {
-  case startBoundary // the boundary types are converted to element type for the parent element
+  case startBoundary  // the boundary types are converted to element type for the parent element
   case endBoundary
   case text
   case element
-  case illegal // used for if the search is inside a multi-character preamble/postamble
+  case illegal  // used for if the search is inside a multi-character preamble/postamble
 }
 
 internal func updateRangeCacheForTextChange(nodeKey: NodeKey, delta: Int) {

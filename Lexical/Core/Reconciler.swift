@@ -307,6 +307,7 @@ internal enum Reconciler {
       part: .preamble
     )
     nextRangeCacheItem.preambleLength = nextPreambleLength
+    nextRangeCacheItem.preambleSpecialCharacterLength = nextNode.getPreamble().lengthAsNSString(excludingWhitespace: true)
 
     // right, now we have finished the preamble, and the cursor is in the right place. Time for children.
     if nextNode is ElementNode {
@@ -383,6 +384,7 @@ internal enum Reconciler {
     reconcilerState.rangesToAdd.append(preambleInsertion)
     reconcilerState.locationCursor += nextPreambleLength
     nextRangeCacheItem.preambleLength = nextPreambleLength
+    nextRangeCacheItem.preambleSpecialCharacterLength = nextNode.getPreamble().lengthAsNSString(excludingWhitespace: true)
 
     if let nextNode = nextNode as? ElementNode, nextNode.children.count > 0 {
       let cursorBeforeChildren = reconcilerState.locationCursor

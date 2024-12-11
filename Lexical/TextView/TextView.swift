@@ -430,6 +430,19 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
     }
     return r
   }
+
+  internal func validateNativeSelection(_ textView: UITextView) {
+    guard let selectedRange = textView.selectedTextRange else { return }
+
+    let start = validatePosition(textView: textView, position: selectedRange.start, direction: .forward)
+    let end = validatePosition(textView: textView, position: selectedRange.end, direction: .forward)
+
+    if start != selectedRange.start || end != selectedRange.end {
+      isUpdatingNativeSelection = true
+      selectedTextRange = textRange(from: start, to: end)
+      isUpdatingNativeSelection = false
+    }
+  }
 }
 
 private class TextViewDelegate: NSObject, UITextViewDelegate {
@@ -452,6 +465,7 @@ private class TextViewDelegate: NSObject, UITextViewDelegate {
       return
     }
 
+    textView.validateNativeSelection(textView)
     onSelectionChange(editor: textView.editor)
   }
 

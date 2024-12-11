@@ -169,11 +169,17 @@ public extension LexicalViewDelegate {
     switch direction {
     case .forward:
       end = textView.tokenizer.position(from: end, toBoundary: granularity, inDirection: UITextDirection(rawValue: UITextStorageDirection.forward.rawValue)) ?? end
+      end = validatePosition(textView: textView, position: end, direction: direction)
+      start = validatePosition(textView: textView, position: start, direction: direction)
+
       if type == .move {
         start = end
       }
     case .backward:
       start = textView.tokenizer.position(from: start, toBoundary: granularity, inDirection: UITextDirection(rawValue: UITextStorageDirection.backward.rawValue)) ?? start
+      start = validatePosition(textView: textView, position: start, direction: direction)
+      end = validatePosition(textView: textView, position: end, direction: direction)
+
       if type == .move {
         end = start
       }
@@ -212,7 +218,7 @@ public extension LexicalViewDelegate {
     textView.resetSelectedRange()
   }
 
-  func resetTypingAttributes(for selectedNode: Node) {
+  public func resetTypingAttributes(for selectedNode: Node) {
     textView.resetTypingAttributes(for: selectedNode)
   }
 

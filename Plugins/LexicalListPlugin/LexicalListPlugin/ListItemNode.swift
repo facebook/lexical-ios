@@ -56,6 +56,11 @@ public class ListItemNode: ElementNode {
     .listItem
   }
 
+  override open func getPreamble() -> String {
+    let preamble = super.getPreamble()
+    return "\(preamble)\u{200B}"
+  }
+
   public func getValue() -> Int {
     let node = self.getLatest()
     return node.value
@@ -209,14 +214,11 @@ public class ListItemNode: ElementNode {
     }
 
     if let parentList = parentList as? ListNode {
-      let paragraphNode = createParagraphNode()
-
       if parentList.getChildrenSize() == 0 {
+        let paragraphNode = createParagraphNode()
         try parentList.replace(replaceWith: paragraphNode)
-      } else {
-        try parentList.insertAfter(nodeToInsert: paragraphNode)
+        try paragraphNode.select(anchorOffset: nil, focusOffset: nil)
       }
-      try paragraphNode.select(anchorOffset: nil, focusOffset: nil)
     }
   }
 
@@ -283,7 +285,6 @@ public class ListItemNode: ElementNode {
         }
       }
     } else {
-      try listNode.insertBefore(nodeToInsert: paragraph)
       try self.remove()
     }
 

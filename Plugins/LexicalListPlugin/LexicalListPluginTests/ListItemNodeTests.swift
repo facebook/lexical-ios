@@ -5,25 +5,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import XCTest
+
 @testable import Lexical
 @testable import LexicalListPlugin
-import XCTest
 
 class ListItemNodeTests: XCTestCase {
   var view: LexicalView?
 
   var editor: Editor? {
-    get {
-      return view?.editor
-    }
+    return view?.editor
   }
 
   override func setUp() {
-    view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
+    view = LexicalView(
+      editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
   }
 
   override func tearDown() {
     view = nil
+  }
+
+  func debugEditor(_ editor: Editor) {
+    print((try? getNodeHierarchy(editorState: editor.getEditorState())) ?? "")
+    print(view?.textStorage.debugDescription ?? "")
+    print((try? getSelectionData(editorState: editor.getEditorState())) ?? "")
+    print((try? editor.getEditorState().toJSON(outputFormatting: .sortedKeys)) ?? "")
   }
 
   func testItemCharacterWithNestedNumberedList() throws {
@@ -78,190 +85,478 @@ class ListItemNodeTests: XCTestCase {
       // Assertions
       let theme = editor.getTheme()
 
-      let item1Attrs = item1.getAttributedStringAttributes(theme: theme)[.listItem] as? ListItemAttribute
+      let item1Attrs =
+        item1.getAttributedStringAttributes(theme: theme)[.listItem] as? ListItemAttribute
       XCTAssertEqual(item1Attrs?.listItemCharacter, "1.")
 
-      let item2Attrs = item2.getAttributedStringAttributes(theme: theme)[.listItem] as? ListItemAttribute
+      let item2Attrs =
+        item2.getAttributedStringAttributes(theme: theme)[.listItem] as? ListItemAttribute
       XCTAssertEqual(item2Attrs?.listItemCharacter, "2.")
 
-      let nestedItem1Attrs = nestedItem1.getAttributedStringAttributes(theme: theme)[.listItem] as? ListItemAttribute
+      let nestedItem1Attrs =
+        nestedItem1.getAttributedStringAttributes(theme: theme)[.listItem] as? ListItemAttribute
       XCTAssertEqual(nestedItem1Attrs?.listItemCharacter, "1.")
 
-      let nestedItem2Attrs = nestedItem2.getAttributedStringAttributes(theme: theme)[.listItem] as? ListItemAttribute
+      let nestedItem2Attrs =
+        nestedItem2.getAttributedStringAttributes(theme: theme)[.listItem] as? ListItemAttribute
       XCTAssertEqual(nestedItem2Attrs?.listItemCharacter, "2.")
     }
   }
 
-  func testInsertListWithPlaceholders() throws {
+  func testRemoveEmptyListItemNodes() throws {
     guard let editor else {
       XCTFail("Editor unexpectedly nil")
       return
     }
 
     try editor.update {
-      guard let rootNode = getActiveEditorState()?.getRootNode() else {
-        XCTFail("Root node not found")
+      guard
+        let editorState = getActiveEditorState(),
+        let rootNode = editorState.getRootNode(),
+        let firstNode = rootNode.getChildren().first
+      else {
+        XCTFail("should have editor state")
         return
       }
 
-      try insertList(editor: editor, listType: .bullet, withPlaceholders: true)
-      print("root node: \(rootNode.getChildren())")
+      let list = ListNode(listType: .bullet, start: 1)
 
-      XCTAssertEqual(rootNode.getChildrenSize(), 1)
-      guard let listNode = rootNode.getFirstChild() as? ListNode else {
-        XCTFail("List node not created")
-        return
-      }
-      XCTAssertEqual(listNode.getChildrenSize(), 1)
-      guard let listItemNode = listNode.getFirstChild() as? ListItemNode else {
-        XCTFail("List item node not created")
-        return
-      }
-      XCTAssertEqual(listItemNode.getChildrenSize(), 1)
-      XCTAssertTrue(listItemNode.getFirstChild() is PlaceholderNode)
+      let item1 = ListItemNode()
+      let item2 = ListItemNode()
 
-      // Simulate hitting enter on the empty list item
-      var result = try listItemNode.insertNewAfter(selection: nil)
-      guard let newNode = result.element as? ListItemNode else {
-        XCTFail("Failed to insert new list item")
+      try list.append([item1, item2])
+      try firstNode.replace(replaceWith: list)
+
+      // select the last list item node
+      try item2.select(anchorOffset: nil, focusOffset: nil)
+    }
+
+    // from the last list item node, simulate pressing backspace
+    try editor.update {
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("should have selection")
         return
       }
 
-      // Verify that a new list item was created
-      XCTAssertEqual(listNode.getChildrenSize(), 2, "A new list item should be created")
+      debugEditor(editor)
 
-      // Verify that the original list item still exists
-      XCTAssertTrue(listNode.getChildren().contains(where: { $0.key == listItemNode.key }),
-                    "The original list item should still exist")
+      try selection.deleteCharacter(isBackwards: true)
+    }
 
-      print("children: \(newNode) \(newNode.getChildren())")
+    // verify we only have one list item left
+    try editor.read {
+      debugEditor(editor)
 
-      // Verify that the new list item has a placeholder
-      XCTAssertEqual(newNode.getChildrenSize(), 1, "New list item should have one child")
-      XCTAssertTrue(newNode.getFirstChild() is PlaceholderNode,
-                    "New list item should contain a placeholder")
-
-      // Verify that the original list item still has its placeholder
-      XCTAssertEqual(listItemNode.getChildrenSize(), 1, "Original list item should still have one child")
-      XCTAssertTrue(listItemNode.getFirstChild() is PlaceholderNode,
-                    "Original list item should still contain a placeholder")
-      XCTAssertTrue(listItemNode.getFirstChild()?.type == .listItemPlaceholder, "Placeholder should be listItemPlaceholder type")
-
-      // Add text to the first list item
-      try listItemNode.select(anchorOffset: nil, focusOffset: nil)
-      editor.dispatchCommand(type: .insertText, payload: "Hello, world!")
-
-      // Verify that the text was added
-      XCTAssertEqual(listItemNode.getChildrenSize(), 1, "List item should have one child after adding text")
-      XCTAssertTrue(listItemNode.getFirstChild() is TextNode, "List item should contain a text node")
-      XCTAssertEqual((listItemNode.getFirstChild() as? TextNode)?.getTextContent(), "Hello, world!", "Text content should match")
-
-      // Simulate hitting enter after the text
-      result = try listItemNode.insertNewAfter(selection: nil)
-      guard let newNodeAfterText = result.element as? ListItemNode else {
-        XCTFail("Failed to insert new list item after text")
+      guard let root = getRoot() else {
+        XCTFail("should have root")
         return
       }
 
-      // Verify that a new list item was created
-      XCTAssertEqual(listNode.getChildrenSize(), 3, "A new list item should be created after text")
+      XCTAssertEqual(root.getChildren().count, 1)
+      guard let list = root.getChildren().first as? ListNode else {
+        XCTFail("should have list")
+        return
+      }
 
-      // Verify that the original list item still contains the text
-      XCTAssertEqual(listItemNode.getChildrenSize(), 1, "Original list item should still have one child")
-      XCTAssertTrue(listItemNode.getFirstChild() is TextNode, "Original list item should still contain the text node")
-      XCTAssertEqual((listItemNode.getFirstChild() as? TextNode)?.getTextContent(), "Hello, world!", "Text content should remain unchanged")
+      XCTAssertEqual(list.getChildren().count, 1)
+      guard let item1 = list.getChildren().first as? ListItemNode else {
+        XCTFail("should have item1")
+        return
+      }
 
-      // Verify that the new list item has a placeholder
-      XCTAssertEqual(newNodeAfterText.getChildrenSize(), 1, "New list item after text should have one child")
-      XCTAssertTrue(newNodeAfterText.getFirstChild() is PlaceholderNode,
-                    "New list item after text should contain a placeholder")
+      XCTAssertEqual(item1.getChildren().count, 0)
+
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("should have selection")
+        return
+      }
+
+      XCTAssert(selection.anchor.type == .element)
+      XCTAssert(selection.anchor.key == item1.key)
+    }
+
+    // simulate another backspace
+    try editor.update {
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("should have selection")
+        return
+      }
+
+      debugEditor(editor)
+
+      try selection.deleteCharacter(isBackwards: true)
+    }
+
+    // verify we collapse the list into a paragraph
+    try editor.read {
+      guard let root = getRoot() else {
+        XCTFail("should have root")
+        return
+      }
+
+      XCTAssertEqual(root.getChildren().count, 1)
+      guard let firstNode = root.getChildren().first else {
+        XCTFail("should have first node")
+        return
+      }
+
+      debugEditor(editor)
+
+      XCTAssertEqual(firstNode.type, .paragraph)
     }
   }
 
-  func testAppendToListItemWithPlaceholder() throws {
+  func testCollapseListItemNodesWithContent() throws {
     guard let editor else {
       XCTFail("Editor unexpectedly nil")
       return
     }
 
     try editor.update {
-      guard let rootNode = getActiveEditorState()?.getRootNode() else {
-        XCTFail("Root node not found")
+      guard
+        let editorState = getActiveEditorState(),
+        let rootNode = editorState.getRootNode(),
+        let firstNode = rootNode.getChildren().first
+      else {
+        XCTFail("should have editor state")
         return
       }
 
-      try insertList(editor: editor, listType: .bullet, withPlaceholders: true)
+      let list = ListNode(listType: .bullet, start: 1)
 
-      guard let listNode = rootNode.getFirstChild() as? ListNode,
-            let listItemNode = listNode.getFirstChild() as? ListItemNode else {
-        XCTFail("List structure not created correctly")
+      let item1 = ListItemNode()
+      let textNode1 = TextNode(text: "1")
+      try item1.append([textNode1])
+
+      let item2 = ListItemNode()
+      let textNode2 = TextNode(text: "2")
+      try item2.append([textNode2])
+
+      try list.append([item1, item2])
+      try firstNode.replace(replaceWith: list)
+
+      // select the last list item node
+      // select the start of the last line
+      try textNode2.select(anchorOffset: 0, focusOffset: 0)
+    }
+
+    // from the last list item node, simulate pressing backspace
+    try editor.update {
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("should have selection")
         return
       }
 
-      try listItemNode.append([TextNode(text: "New content")])
+      debugEditor(editor)
 
-      XCTAssertFalse(listItemNode.getFirstChild() is PlaceholderNode)
-      XCTAssertEqual(listItemNode.getTextContent(), "New content")
+      try selection.deleteCharacter(isBackwards: true)
+    }
+
+    // verify we only have one list item left
+    try editor.read {
+      debugEditor(editor)
+
+      guard let root = getRoot() else {
+        XCTFail("should have root")
+        return
+      }
+
+      XCTAssertEqual(root.getChildren().count, 1)
+      guard let list = root.getChildren().first as? ListNode else {
+        XCTFail("should have list")
+        return
+      }
+
+      XCTAssertEqual(list.getChildren().count, 1)
+      guard let item1 = list.getChildren().first as? ListItemNode else {
+        XCTFail("should have item1")
+        return
+      }
+
+      XCTAssertEqual(item1.getChildren().count, 1)
+      guard let textNode1 = item1.getChildren().first as? TextNode else {
+        XCTFail("should have textNode1")
+        return
+      }
+
+      XCTAssertEqual(textNode1.getTextPart(), "12")
     }
   }
 
-  func testRemoveEmptyListItemWithPlaceholder() throws {
+  func testRemoveListItemNodesWithContent() throws {
     guard let editor else {
       XCTFail("Editor unexpectedly nil")
       return
     }
 
     try editor.update {
-      guard let rootNode = getActiveEditorState()?.getRootNode() else {
-        XCTFail("Root node not found")
+      guard
+        let editorState = getActiveEditorState(),
+        let rootNode = editorState.getRootNode(),
+        let firstNode = rootNode.getChildren().first
+      else {
+        XCTFail("should have editor state")
         return
       }
 
-      try insertList(editor: editor, listType: .bullet, withPlaceholders: true)
+      let list = ListNode(listType: .bullet, start: 1)
 
-      guard let listNode = rootNode.getFirstChild() as? ListNode,
-            let listItemNode = listNode.getFirstChild() as? ListItemNode else {
-        XCTFail("List structure not created correctly")
+      let item1 = ListItemNode()
+      let textNode1 = TextNode(text: "1")
+      try item1.append([textNode1])
+
+      let item2 = ListItemNode()
+      let textNode2 = TextNode(text: "2")
+      try item2.append([textNode2])
+
+      try list.append([item1, item2])
+      try firstNode.replace(replaceWith: list)
+
+      // select the last list item node
+      // select the start of the last line
+      try textNode2.select(anchorOffset: nil, focusOffset: nil)
+    }
+
+    // from the last list item node, simulate pressing backspace
+    try editor.update {
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("should have selection")
         return
       }
 
-      try listItemNode.remove()
-      
-      // Check that the list has been replaced with a paragraph
-      XCTAssertEqual(rootNode.getChildrenSize(), 1)
-      XCTAssertTrue(rootNode.getFirstChild() is ParagraphNode)
+      debugEditor(editor)
+
+      try selection.deleteCharacter(isBackwards: true)
+    }
+
+    try editor.update {
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("should have selection")
+        return
+      }
+
+      guard let root = getRoot() else {
+        XCTFail("should have root")
+        return
+      }
+
+      XCTAssertEqual(root.getChildren().count, 1)
+      guard let list = root.getChildren().first as? ListNode else {
+        XCTFail("should have list")
+        return
+      }
+
+      XCTAssertEqual(list.getChildren().count, 2)
+      guard let item1 = list.getChildren().first as? ListItemNode,
+        let item2 = list.getChildren().last as? ListItemNode
+      else {
+        XCTFail("should have items")
+        return
+      }
+
+      XCTAssertEqual(item1.getChildren().count, 1)
+      XCTAssertEqual(item2.getChildren().count, 0)
+
+      try selection.deleteCharacter(isBackwards: true)
+    }
+
+    // verify we only have one list item left
+    try editor.read {
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("should have selection")
+        return
+      }
+
+      guard let root = getRoot() else {
+        XCTFail("should have root")
+        return
+      }
+
+      XCTAssertEqual(root.getChildren().count, 1)
+      guard let list = root.getChildren().first as? ListNode else {
+        XCTFail("should have list")
+        return
+      }
+
+      XCTAssertEqual(list.getChildren().count, 1)
+      guard let item1 = list.getChildren().first as? ListItemNode else {
+        XCTFail("should have items")
+        return
+      }
+
+      XCTAssertEqual(item1.getChildren().count, 1)
     }
   }
 
-
-  func testGetAttributedStringAttributesWithPlaceholder() throws {
+  func testEditEmptyListItemNodesInMiddleOfList() throws {
     guard let editor else {
       XCTFail("Editor unexpectedly nil")
       return
     }
 
     try editor.update {
-      guard let rootNode = getActiveEditorState()?.getRootNode() else {
-        XCTFail("Root node not found")
+      guard
+        let editorState = getActiveEditorState(),
+        let rootNode = editorState.getRootNode(),
+        let firstNode = rootNode.getChildren().first
+      else {
+        XCTFail("should have editor state")
         return
       }
 
-      try insertList(editor: editor, listType: .bullet, withPlaceholders: true)
+      let list = ListNode(listType: .bullet, start: 1)
 
-      guard let listNode = rootNode.getFirstChild() as? ListNode,
-            let listItemNode = listNode.getFirstChild() as? ListItemNode else {
-        XCTFail("List structure not created correctly")
+      let item1 = ListItemNode()
+      let textNode1 = TextNode(text: "1")
+      try item1.append([textNode1])
+
+      let item2 = ListItemNode()
+      let item3 = ListItemNode()
+      let item4 = ListItemNode()
+      let textNode4 = TextNode(text: "4")
+      try item4.append([textNode4])
+
+      try list.append([item1, item2, item3, item4])
+      try firstNode.replace(replaceWith: list)
+
+      try textNode4.select(anchorOffset: nil, focusOffset: nil)
+    }
+
+    view?.textView.selectedRange = NSRange(location: 6, length: 0)
+
+    try editor.update {
+      guard let textView = view?.textView as? UITextView else {
+        XCTFail("should have textView")
         return
       }
 
-      let theme = editor.getTheme()
+      debugEditor(editor)
 
-      let placeholderAttributes = listItemNode.getAttributedStringAttributes(theme: theme)
-      XCTAssertNotNil(placeholderAttributes[.listItem])
+      view?.textView.validateNativeSelection(textView)
+      onSelectionChange(editor: editor)
 
-      try listItemNode.append([TextNode(text: "Content")])
-      let contentAttributes = listItemNode.getAttributedStringAttributes(theme: theme)
-      XCTAssertNotNil(contentAttributes[.listItem])
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("should have selection")
+        return
+      }
+
+      try selection.insertText("3")
+
+    }
+
+    try editor.read {
+      debugEditor(editor)
+
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("should have selection")
+        return
+      }
+
+      XCTAssertEqual(try selection.anchor.getNode().getTextPart(), "3")
+
+      guard
+        let list = try selection.anchor.getNode().getParentOrThrow().getParentOrThrow() as? ListNode
+      else {
+        XCTFail("should have list")
+        return
+      }
+
+      guard let listItem3 = list.getChildAtIndex(index: 2) as? ListItemNode else {
+        XCTFail("should have listItem4")
+        return
+      }
+
+      XCTAssertEqual(
+        listItem3.getTextContent().trimmingCharacters(in: .whitespacesAndNewlines), "3")
+
+      guard let listItem4 = list.getChildAtIndex(index: 3) as? ListItemNode else {
+        XCTFail("should have listItem4")
+        return
+      }
+
+      XCTAssertEqual(
+        listItem4.getTextContent().trimmingCharacters(in: .whitespacesAndNewlines), "4")
+    }
+  }
+
+  func testDeleteMultipleEmptyListItemNodes() throws {
+    guard let editor else {
+      XCTFail("Editor unexpectedly nil")
+      return
+    }
+
+    try editor.update {
+      guard
+        let editorState = getActiveEditorState(),
+        let rootNode = editorState.getRootNode(),
+        let firstNode = rootNode.getChildren().first
+      else {
+        XCTFail("should have editor state")
+        return
+      }
+
+      let list = ListNode(listType: .bullet, start: 1)
+
+      let item1 = ListItemNode()
+      let item2 = ListItemNode()
+      let item3 = ListItemNode()
+      let item4 = ListItemNode()
+
+      try list.append([item1, item2, item3, item4])
+      try firstNode.replace(replaceWith: list)
+
+      try item4.select(anchorOffset: nil, focusOffset: nil)
+    }
+
+    // from the last list item node, simulate pressing backspace
+    try editor.update {
+      guard let textView = view?.textView as? UITextView else {
+        XCTFail("should have textView")
+        return
+      }
+
+      debugEditor(editor)
+
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("should have selection")
+        return
+      }
+
+      try selection.deleteCharacter(isBackwards: true)
+    }
+
+    // from the last list item node, simulate pressing backspace
+    try editor.update {
+      guard let textView = view?.textView as? UITextView else {
+        XCTFail("should have textView")
+        return
+      }
+
+      debugEditor(editor)
+
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("should have selection")
+        return
+      }
+
+      try selection.deleteCharacter(isBackwards: true)
+    }
+
+    // from the last list item node, simulate pressing backspace
+    try editor.update {
+      guard let textView = view?.textView as? UITextView else {
+        XCTFail("should have textView")
+        return
+      }
+
+      debugEditor(editor)
+
+      guard let selection = try getSelection() as? RangeSelection else {
+        XCTFail("should have selection")
+        return
+      }
+
+      try selection.deleteCharacter(isBackwards: true)
     }
   }
 

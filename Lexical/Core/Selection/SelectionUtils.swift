@@ -451,15 +451,19 @@ func transferStartingElementPointToTextPoint(start: Point, end: Point, format: T
 
   _ = try textNode.setFormat(format: format)
 
-  if placementNode == nil {
-    try element.append([target])
-  } else {
-    placementNode = try placementNode?.insertBefore(nodeToInsert: target)
-    // fix the end point offset if it refers to the same element as start,
-    // as we've now inserted another element before it.
-    if end.type == .element && end.key == start.key {
-      end.updatePoint(key: end.key, offset: end.offset + 1, type: .element)
+  if let placementNode {
+    if let elementNode = placementNode as? ElementNode {
+      try elementNode.append([target])
+    } else {
+      let _ = try placementNode.insertBefore(nodeToInsert: target)
+      // fix the end point offset if it refers to the same element as start,
+      // as we've now inserted another element before it.
+      if end.type == .element && end.key == start.key {
+        end.updatePoint(key: end.key, offset: end.offset + 1, type: .element)
+      }
     }
+  } else {
+    try element.append([target])
   }
 
   if start == end {
@@ -654,4 +658,40 @@ internal func normalizeSelectionPointsForBoundaries(
       focus.offset = lastFocus.offset
     }
   }
+}
+
+func validatePosition(textView: UITextView, position: UITextPosition, direction: UITextStorageDirection) -> UITextPosition {
+  var currentPosition = position
+  let textLength = textView.text.count
+
+  while true {
+    let offset = textView.offset(from: textView.beginningOfDocument, to: currentPosition)
+
+    // Check if we've reached the text boundaries
+    if direction == .forward && offset >= textLength {
+      break
+    }
+    if direction == .backward && offset <= 0 {
+      break
+    }
+
+    // If we're beyond the text length, adjust to check the last character
+    let offsetToCheck = min(offset, textLength - 1)
+
+    if offsetToCheck >= 0 {
+      let char = textView.text[textView.text.index(textView.text.startIndex, offsetBy: offsetToCheck)]
+
+      if char.unicodeScalars.allSatisfy({ CharacterSet(charactersIn: "\u{200B}").contains($0) }) {
+        let newOffset = direction == .forward ? 1 : -1
+        if let newPosition = textView.position(from: currentPosition, offset: newOffset) {
+          currentPosition = newPosition
+          continue
+        }
+      }
+    }
+
+    break
+  }
+
+  return currentPosition
 }
