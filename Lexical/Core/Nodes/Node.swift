@@ -91,12 +91,12 @@ open class Node: Codable {
   /// Provides the **text** part of the node's content. The text part of a node represents the text this node is providing (but not including the text of any children).
   ///
   /// In Lexical iOS, a node's content is split into four parts: preamble, children, text, postamble. ``ElementNode`` subclasses can implement preamble/postamble, and TextNode subclasses can implement the text part.
-  public func getTextPart() -> String {
+  open func getTextPart() -> String {
     return ""
   }
 
   // Returns the length of the text part (as UTF 16 codepoints). Note that all string lengths within Lexical work using UTF 16 codepoints, because that is what TextKit uses.
-  public func getTextPartSize() -> Int {
+  open func getTextPartSize() -> Int {
     return getTextPart().lengthAsNSString()
   }
 
@@ -509,12 +509,12 @@ open class Node: Codable {
   /// Returns the text content of the node, typically including its children.
   ///
   /// This is different from ``getTextPart()``, which just returns the text provided by this node.
-  public func getTextContent(includeInert: Bool = false, includeDirectionless: Bool = false) -> String {
+  open func getTextContent(includeInert: Bool = false, includeDirectionless: Bool = false) -> String {
     return ""
   }
 
   /// Returns the length of the string produced by calling getTextContent on this node.
-  public func getTextContentSize(includeInert: Bool = false, includeDirectionless: Bool = false) -> Int {
+  open func getTextContentSize(includeInert: Bool = false, includeDirectionless: Bool = false) -> Int {
     return getTextContent(
       includeInert: includeInert,
       includeDirectionless: includeDirectionless

@@ -230,7 +230,7 @@ public func getRoot() -> RootNode? {
   return rootNode
 }
 
-func getEditorStateTextContent(editorState: EditorState) throws -> String {
+public func getEditorStateTextContent(editorState: EditorState) throws -> String {
   var textContent: String = ""
 
   try editorState.read {
