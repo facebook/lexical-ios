@@ -44,8 +44,8 @@ let package = Package(
       targets: ["LexicalAutoLinkPlugin"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
-    .package(url: "https://github.com/apple/swift-markdown.git", branch: "main"),
+    .package(url: "https://github.com/scinfu/SwiftSoup.git", exact: "2.8.5"),
+    .package(url: "https://github.com/apple/swift-markdown.git", exact: "0.5.0"),
   ],
   targets: [
     .target(
