@@ -10,7 +10,7 @@ import LexicalLinkPlugin
 import UIKit
 
 extension NodeType {
-  public static let autoLink = NodeType(rawValue: "autoLink")
+  public static let autoLink = NodeType(rawValue: "autolink")
 }
 
 public class AutoLinkNode: LinkNode {
