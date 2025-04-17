@@ -34,6 +34,7 @@ internal class InputDelegateProxy: NSObject, UITextInputDelegate {
       targetInputDelegate.textDidChange(textInput)
     }
   }
+  
   // Note that this function only sends a didChange.
   internal func sendSelectionChangedIgnoringSuspended(_ textInput: UITextInput?) {
     if let targetInputDelegate {
