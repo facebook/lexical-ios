@@ -149,6 +149,7 @@ extension ImageNode: NodeHTMLSupport {
   public func exportDOM(editor: Lexical.Editor) throws -> LexicalHTML.DOMExportOutput {
     let attributes = Attributes()
     try attributes.put(attribute: Attribute(key: "src", value: url?.absoluteString ?? ""))
+    try attributes.put(attribute: Attribute(key: "style", value: "max-width: 100%; height: auto;"))
     let dom = SwiftSoup.Element(Tag("img"), "", attributes)
     return (after: nil, element: dom)
   }
