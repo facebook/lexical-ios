@@ -9,6 +9,8 @@ import AVFoundation
 import Foundation
 import Lexical
 import UIKit
+import LexicalHTML
+import SwiftSoup
 
 extension NodeType {
   static let image = NodeType(rawValue: "image")
@@ -136,5 +138,18 @@ public class ImageNode: DecoratorNode {
       return size
     }
     return AVMakeRect(aspectRatio: size, insideRect: CGRect(x: 0, y: 0, width: textViewWidth, height: maxImageHeight)).size
+  }
+}
+
+extension ImageNode: NodeHTMLSupport {
+  public static func importDOM(domNode: SwiftSoup.Node) throws -> LexicalHTML.DOMConversionOutput {
+    return (after: nil, forChild: nil, node: [])
+  }
+  
+  public func exportDOM(editor: Lexical.Editor) throws -> LexicalHTML.DOMExportOutput {
+    let attributes = Attributes()
+    try attributes.put(attribute: Attribute(key: "src", value: url?.absoluteString ?? ""))
+    let dom = SwiftSoup.Element(Tag("img"), "", attributes)
+    return (after: nil, element: dom)
   }
 }
