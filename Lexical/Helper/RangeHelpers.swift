@@ -10,7 +10,7 @@ import Foundation
 public enum RangeSearchInclusionResult {
   case include
   case exclude
-  case inherit // NB inherit also inherits the payload!
+  case inherit  // NB inherit also inherits the payload!
 }
 
 public typealias RangePayloadPair<Payload> = (range: NSRange, payload: Payload)
@@ -51,9 +51,11 @@ public func performRangeSearchWithPayload<Payload: Equatable>(searchRoot: Node, 
  */
 public func performRangeSearch(searchRoot: Node, comparison: (Node) -> (RangeSearchInclusionResult)) throws -> [NSRange] {
   let dummyPayload = true
-  let output = try performRangeSearchWithPayload(searchRoot: searchRoot, comparison: { node in
-    return (comparison(node), dummyPayload)
-  })
+  let output = try performRangeSearchWithPayload(
+    searchRoot: searchRoot,
+    comparison: { node in
+      return (comparison(node), dummyPayload)
+    })
   return output.map { pair in
     return pair.range
   }
@@ -62,11 +64,12 @@ public func performRangeSearch(searchRoot: Node, comparison: (Node) -> (RangeSea
 // the recursive helper function for the above
 func searchInNode<Payload: Equatable>(node: Node, comparison: (Node) -> (RangeSearchInclusionResult, Payload), cursor: inout Int, ranges: inout [RangePayloadPair<Payload>], parentMatch: Bool, parentPayload: Payload?) throws {
   let (currentMatch, currentPayload) = comparison(node)
-  let currentMatchResolved = switch currentMatch {
-  case .include: true
-  case .exclude: false
-  case .inherit: parentMatch
-  }
+  let currentMatchResolved =
+    switch currentMatch {
+    case .include: true
+    case .exclude: false
+    case .inherit: parentMatch
+    }
   let currentPayloadResolved = (currentMatch == .inherit) ? parentPayload ?? currentPayload : currentPayload
 
   // handle preamble and text parts

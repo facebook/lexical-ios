@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+
 // This function is analagous to the parts of onBeforeInput() where inputType == 'insertText'.
 // However, on iOS, we are assuming that `shouldPreventDefaultAndInsertText()` has already been checked
 // before calling onInsertTextFromUITextView().
@@ -138,8 +139,7 @@ public func shouldInsertTextAfterOrBeforeTextNode(selection: RangeSelection, nod
 
   shouldInsertTextBefore = offset == 0 && checkIfTokenOrCanTextBeInserted(node: node)
 
-  shouldInsertTextAfter = node.getTextContentSize() == offset &&
-    checkIfTokenOrCanTextBeInserted(node: node)
+  shouldInsertTextAfter = node.getTextContentSize() == offset && checkIfTokenOrCanTextBeInserted(node: node)
 
   return shouldInsertTextBefore || shouldInsertTextAfter
 }
@@ -172,7 +172,7 @@ internal func onSelectionChange(editor: Editor) {
       }
 
       guard let lexicalSelection = try getSelection() as? RangeSelection else {
-        return // we should have a range selection by now, so this is unexpected
+        return  // we should have a range selection by now, so this is unexpected
       }
 
       try lexicalSelection.applyNativeSelection(nativeSelection)
@@ -217,184 +217,214 @@ internal func handleIndentAndOutdent(insertTab: (Node) -> Void, indentOrOutdent:
 
 public func registerRichText(editor: Editor) {
 
-  _ = editor.registerCommand(type: .insertLineBreak, listener: { [weak editor] payload in
-    guard let editor else { return false }
-    do {
-      try onInsertLineBreakFromUITextView(editor: editor)
-      return true
-    } catch {
-      print("\(error)")
-    }
-    return true
-  })
-
-  _ = editor.registerCommand(type: .deleteCharacter, listener: { [weak editor] payload in
-    guard let editor else { return false }
-    do {
-      try onDeleteBackwardsFromUITextView(editor: editor)
-      return true
-    } catch {
-      print("\(error)")
-    }
-    return true
-  })
-
-  _ = editor.registerCommand(type: .deleteWord, listener: { [weak editor] payload in
-    guard let editor else { return false }
-    do {
-      try onDeleteWordFromUITextView(editor: editor)
-      return true
-    } catch {
-      print("\(error)")
-    }
-    return true
-  })
-
-  _ = editor.registerCommand(type: .deleteLine, listener: { [weak editor] payload in
-    guard let editor else { return false }
-    do {
-      try onDeleteLineFromUITextView(editor: editor)
-      return true
-    } catch {
-      print("\(error)")
-    }
-    return true
-  })
-
-  _ = editor.registerCommand(type: .insertText, listener: { [weak editor] payload in
-    guard let editor else { return false }
-    do {
-      guard let text = payload as? String else {
-        editor.log(.TextView, .warning, "insertText missing payload")
-        return false
+  _ = editor.registerCommand(
+    type: .insertLineBreak,
+    listener: { [weak editor] payload in
+      guard let editor else { return false }
+      do {
+        try onInsertLineBreakFromUITextView(editor: editor)
+        return true
+      } catch {
+        print("\(error)")
       }
-
-      try onInsertTextFromUITextView(text: text, editor: editor)
       return true
-    } catch {
-      editor.log(.TextView, .error, "Exception in insertText; \(String(describing: error))")
-    }
-    return true
-  })
+    })
 
-  _ = editor.registerCommand(type: .insertParagraph, listener: { [weak editor] payload in
-    guard let editor else { return false }
-    do {
-      try onInsertParagraphFromUITextView(editor: editor)
+  _ = editor.registerCommand(
+    type: .deleteCharacter,
+    listener: { [weak editor] payload in
+      guard let editor else { return false }
+      do {
+        try onDeleteBackwardsFromUITextView(editor: editor)
+        return true
+      } catch {
+        print("\(error)")
+      }
       return true
-    } catch {
-      print("\(error)")
-    }
-    return true
-  })
+    })
 
-  _ = editor.registerCommand(type: .removeText, listener: { [weak editor] payload in
-    guard let editor else { return false }
-    do {
-      try onRemoveTextFromUITextView(editor: editor)
+  _ = editor.registerCommand(
+    type: .deleteWord,
+    listener: { [weak editor] payload in
+      guard let editor else { return false }
+      do {
+        try onDeleteWordFromUITextView(editor: editor)
+        return true
+      } catch {
+        print("\(error)")
+      }
       return true
-    } catch {
-      print("\(error)")
-    }
-    return true
-  })
+    })
 
-  _ = editor.registerCommand(type: .formatText, listener: { [weak editor] payload in
-    guard let editor else { return false }
-    do {
-      guard let text = payload as? TextFormatType else { return false }
-
-      try onFormatTextFromUITextView(editor: editor, type: text)
+  _ = editor.registerCommand(
+    type: .deleteLine,
+    listener: { [weak editor] payload in
+      guard let editor else { return false }
+      do {
+        try onDeleteLineFromUITextView(editor: editor)
+        return true
+      } catch {
+        print("\(error)")
+      }
       return true
-    } catch {
-      print("\(error)")
-    }
-    return true
-  })
+    })
 
-  _ = editor.registerCommand(type: .copy, listener: { [weak editor] payload in
-    guard let editor else { return false }
-    do {
-      guard let text = payload as? UIPasteboard else { return false }
-
-      try onCopyFromUITextView(editor: editor, pasteboard: text)
-      return true
-    } catch {
-      print("\(error)")
-    }
-    return true
-  })
-
-  _ = editor.registerCommand(type: .cut, listener: { [weak editor] payload in
-    guard let editor else { return false }
-    do {
-      guard let text = payload as? UIPasteboard else { return false }
-
-      try onCutFromUITextView(editor: editor, pasteboard: text)
-      return true
-    } catch {
-      print("\(error)")
-    }
-    return true
-  })
-
-  _ = editor.registerCommand(type: .paste, listener: { [weak editor] payload in
-    guard let editor else { return false }
-    do {
-      guard let text = payload as? UIPasteboard else { return false }
-
-      try onPasteFromUITextView(editor: editor, pasteboard: text)
-      return true
-    } catch {
-      print("\(error)")
-    }
-    return true
-  })
-
-  _ = editor.registerCommand(type: .indentContent, listener: { [weak editor] payload in
-    guard let editor else { return false }
-    do {
-      try handleIndentAndOutdent(insertTab: { node in
-        editor.dispatchCommand(type: .insertText, payload: "\t")
-      }, indentOrOutdent: { elementNode in
-        let indent = elementNode.getIndent()
-        if indent != 10 {
-          _ = try? elementNode.setIndent(indent + 1)
+  _ = editor.registerCommand(
+    type: .insertText,
+    listener: { [weak editor] payload in
+      guard let editor else { return false }
+      do {
+        guard let text = payload as? String else {
+          editor.log(.TextView, .warning, "insertText missing payload")
+          return false
         }
-      })
-      return true
-    } catch {
-      print("\(error)")
-    }
-    return true
-  })
 
-  _ = editor.registerCommand(type: .outdentContent, listener: { [weak editor] payload in
-    guard let editor else { return false }
-    do {
-      try handleIndentAndOutdent(insertTab: { node in
-        if let node = node as? TextNode {
-          let textContent = node.getTextContent()
-          if let character = textContent.last {
-            if character == "\t" {
-              editor.dispatchCommand(type: .deleteCharacter)
+        try onInsertTextFromUITextView(text: text, editor: editor)
+        return true
+      } catch {
+        editor.log(.TextView, .error, "Exception in insertText; \(String(describing: error))")
+      }
+      return true
+    })
+
+  _ = editor.registerCommand(
+    type: .insertParagraph,
+    listener: { [weak editor] payload in
+      guard let editor else { return false }
+      do {
+        try onInsertParagraphFromUITextView(editor: editor)
+        return true
+      } catch {
+        print("\(error)")
+      }
+      return true
+    })
+
+  _ = editor.registerCommand(
+    type: .removeText,
+    listener: { [weak editor] payload in
+      guard let editor else { return false }
+      do {
+        try onRemoveTextFromUITextView(editor: editor)
+        return true
+      } catch {
+        print("\(error)")
+      }
+      return true
+    })
+
+  _ = editor.registerCommand(
+    type: .formatText,
+    listener: { [weak editor] payload in
+      guard let editor else { return false }
+      do {
+        guard let text = payload as? TextFormatType else { return false }
+
+        try onFormatTextFromUITextView(editor: editor, type: text)
+        return true
+      } catch {
+        print("\(error)")
+      }
+      return true
+    })
+
+  _ = editor.registerCommand(
+    type: .copy,
+    listener: { [weak editor] payload in
+      guard let editor else { return false }
+      do {
+        guard let text = payload as? UIPasteboard else { return false }
+
+        try onCopyFromUITextView(editor: editor, pasteboard: text)
+        return true
+      } catch {
+        print("\(error)")
+      }
+      return true
+    })
+
+  _ = editor.registerCommand(
+    type: .cut,
+    listener: { [weak editor] payload in
+      guard let editor else { return false }
+      do {
+        guard let text = payload as? UIPasteboard else { return false }
+
+        try onCutFromUITextView(editor: editor, pasteboard: text)
+        return true
+      } catch {
+        print("\(error)")
+      }
+      return true
+    })
+
+  _ = editor.registerCommand(
+    type: .paste,
+    listener: { [weak editor] payload in
+      guard let editor else { return false }
+      do {
+        guard let text = payload as? UIPasteboard else { return false }
+
+        try onPasteFromUITextView(editor: editor, pasteboard: text)
+        return true
+      } catch {
+        print("\(error)")
+      }
+      return true
+    })
+
+  _ = editor.registerCommand(
+    type: .indentContent,
+    listener: { [weak editor] payload in
+      guard let editor else { return false }
+      do {
+        try handleIndentAndOutdent(
+          insertTab: { node in
+            editor.dispatchCommand(type: .insertText, payload: "\t")
+          },
+          indentOrOutdent: { elementNode in
+            let indent = elementNode.getIndent()
+            if indent != 10 {
+              _ = try? elementNode.setIndent(indent + 1)
             }
-          }
-        }
-
-        editor.dispatchCommand(type: .insertText, payload: "\t")
-      }, indentOrOutdent: { elementNode in
-        let indent = elementNode.getIndent()
-        if indent != 0 {
-          _ = try? elementNode.setIndent(indent - 1)
-        }
-      })
+          })
+        return true
+      } catch {
+        print("\(error)")
+      }
       return true
-    } catch {
-      print("\(error)")
-    }
-    return true
-  })
+    })
+
+  _ = editor.registerCommand(
+    type: .outdentContent,
+    listener: { [weak editor] payload in
+      guard let editor else { return false }
+      do {
+        try handleIndentAndOutdent(
+          insertTab: { node in
+            if let node = node as? TextNode {
+              let textContent = node.getTextContent()
+              if let character = textContent.last {
+                if character == "\t" {
+                  editor.dispatchCommand(type: .deleteCharacter)
+                }
+              }
+            }
+
+            editor.dispatchCommand(type: .insertText, payload: "\t")
+          },
+          indentOrOutdent: { elementNode in
+            let indent = elementNode.getIndent()
+            if indent != 0 {
+              _ = try? elementNode.setIndent(indent - 1)
+            }
+          })
+        return true
+      } catch {
+        print("\(error)")
+      }
+      return true
+    })
 
   _ = editor.registerCommand(type: .updatePlaceholderVisibility) { [weak editor] payload in
     editor?.frontend?.showPlaceholderText()

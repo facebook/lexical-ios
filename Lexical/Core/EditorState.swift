@@ -6,6 +6,7 @@
  */
 
 import Foundation
+
 internal let kRootNodeKey = "root"
 
 /**
@@ -69,7 +70,7 @@ public class EditorState: NSObject {
     return editorState
   }
 
-  public static func ==(lhs: EditorState, rhs: EditorState) -> Bool {
+  public static func == (lhs: EditorState, rhs: EditorState) -> Bool {
     if lhs.nodeMap.count != rhs.nodeMap.count {
       return false
     }

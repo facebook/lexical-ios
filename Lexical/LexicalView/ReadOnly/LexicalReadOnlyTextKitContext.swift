@@ -16,20 +16,20 @@ internal class LexicalReadOnlySizeCache {
   }
 
   var requiredWidth: CGFloat = 0
-  var requiredHeight: CGFloat? // nil if auto height
-  var measuredTextKitHeight: CGFloat? // the height of rendered text. Will always be less than the targetHeight
-  var customTruncationString: String? // set to nil to opt out of custom truncation
+  var requiredHeight: CGFloat?  // nil if auto height
+  var measuredTextKitHeight: CGFloat?  // the height of rendered text. Will always be less than the targetHeight
+  var customTruncationString: String?  // set to nil to opt out of custom truncation
   var customTruncationAttributes: [NSAttributedString.Key: Any] = [:]
-  var truncationStringMode: TruncationStringMode = .noTruncation // this is the computed truncation mode, not the desired mode
-  var extraHeightForTruncationLine: CGFloat = 0 // iff truncationStringMode is displayedUnderLastLine, this is the height needed to add to the main height.
+  var truncationStringMode: TruncationStringMode = .noTruncation  // this is the computed truncation mode, not the desired mode
+  var extraHeightForTruncationLine: CGFloat = 0  // iff truncationStringMode is displayedUnderLastLine, this is the height needed to add to the main height.
   var cachedTextContainerInsets: UIEdgeInsets = .zero
   var glyphRangeForLastLineFragmentBeforeTruncation: NSRange?
   var glyphRangeForLastLineFragmentAfterTruncation: NSRange?
   var characterRangeForLastLineFragmentBeforeTruncation: NSRange?
-  var glyphIndexAtTruncationIndicatorCutPoint: Int? // assuming the truncation indicator is inline, this is where it would be cut.
+  var glyphIndexAtTruncationIndicatorCutPoint: Int?  // assuming the truncation indicator is inline, this is where it would be cut.
   var textContainerDidShrinkLastLine: Bool?
   var sizeForTruncationString: CGSize?
-  var originForTruncationStringInTextKitCoordinates: CGPoint? // need adding the insets left/top to get it in view coordinates
+  var originForTruncationStringInTextKitCoordinates: CGPoint?  // need adding the insets left/top to get it in view coordinates
   var gapBeforeTruncationString: CGFloat = 6.0
 
   var completeHeightToRender: CGFloat {
@@ -58,7 +58,8 @@ internal class LexicalReadOnlySizeCache {
   var customTruncationRect: CGRect? {
     get {
       guard let origin = originForTruncationStringInTextKitCoordinates,
-            let size = sizeForTruncationString else { return nil }
+            let size = sizeForTruncationString
+      else { return nil }
       return CGRect(origin: origin, size: size)
     }
   }
@@ -71,7 +72,7 @@ internal class LexicalReadOnlySizeCache {
   let layoutManagerDelegate: LayoutManagerDelegate
   @objc public let editor: Editor
 
-  private var targetHeight: CGFloat? // null if fully auto-height
+  private var targetHeight: CGFloat?  // null if fully auto-height
   internal var sizeCache: LexicalReadOnlySizeCache
 
   @objc public var truncationString: String?
@@ -181,10 +182,11 @@ internal class LexicalReadOnlySizeCache {
 
     // 6. Now we've set the custom truncation string metrics on the size cache, if we re lay out, it should return different size.
     let characterRangeForLastLineFragmentPreTruncation = layoutManager.characterRange(forGlyphRange: effectiveGlyphRangeForLastLineFragmentPreTruncation, actualGlyphRange: nil)
-    let truncationStringPlusGapLocation = CGRect(x: lastLineFragmentRect.width - truncationStringRect.width - sizeCache.gapBeforeTruncationString,
-                                                 y: lastLineFragmentRect.minY,
-                                                 width: truncationStringRect.width + sizeCache.gapBeforeTruncationString,
-                                                 height: lastLineFragmentRect.height)
+    let truncationStringPlusGapLocation = CGRect(
+      x: lastLineFragmentRect.width - truncationStringRect.width - sizeCache.gapBeforeTruncationString,
+      y: lastLineFragmentRect.minY,
+      width: truncationStringRect.width + sizeCache.gapBeforeTruncationString,
+      height: lastLineFragmentRect.height)
     let truncationCutPoint = layoutManager.glyphIndex(for: CGPoint(x: truncationStringPlusGapLocation.minX, y: lastLineFragmentRect.maxY - 1), in: textContainer, fractionOfDistanceThroughGlyph: nil)
     sizeCache.glyphIndexAtTruncationIndicatorCutPoint = truncationCutPoint
 

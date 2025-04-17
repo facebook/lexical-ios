@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class NodeTests: XCTestCase {
   var view: LexicalView?
@@ -1543,8 +1544,8 @@ class NodeTests: XCTestCase {
       }
 
       let rootNode = editorState.getRootNode()
-      let paragraphNode = ParagraphNode() // key 1
-      let anotherParagraphNode = ParagraphNode() // key 2
+      let paragraphNode = ParagraphNode()  // key 1
+      let anotherParagraphNode = ParagraphNode()  // key 2
       let key = anotherParagraphNode.key
 
       try rootNode?.append([paragraphNode, anotherParagraphNode])
@@ -1566,7 +1567,7 @@ class NodeTests: XCTestCase {
         XCTAssertTrue(rootNode.children.contains("2"))
       }
 
-      let newHeadingNode = createHeadingNode(headingTag: .h1) // key 3
+      let newHeadingNode = createHeadingNode(headingTag: .h1)  // key 3
       guard let selection = editorState.selection as? RangeSelection else {
         XCTFail("Expected range selection")
         return
@@ -1607,10 +1608,10 @@ class NodeTests: XCTestCase {
       }
 
       let rootNode = editorState.getRootNode()
-      let paragraphNode = ParagraphNode() // key 0
-      let textNode = TextNode() // key 1
+      let paragraphNode = ParagraphNode()  // key 0
+      let textNode = TextNode()  // key 1
       try textNode.setText("Text Node")
-      let anotherParagraphNode = ParagraphNode() // key 2
+      let anotherParagraphNode = ParagraphNode()  // key 2
       try paragraphNode.append([textNode])
       key = textNode.key
 

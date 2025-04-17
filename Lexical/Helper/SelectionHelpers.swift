@@ -112,7 +112,9 @@ func copyLeafNodeBranchToRoot(
   return (range: mutableRange, nodeMap: mutableNodeMap)
 }
 
-public func cloneContents(selection: RangeSelection) throws -> (
+public func cloneContents(
+  selection: RangeSelection
+) throws -> (
   nodeMap: [NodeKey: Node],
   range: [NodeKey]
 ) {
@@ -126,8 +128,7 @@ public func cloneContents(selection: RangeSelection) throws -> (
 
   // Handle a single text node extraction
   if let anchorTextNode = anchorNode as? TextNode,
-     anchorNode.isSameKey(focusNode) &&
-      (anchorNodeParent.canBeEmpty() || anchorNodeParent.getChildrenSize() > 1) {
+     anchorNode.isSameKey(focusNode) && (anchorNodeParent.canBeEmpty() || anchorNodeParent.getChildrenSize() > 1) {
     guard let clonedFirstNode = try cloneWithProperties(node: anchorTextNode) as? TextNode else {
       throw LexicalError.internal("Could not clone anchorNode as TextNode")
     }

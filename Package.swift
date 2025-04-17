@@ -114,7 +114,7 @@ let package = Package(
         "Lexical",
         "LexicalLinkPlugin",
         "LexicalListPlugin",
-        .product(name: "Markdown", package: "swift-markdown")
+        .product(name: "Markdown", package: "swift-markdown"),
       ],
       path: "./Plugins/LexicalMarkdown/LexicalMarkdown"),
     .testTarget(

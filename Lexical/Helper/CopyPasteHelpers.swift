@@ -27,18 +27,22 @@ internal func setPasteboard(selection: BaseSelection, pasteboard: UIPasteboard) 
   if #available(iOS 14.0, *) {
     pasteboard.items =
       [
-        [(UTType.rtf.identifier ): try getAttributedStringFromFrontend().data(
-          from: NSRange(location: 0, length: getAttributedStringFromFrontend().length),
-          documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])],
-        [LexicalConstants.pasteboardIdentifier: encodedData]
+        [
+          (UTType.rtf.identifier): try getAttributedStringFromFrontend().data(
+            from: NSRange(location: 0, length: getAttributedStringFromFrontend().length),
+            documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])
+        ],
+        [LexicalConstants.pasteboardIdentifier: encodedData],
       ]
   } else {
     pasteboard.items =
       [
-        [(kUTTypeRTF as String): try getAttributedStringFromFrontend().data(
-          from: NSRange(location: 0, length: getAttributedStringFromFrontend().length),
-          documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])],
-        [LexicalConstants.pasteboardIdentifier: encodedData]
+        [
+          (kUTTypeRTF as String): try getAttributedStringFromFrontend().data(
+            from: NSRange(location: 0, length: getAttributedStringFromFrontend().length),
+            documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])
+        ],
+        [LexicalConstants.pasteboardIdentifier: encodedData],
       ]
   }
 }
@@ -50,7 +54,7 @@ internal func insertDataTransferForRichText(selection: RangeSelection, pasteboar
       withPasteboardTypes: [
         (UTType.utf8PlainText.identifier),
         (UTType.url.identifier),
-        LexicalConstants.pasteboardIdentifier
+        LexicalConstants.pasteboardIdentifier,
       ]
     )
   } else {
@@ -58,7 +62,7 @@ internal func insertDataTransferForRichText(selection: RangeSelection, pasteboar
       withPasteboardTypes: [
         (kUTTypeUTF8PlainText as String),
         (kUTTypeURL as String),
-        LexicalConstants.pasteboardIdentifier
+        LexicalConstants.pasteboardIdentifier,
       ]
     )
   }
@@ -238,7 +242,8 @@ func appendNodesToArray(
   editor: Editor,
   selection: BaseSelection?,
   currentNode: Node,
-  targetArray: [Node] = []) throws -> (shouldInclude: Bool, outArray: [Node]) {
+  targetArray: [Node] = []
+) throws -> (shouldInclude: Bool, outArray: [Node]) {
   var array = targetArray
   var shouldInclude = selection != nil ? try currentNode.isSelected() : true
   let shouldExclude = (currentNode as? ElementNode)?.excludeFromCopy() ?? false
@@ -269,8 +274,7 @@ func appendNodesToArray(
       targetArray: internalCloneChildren
     )
 
-    if !shouldInclude && shouldIncludeChild.shouldInclude &&
-        ((currentNode as? ElementNode)?.extractWithChild(child: childNode, selection: selection, destination: .clone) ?? false) {
+    if !shouldInclude && shouldIncludeChild.shouldInclude && ((currentNode as? ElementNode)?.extractWithChild(child: childNode, selection: selection, destination: .clone) ?? false) {
       shouldInclude = true
     }
 
@@ -294,9 +298,12 @@ func appendNodesToArray(
   return (shouldInclude, array)
 }
 
-public func generateArrayFromSelectedNodes(editor: Editor, selection: BaseSelection?) throws -> (
+public func generateArrayFromSelectedNodes(
+  editor: Editor, selection: BaseSelection?
+) throws -> (
   namespace: String,
-  nodes: [Node]) {
+  nodes: [Node]
+) {
   var nodes: [Node] = []
   guard let root = getRoot() else {
     return ("", [])
@@ -321,7 +328,8 @@ extension NSAttributedString {
 
     (string as NSString).enumerateSubstrings(
       in: NSRange(location: 0, length: (string as NSString).length),
-      options: .byParagraphs) { subString, subStringRange, enclosingRange, stop in
+      options: .byParagraphs
+    ) { subString, subStringRange, enclosingRange, stop in
       rangeArray.append(subStringRange)
     }
 

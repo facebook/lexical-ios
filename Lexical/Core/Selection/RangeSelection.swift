@@ -14,7 +14,7 @@ public class RangeSelection: BaseSelection {
   public var focus: Point
   public var dirty: Bool
   public var format: TextFormat
-  public var style: String // TODO: add style support to iOS
+  public var style: String  // TODO: add style support to iOS
 
   // MARK: - Init
 
@@ -46,8 +46,7 @@ public class RangeSelection: BaseSelection {
   public func getCharacterOffsets(selection: RangeSelection) -> (Int, Int) {
     let anchor = selection.anchor
     let focus = selection.focus
-    if anchor.type == .element && focus.type == .element &&
-        anchor.key == focus.key && anchor.offset == focus.offset {
+    if anchor.type == .element && focus.type == .element && anchor.key == focus.key && anchor.offset == focus.offset {
       return (0, 0)
     }
     return (anchor.getCharacterOffset(), focus.getCharacterOffset())
@@ -86,19 +85,23 @@ public class RangeSelection: BaseSelection {
   }
 
   public func clone() -> BaseSelection {
-    let selectionAnchor = createPoint(key: anchor.key,
-                                      offset: anchor.offset,
-                                      type: anchor.type)
-    let selectionFocus = createPoint(key: focus.key,
-                                     offset: focus.offset,
-                                     type: focus.type)
+    let selectionAnchor = createPoint(
+      key: anchor.key,
+      offset: anchor.offset,
+      type: anchor.type)
+    let selectionFocus = createPoint(
+      key: focus.key,
+      offset: focus.offset,
+      type: focus.type)
     return RangeSelection(anchor: selectionAnchor, focus: selectionFocus, format: format)
   }
 
-  public func setTextNodeRange(anchorNode: TextNode,
-                               anchorOffset: Int,
-                               focusNode: TextNode,
-                               focusOffset: Int) {
+  public func setTextNodeRange(
+    anchorNode: TextNode,
+    anchorOffset: Int,
+    focusNode: TextNode,
+    focusOffset: Int
+  ) {
     anchor.updatePoint(key: anchorNode.key, offset: anchorOffset, type: .text)
     focus.updatePoint(key: focusNode.key, offset: focusOffset, type: .text)
     dirty = true
@@ -120,9 +123,10 @@ public class RangeSelection: BaseSelection {
       let startOffset = anchorOffset > focusOffset ? focusOffset : anchorOffset
       let endOffset = anchorOffset > focusOffset ? anchorOffset : focusOffset
       let splitNodes = try firstNode.splitText(splitOffsets: [startOffset, endOffset])
-      guard let node = startOffset == 0
-              ? (splitNodes.count > 0 ? splitNodes.first : nil)
-              : (splitNodes.count > 1 ? splitNodes[1] : nil)
+      guard
+        let node = startOffset == 0
+          ? (splitNodes.count > 0 ? splitNodes.first : nil)
+          : (splitNodes.count > 1 ? splitNodes[1] : nil)
       else { return [] }
       return [node]
     }
@@ -273,16 +277,9 @@ public class RangeSelection: BaseSelection {
     let firstNodeParent = try firstNode.getParentOrThrow()
     var lastNode = selectedNodes.last
 
-    if isCollapsed() &&
-        startOffset == firstNodeTextLength &&
-        (firstNode.isSegmented() ||
-          firstNode.isToken() ||
-          !firstNode.canInsertTextAfter() ||
-          (!firstNodeParent.canInsertTextAfter() && firstNode.getNextSibling() == nil)) {
+    if isCollapsed() && startOffset == firstNodeTextLength && (firstNode.isSegmented() || firstNode.isToken() || !firstNode.canInsertTextAfter() || (!firstNodeParent.canInsertTextAfter() && firstNode.getNextSibling() == nil)) {
       var nextSibling = firstNode.getNextSibling() as? TextNode
-      if nextSibling == nil ||
-          !(nextSibling?.canInsertTextBefore() ?? true) ||
-          isTokenOrSegmented(nextSibling) {
+      if nextSibling == nil || !(nextSibling?.canInsertTextBefore() ?? true) || isTokenOrSegmented(nextSibling) {
         nextSibling = TextNode()
         if let nextSibling {
           try nextSibling.setFormat(format: format)
@@ -301,12 +298,7 @@ public class RangeSelection: BaseSelection {
         try insertText(text)
         return
       }
-    } else if isCollapsed() &&
-                startOffset == 0 &&
-                (firstNode.isSegmented() ||
-                  firstNode.isToken() ||
-                  !firstNode.canInsertTextBefore() ||
-                  (!firstNodeParent.canInsertTextBefore() && firstNode.getPreviousSibling() == nil)) {
+    } else if isCollapsed() && startOffset == 0 && (firstNode.isSegmented() || firstNode.isToken() || !firstNode.canInsertTextBefore() || (!firstNodeParent.canInsertTextBefore() && firstNode.getPreviousSibling() == nil)) {
       var prevSibling = firstNode.getPreviousSibling() as? TextNode
       if prevSibling == nil || isTokenOrSegmented(prevSibling) {
         prevSibling = TextNode()
@@ -339,11 +331,7 @@ public class RangeSelection: BaseSelection {
       // the new content.
       let lastNodeParent = lastNode?.getParent()
 
-      if !firstNodeParent.canInsertTextBefore() ||
-          !firstNodeParent.canInsertTextAfter() ||
-          (lastNodeParent != nil &&
-            (!(lastNodeParent?.canInsertTextBefore() ?? true) ||
-              !(lastNodeParent?.canInsertTextAfter() ?? true))) {
+      if !firstNodeParent.canInsertTextBefore() || !firstNodeParent.canInsertTextAfter() || (lastNodeParent != nil && (!(lastNodeParent?.canInsertTextBefore() ?? true) || !(lastNodeParent?.canInsertTextAfter() ?? true))) {
         try insertText("")
         try normalizeSelectionPointsForBoundaries(anchor: self.anchor, focus: self.focus, lastSelection: nil)
         try insertText(text)
@@ -422,8 +410,7 @@ public class RangeSelection: BaseSelection {
       }
 
       // Handle mutations to the last node.
-      if (endPoint.type == .text && (endOffset != 0 || (lastNode?.getTextContent().lengthAsNSString() == 0))) ||
-          (endPoint.type == .element && lastNode?.getIndexWithinParent() ?? 0 < endOffset) {
+      if (endPoint.type == .text && (endOffset != 0 || (lastNode?.getTextContent().lengthAsNSString() == 0))) || (endPoint.type == .element && lastNode?.getIndexWithinParent() ?? 0 < endOffset) {
         if let lastNodeAsTextNode = lastNode as? TextNode,
            !lastNodeAsTextNode.isToken(),
            endOffset != lastNodeAsTextNode.getTextContentSize() {
@@ -594,8 +581,7 @@ public class RangeSelection: BaseSelection {
       if let node = node as? ElementNode {
         if node == firstNode {
           if let unwrappedTarget = target as? ElementNode,
-             unwrappedTarget.isEmpty() &&
-              unwrappedTarget.canReplaceWith(replacement: node) {
+             unwrappedTarget.isEmpty() && unwrappedTarget.canReplaceWith(replacement: node) {
             try target.replace(replaceWith: node)
             target = node
             didReplaceOrMerge = true
@@ -665,11 +651,10 @@ public class RangeSelection: BaseSelection {
             target = try target.insertAfter(nodeToInsert: node)
           }
         }
-      } else if !isElementNode(node: node) ||
-                  isDecoratorNode(node) && (node as? DecoratorNode)?.isTopLevel() == true {
+      } else if !isElementNode(node: node) || isDecoratorNode(node) && (node as? DecoratorNode)?.isTopLevel() == true {
         target = try target.insertAfter(nodeToInsert: node)
       } else {
-        target = try node.getParentOrThrow() // Re-try again with the target being the parent
+        target = try node.getParentOrThrow()  // Re-try again with the target being the parent
         continue
       }
     }
@@ -1063,7 +1048,8 @@ public class RangeSelection: BaseSelection {
     let focusOffset = affinity == .forward ? range.location + range.length : range.location
 
     guard let anchor = try? pointAtStringLocation(anchorOffset, searchDirection: affinity, rangeCache: editor.rangeCache),
-          let focus = try? pointAtStringLocation(focusOffset, searchDirection: affinity, rangeCache: editor.rangeCache) else {
+          let focus = try? pointAtStringLocation(focusOffset, searchDirection: affinity, rangeCache: editor.rangeCache)
+    else {
       return nil
     }
 
@@ -1277,9 +1263,7 @@ public class RangeSelection: BaseSelection {
 
 extension RangeSelection: Equatable {
   public static func == (lhs: RangeSelection, rhs: RangeSelection) -> Bool {
-    return lhs.anchor == rhs.anchor &&
-      lhs.focus == rhs.focus &&
-      lhs.format == rhs.format
+    return lhs.anchor == rhs.anchor && lhs.focus == rhs.focus && lhs.format == rhs.format
   }
 }
 

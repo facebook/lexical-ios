@@ -51,7 +51,7 @@ class LayoutManagerDelegate: NSObject, NSLayoutManagerDelegate {
 
     for operationRange in operationRanges {
       // derive the end location for the current string range in terms of the passed in glyph range
-      var glyphSubrangeEnd = locationWithinIncomingGlyphsRange + operationRange.range.length // start the search here, it can't be less than that
+      var glyphSubrangeEnd = locationWithinIncomingGlyphsRange + operationRange.range.length  // start the search here, it can't be less than that
       while glyphSubrangeEnd <= incomingGlyphsLength {
         let nextCharIndex = characterIndexes[glyphSubrangeEnd + 1]
         if !operationRange.range.contains(nextCharIndex) {
@@ -80,9 +80,12 @@ class LayoutManagerDelegate: NSObject, NSLayoutManagerDelegate {
           let composedNormalisedRange = textStorageString.rangeOfComposedCharacterSequence(at: substringRange.location)
           if composedNormalisedRange != substringRange {
             // for this case, we can't upper or lower case _half_ a character.
-            operationResults.append((glyphs: [CGGlyph](repeating: CGGlyph(0), count: substringRange.length),
-                                     properties: [NSLayoutManager.GlyphProperty](repeating: .null, count: substringRange.length),
-                                     characterIndexes: Array(substringRange.location...(substringRange.location + substringRange.length))))
+            operationResults.append(
+              (
+                glyphs: [CGGlyph](repeating: CGGlyph(0), count: substringRange.length),
+                properties: [NSLayoutManager.GlyphProperty](repeating: .null, count: substringRange.length),
+                characterIndexes: Array(substringRange.location...(substringRange.location + substringRange.length))
+              ))
             bufferLength += substringRange.length
             return
           }
@@ -91,8 +94,10 @@ class LayoutManagerDelegate: NSObject, NSLayoutManagerDelegate {
           let modifiedSubstring = operationRange.operation == .lowercase ? substring.lowercased() : substring.uppercased()
 
           // iterate through this _new_ string, in case upper casing it resulted in more than one composed character
-          (modifiedSubstring as NSString).enumerateSubstrings(in: NSRange(location: 0, length: modifiedSubstring.lengthAsNSString()),
-                                                              options: .byComposedCharacterSequences) { innerSubstring, innerSubstringRange, innerEnclosingRange, _ in
+          (modifiedSubstring as NSString).enumerateSubstrings(
+            in: NSRange(location: 0, length: modifiedSubstring.lengthAsNSString()),
+            options: .byComposedCharacterSequences
+          ) { innerSubstring, innerSubstringRange, innerEnclosingRange, _ in
             guard let innerSubstring else {
               return
             }
@@ -100,7 +105,7 @@ class LayoutManagerDelegate: NSObject, NSLayoutManagerDelegate {
             // Generate glyphs for the character
             let utf16 = Array(innerSubstring.utf16)
             var newGlyphs = [CGGlyph](repeating: 0, count: utf16.count)
-            CTFontGetGlyphsForCharacters(ctFont, utf16, &newGlyphs, utf16.count) // if failure, glyph array will be empty as desired
+            CTFontGetGlyphsForCharacters(ctFont, utf16, &newGlyphs, utf16.count)  // if failure, glyph array will be empty as desired
 
             // build up our best guess at the glyph properties!
             var newProperties = [NSLayoutManager.GlyphProperty](repeating: .init(rawValue: 0), count: utf16.count)
@@ -145,7 +150,8 @@ class LayoutManagerDelegate: NSObject, NSLayoutManagerDelegate {
         sumCharacterIndexes.withUnsafeBufferPointer { sumCharsBuffer in
           guard let sumGlyphsBaseAddress = sumGlyphsBuffer.baseAddress,
                 let sumPropsBaseAddress = sumPropsBuffer.baseAddress,
-                let sumCharsBaseAddress = sumCharsBuffer.baseAddress else {
+                let sumCharsBaseAddress = sumCharsBuffer.baseAddress
+          else {
             fail = true
             return
           }

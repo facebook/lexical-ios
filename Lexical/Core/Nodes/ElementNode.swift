@@ -12,7 +12,7 @@ open class ElementNode: Node {
     case children
     case direction
     case indent
-    case format // text alignment. Not supported yet.
+    case format  // text alignment. Not supported yet.
   }
 
   // TODO: once the various accessor methods are written, make this var private
@@ -275,7 +275,8 @@ open class ElementNode: Node {
   public func extractWithChild(
     child: Node,
     selection: BaseSelection?,
-    destination: Destination) -> Bool {
+    destination: Destination
+  ) -> Bool {
     return false
   }
 

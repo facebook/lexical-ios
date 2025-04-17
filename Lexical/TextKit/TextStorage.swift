@@ -99,7 +99,7 @@ public class TextStorage: NSTextStorage {
         }
 
         guard let selection = try getSelection() as? RangeSelection else {
-          return // we should have a range selection by now, so this is unexpected
+          return  // we should have a range selection by now, so this is unexpected
         }
         try selection.applyNativeSelection(nativeSelection)
         try selection.insertText(str)

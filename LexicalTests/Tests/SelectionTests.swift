@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class SelectionTests: XCTestCase {
 
@@ -85,17 +86,19 @@ class SelectionTests: XCTestCase {
       let endPoint = createPoint(key: textNode2.key, offset: 4, type: .text)
       let selection = RangeSelection(anchor: startPoint, focus: endPoint, format: TextFormat())
 
-      selection.setTextNodeRange(anchorNode: textNode,
-                                 anchorOffset: 1,
-                                 focusNode: textNode2,
-                                 focusOffset: 3)
+      selection.setTextNodeRange(
+        anchorNode: textNode,
+        anchorOffset: 1,
+        focusNode: textNode2,
+        focusOffset: 3)
       XCTAssertTrue(selection.anchor.offset == 1)
       XCTAssertTrue(selection.focus.offset == 3)
 
-      selection.setTextNodeRange(anchorNode: textNode,
-                                 anchorOffset: 2,
-                                 focusNode: textNode2,
-                                 focusOffset: 5)
+      selection.setTextNodeRange(
+        anchorNode: textNode,
+        anchorOffset: 2,
+        focusNode: textNode2,
+        focusOffset: 5)
       XCTAssertTrue(selection.anchor.offset == 2)
       XCTAssertTrue(selection.focus.offset == 5)
     }
@@ -466,7 +469,7 @@ class SelectionTests: XCTestCase {
 
       // we now have an empty paragraph before the paragraph saying "hello worldagain"
 
-      startPoint = createPoint(key: textNode.key, offset: 6, type: .text) // just before "world"
+      startPoint = createPoint(key: textNode.key, offset: 6, type: .text)  // just before "world"
       endPoint = createPoint(key: textNode.key, offset: 6, type: .text)
       selection = RangeSelection(anchor: startPoint, focus: endPoint, format: TextFormat())
 
@@ -888,8 +891,8 @@ class SelectionTests: XCTestCase {
       try selection.insertText("This is a new test")
       try selection.insertParagraph()
 
-      selection.anchor.updatePoint(key: "1", offset: 0, type: .text) // the "Hello!" text node
-      selection.focus.updatePoint(key: "4", offset: 0, type: .element) // the empty paragraph at the end
+      selection.anchor.updatePoint(key: "1", offset: 0, type: .text)  // the "Hello!" text node
+      selection.focus.updatePoint(key: "4", offset: 0, type: .element)  // the empty paragraph at the end
     }
 
     // In a future diff when this is not driven off the text storage, the range selection should
@@ -1036,8 +1039,8 @@ class SelectionTests: XCTestCase {
         return
       }
 
-      let headingNode = HeadingNode(tag: .h1) // key 1
-      let textNode = TextNode() // key 2
+      let headingNode = HeadingNode(tag: .h1)  // key 1
+      let textNode = TextNode()  // key 2
       try textNode.setText("This is H1")
       try headingNode.append([textNode])
       try rootNode.append([headingNode])
@@ -1078,19 +1081,19 @@ class SelectionTests: XCTestCase {
     try editor.update {
       guard let paragraphNode = getNodeByKey(key: "0") as? ParagraphNode else { return }
 
-      let textNode = TextNode() // key 1
+      let textNode = TextNode()  // key 1
       try textNode.setText("Hello world again")
       try paragraphNode.append([textNode])
 
       let anchor = Point(key: "1", offset: 12, type: .text)
       let focus = Point(key: "1", offset: 17, type: .text)
       let selection = RangeSelection(anchor: anchor, focus: focus, format: TextFormat())
-      try selection.formatText(formatType: .bold) // key 2 with text = again
+      try selection.formatText(formatType: .bold)  // key 2 with text = again
 
       let newAnchor = Point(key: "1", offset: 6, type: .text)
       let newFocus = Point(key: "1", offset: 6, type: .text)
       let newSelection = RangeSelection(anchor: newAnchor, focus: newFocus, format: TextFormat())
-      try newSelection.insertParagraph() // key 4 - paragraph with 2 children
+      try newSelection.insertParagraph()  // key 4 - paragraph with 2 children
     }
 
     try editor.update {

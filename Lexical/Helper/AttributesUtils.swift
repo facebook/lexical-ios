@@ -188,7 +188,7 @@ enum AttributeUtils {
   }
 
   private enum BlockParagraphLocation {
-    case range(NSRange, NSRange) // non-enclosing range, enclosing range
+    case range(NSRange, NSRange)  // non-enclosing range, enclosing range
     case extraLineFragment
   }
 
@@ -197,7 +197,7 @@ enum AttributeUtils {
     // for more information about the extraLineFragment, see NSLayoutManager docs
     let extraLineFragmentIsPresent = extraLineFragmentIsPresent(textStorage)
     let startTouchesExtraLineFragment = (extraLineFragmentIsPresent && cacheItem.range.length == 0 && cacheItem.range.location == textStorage.length)
-    let endTouchesExtraLineFragment = (extraLineFragmentIsPresent && (NSMaxRange(cacheItem.range) - cacheItem.postambleLength) == textStorage.length) // ignore postamble, since postamble terminates the block
+    let endTouchesExtraLineFragment = (extraLineFragmentIsPresent && (NSMaxRange(cacheItem.range) - cacheItem.postambleLength) == textStorage.length)  // ignore postamble, since postamble terminates the block
 
     var extraLineFragmentAttributes = (extraLineFragmentIsPresent) ? lastDescendentAttributes : [:]
 

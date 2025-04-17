@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class SelectionUtilsTests: XCTestCase {
   func testCreatePoint() throws {
@@ -85,9 +86,10 @@ class SelectionUtilsTests: XCTestCase {
     }
 
     try editor.getEditorState().read {
-      let selection = RangeSelection(anchor: Point(key: "2", offset: 1, type: .text),
-                                     focus: Point(key: "2", offset: 3, type: .text),
-                                     format: TextFormat())
+      let selection = RangeSelection(
+        anchor: Point(key: "2", offset: 1, type: .text),
+        focus: Point(key: "2", offset: 3, type: .text),
+        format: TextFormat())
 
       let textSelection = try createNativeSelection(from: selection, editor: editor)
       XCTAssertNotNil(textSelection.range)
@@ -95,9 +97,10 @@ class SelectionUtilsTests: XCTestCase {
       XCTAssertEqual(textSelection.range?.location, 7)
       XCTAssertEqual(textSelection.range?.length, 2)
 
-      let selection2 = RangeSelection(anchor: Point(key: "2", offset: 6, type: .text),
-                                      focus: Point(key: "2", offset: 2, type: .text),
-                                      format: TextFormat())
+      let selection2 = RangeSelection(
+        anchor: Point(key: "2", offset: 6, type: .text),
+        focus: Point(key: "2", offset: 2, type: .text),
+        format: TextFormat())
 
       let textSelection2 = try createNativeSelection(from: selection2, editor: editor)
       XCTAssertNotNil(textSelection2.range)
@@ -105,9 +108,10 @@ class SelectionUtilsTests: XCTestCase {
       XCTAssertEqual(textSelection2.range?.location, 8)
       XCTAssertEqual(textSelection2.range?.length, 4)
 
-      let selection3 = RangeSelection(anchor: Point(key: "6", offset: 6, type: .text),
-                                      focus: Point(key: "6", offset: 6, type: .text),
-                                      format: TextFormat())
+      let selection3 = RangeSelection(
+        anchor: Point(key: "6", offset: 6, type: .text),
+        focus: Point(key: "6", offset: 6, type: .text),
+        format: TextFormat())
 
       let textSelection3 = try createNativeSelection(from: selection3, editor: editor)
       XCTAssertNotNil(textSelection3.range)
@@ -126,9 +130,10 @@ class SelectionUtilsTests: XCTestCase {
     }
 
     try editor.getEditorState().read {
-      let selection = RangeSelection(anchor: Point(key: "1", offset: 1, type: .text),
-                                     focus: Point(key: "2", offset: 3, type: .text),
-                                     format: TextFormat())
+      let selection = RangeSelection(
+        anchor: Point(key: "1", offset: 1, type: .text),
+        focus: Point(key: "2", offset: 3, type: .text),
+        format: TextFormat())
 
       let textSelection = try createNativeSelection(from: selection, editor: editor)
       XCTAssertNotNil(textSelection.range)
@@ -136,9 +141,10 @@ class SelectionUtilsTests: XCTestCase {
       XCTAssertEqual(textSelection.range?.location, 1)
       XCTAssertEqual(textSelection.range?.length, 8)
 
-      let selection2 = RangeSelection(anchor: Point(key: "2", offset: 4, type: .text),
-                                      focus: Point(key: "1", offset: 3, type: .text),
-                                      format: TextFormat())
+      let selection2 = RangeSelection(
+        anchor: Point(key: "2", offset: 4, type: .text),
+        focus: Point(key: "1", offset: 3, type: .text),
+        format: TextFormat())
 
       let textSelection2 = try createNativeSelection(from: selection2, editor: editor)
       XCTAssertNotNil(textSelection2.range)
@@ -160,8 +166,8 @@ class SelectionUtilsTests: XCTestCase {
         return
       }
 
-      let textNode1 = TextNode() // key 1
-      let textNode2 = TextNode() // key 2
+      let textNode1 = TextNode()  // key 1
+      let textNode2 = TextNode()  // key 2
       try textNode1.setText("Hello ")
       try textNode1.setBold(true)
       try textNode2.setText("Adios")
@@ -173,16 +179,16 @@ class SelectionUtilsTests: XCTestCase {
 
       try paragraphNode0.append([textNode1, textNode2])
 
-      let textNode3 = TextNode() // key 3
-      let textNode4 = TextNode() // key 4
-      let textNode5 = TextNode() // key 5
+      let textNode3 = TextNode()  // key 3
+      let textNode4 = TextNode()  // key 4
+      let textNode5 = TextNode()  // key 5
       try textNode3.setText("This is a new test.")
       try textNode3.setBold(true)
       try textNode4.setText("Checking selection between")
       try textNode5.setText("element types")
       try textNode5.setBold(true)
 
-      let paragraphNode1 = ParagraphNode() // key 6
+      let paragraphNode1 = ParagraphNode()  // key 6
 
       try paragraphNode1.append([textNode3, textNode4, textNode5])
 
@@ -190,9 +196,10 @@ class SelectionUtilsTests: XCTestCase {
     }
 
     try editor.getEditorState().read {
-      let selection = RangeSelection(anchor: Point(key: "0", offset: 1, type: .element),
-                                     focus: Point(key: "0", offset: 1, type: .element),
-                                     format: TextFormat())
+      let selection = RangeSelection(
+        anchor: Point(key: "0", offset: 1, type: .element),
+        focus: Point(key: "0", offset: 1, type: .element),
+        format: TextFormat())
 
       let textSelection = try createNativeSelection(from: selection, editor: editor)
       XCTAssertNotNil(textSelection.range)
@@ -200,9 +207,10 @@ class SelectionUtilsTests: XCTestCase {
       XCTAssertEqual(textSelection.range?.location, 6, "Offset for native selection should be 6")
       XCTAssertEqual(textSelection.range?.length, 0, "length of current selection should be 0")
 
-      let selection2 = RangeSelection(anchor: Point(key: "6", offset: 2, type: .element),
-                                      focus: Point(key: "6", offset: 1, type: .element),
-                                      format: TextFormat())
+      let selection2 = RangeSelection(
+        anchor: Point(key: "6", offset: 2, type: .element),
+        focus: Point(key: "6", offset: 1, type: .element),
+        format: TextFormat())
 
       let textSelection2 = try createNativeSelection(from: selection2, editor: editor)
       XCTAssertNotNil(textSelection2.range)
@@ -210,9 +218,10 @@ class SelectionUtilsTests: XCTestCase {
       XCTAssertEqual(textSelection2.range?.location, 31)
       XCTAssertEqual(textSelection2.range?.length, 26)
 
-      let selection3 = RangeSelection(anchor: Point(key: "0", offset: 1, type: .element),
-                                      focus: Point(key: "6", offset: 2, type: .element),
-                                      format: TextFormat())
+      let selection3 = RangeSelection(
+        anchor: Point(key: "0", offset: 1, type: .element),
+        focus: Point(key: "6", offset: 2, type: .element),
+        format: TextFormat())
 
       let textSelection3 = try createNativeSelection(from: selection3, editor: editor)
       XCTAssertNotNil(textSelection3.range)
@@ -331,17 +340,19 @@ class SelectionUtilsTests: XCTestCase {
       let startPoint = createPoint(key: textNode.key, offset: 0, type: .text)
       let endPoint = createPoint(key: textNode2.key, offset: 4, type: .text)
 
-      adjustPointOffsetForMergedSibling(point: startPoint,
-                                        isBefore: true,
-                                        key: textNode.key,
-                                        target: textNode,
-                                        textLength: 6)
+      adjustPointOffsetForMergedSibling(
+        point: startPoint,
+        isBefore: true,
+        key: textNode.key,
+        target: textNode,
+        textLength: 6)
 
-      adjustPointOffsetForMergedSibling(point: endPoint,
-                                        isBefore: false,
-                                        key: textNode2.key,
-                                        target: textNode2,
-                                        textLength: 5)
+      adjustPointOffsetForMergedSibling(
+        point: endPoint,
+        isBefore: false,
+        key: textNode2.key,
+        target: textNode2,
+        textLength: 5)
 
       XCTAssertEqual(startPoint.key, textNode.key)
       XCTAssertEqual(startPoint.offset, 0)

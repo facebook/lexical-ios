@@ -32,7 +32,7 @@ private class ReconcilerState {
     self.prevEditorState = currentEditorState
     self.nextEditorState = pendingEditorState
     self.prevRangeCache = rangeCache
-    self.nextRangeCache = rangeCache // Use the previous range cache as a starting point
+    self.nextRangeCache = rangeCache  // Use the previous range cache as a starting point
     self.locationCursor = 0
     self.rangesToDelete = []
     self.rangesToAdd = []
@@ -77,7 +77,7 @@ internal enum Reconciler {
     currentEditorState: EditorState,
     pendingEditorState: EditorState,
     editor: Editor,
-    shouldReconcileSelection: Bool, // the situations where we would want to not do this include handling non-controlled mode
+    shouldReconcileSelection: Bool,  // the situations where we would want to not do this include handling non-controlled mode
     markedTextOperation: MarkedTextOperation?
   ) throws {
     editor.log(.reconciler, .verbose)
@@ -108,12 +108,13 @@ internal enum Reconciler {
     let nextSelection = pendingEditorState.selection
     let needsUpdate = editor.dirtyType != .noDirtyNodes
 
-    let reconcilerState = ReconcilerState(currentEditorState: currentEditorState,
-                                          pendingEditorState: pendingEditorState,
-                                          rangeCache: editor.rangeCache,
-                                          dirtyNodes: editor.dirtyNodes,
-                                          treatAllNodesAsDirty: editor.dirtyType == .fullReconcile,
-                                          markedTextOperation: markedTextOperation)
+    let reconcilerState = ReconcilerState(
+      currentEditorState: currentEditorState,
+      pendingEditorState: pendingEditorState,
+      rangeCache: editor.rangeCache,
+      dirtyNodes: editor.dirtyNodes,
+      treatAllNodesAsDirty: editor.dirtyType == .fullReconcile,
+      markedTextOperation: markedTextOperation)
 
     try reconcileNode(key: kRootNodeKey, reconcilerState: reconcilerState)
 
@@ -425,7 +426,8 @@ internal enum Reconciler {
 
   private static func reconcileChildren(key: NodeKey, reconcilerState: ReconcilerState) throws {
     guard let prevNode = reconcilerState.prevEditorState.nodeMap[key] as? ElementNode,
-          let nextNode = reconcilerState.nextEditorState.nodeMap[key] as? ElementNode else {
+          let nextNode = reconcilerState.nextEditorState.nodeMap[key] as? ElementNode
+    else {
       return
     }
     // in JS, this method does a few optimisation codepaths, then calls to the slow path reconcileNodeChildren. I'll not program the optimisations yet.
@@ -437,11 +439,13 @@ internal enum Reconciler {
       reconcilerState: reconcilerState)
   }
 
-  private static func reconcileNodeChildren(prevChildren: [NodeKey],
-                                            nextChildren: [NodeKey],
-                                            prevChildrenLength: Int,
-                                            nextChildrenLength: Int,
-                                            reconcilerState: ReconcilerState) throws {
+  private static func reconcileNodeChildren(
+    prevChildren: [NodeKey],
+    nextChildren: [NodeKey],
+    prevChildrenLength: Int,
+    nextChildrenLength: Int,
+    reconcilerState: ReconcilerState
+  ) throws {
     let prevEndIndex = prevChildrenLength - 1
     let nextEndIndex = nextChildrenLength - 1
     var prevIndex = 0
@@ -563,7 +567,8 @@ internal enum Reconciler {
   private static func reconcileSelection(
     prevSelection: BaseSelection?,
     nextSelection: BaseSelection?,
-    editor: Editor) throws {
+    editor: Editor
+  ) throws {
     guard let nextSelection else {
       if let prevSelection {
         if !prevSelection.dirty {
@@ -584,7 +589,8 @@ internal enum Reconciler {
 
 internal func performReconcilerSanityCheck(
   editor sanityCheckEditor: Editor,
-  expectedOutput: NSAttributedString) throws {
+  expectedOutput: NSAttributedString
+) throws {
   // TODO @amyworrall: this was commented out during the Frontend refactor. Create a new Frontend that contains
   // a TextKit stack but no selection or UI. Use that to re-implement the reconciler.
 

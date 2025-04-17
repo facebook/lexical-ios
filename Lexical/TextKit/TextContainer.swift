@@ -37,10 +37,11 @@ public class TextContainer: NSTextContainer {
     writingDirection baseWritingDirection: NSWritingDirection,
     remaining remainingRect: UnsafeMutablePointer<CGRect>?
   ) -> CGRect {
-    var lineFragmentRect = super.lineFragmentRect(forProposedRect: proposedRect,
-                                                  at: characterIndex,
-                                                  writingDirection: baseWritingDirection,
-                                                  remaining: remainingRect)
+    var lineFragmentRect = super.lineFragmentRect(
+      forProposedRect: proposedRect,
+      at: characterIndex,
+      writingDirection: baseWritingDirection,
+      remaining: remainingRect)
 
     guard let readOnlySizeCache,
           let characterRange = readOnlySizeCache.characterRangeForLastLineFragmentBeforeTruncation,

@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class GarbageCollectionTests: XCTestCase {
 
@@ -33,7 +34,8 @@ class GarbageCollectionTests: XCTestCase {
     try editor.update {
       guard let editorState = getActiveEditorState(),
             let pendingEditorState = editor.testing_getPendingEditorState(),
-            let rootNode = editorState.getRootNode() else {
+            let rootNode = editorState.getRootNode()
+      else {
         XCTFail("should have editor state")
         return
       }
@@ -66,7 +68,8 @@ class GarbageCollectionTests: XCTestCase {
 
       guard let editorState = getActiveEditorState(),
             let pendingEditorState = editor.testing_getPendingEditorState(),
-            let rootNode = editorState.getRootNode() else {
+            let rootNode = editorState.getRootNode()
+      else {
         XCTFail("should have editor state")
         return
       }

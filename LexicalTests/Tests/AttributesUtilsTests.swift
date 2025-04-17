@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class AttributesUtilsTests: XCTestCase {
   func testGetLexicalAttributes() throws {
@@ -214,7 +215,7 @@ class AttributesUtilsTests: XCTestCase {
   func testThemeForRootNode() throws {
     let rootAttributes: [NSAttributedString.Key: Any] = [
       .fontFamily: "Arial",
-      .fontSize: 18 as Float
+      .fontSize: 18 as Float,
     ]
 
     let theme = Theme()

@@ -76,10 +76,7 @@ public class QuoteNode: ElementNode {
     guard let rhs = object as? QuoteCustomDrawingAttributes else {
       return false
     }
-    return lhs.barColor == rhs.barColor &&
-      lhs.barWidth == rhs.barWidth &&
-      lhs.rounded == rhs.rounded &&
-      lhs.barInsets == rhs.barInsets
+    return lhs.barColor == rhs.barColor && lhs.barWidth == rhs.barWidth && lhs.rounded == rhs.rounded && lhs.barInsets == rhs.barInsets
   }
 }
 
@@ -93,10 +90,11 @@ extension QuoteNode {
       return { attributeKey, attributeValue, layoutManager, attributeRunCharacterRange, granularityExpandedCharacterRange, glyphRange, rect, firstLineFragment in
         guard let attributeValue = attributeValue as? QuoteCustomDrawingAttributes else { return }
 
-        let barRect = CGRect(x: rect.minX + attributeValue.barInsets.left,
-                             y: rect.minY + attributeValue.barInsets.top,
-                             width: attributeValue.barWidth,
-                             height: rect.height - attributeValue.barInsets.top - attributeValue.barInsets.bottom)
+        let barRect = CGRect(
+          x: rect.minX + attributeValue.barInsets.left,
+          y: rect.minY + attributeValue.barInsets.top,
+          width: attributeValue.barWidth,
+          height: rect.height - attributeValue.barInsets.top - attributeValue.barInsets.bottom)
         attributeValue.barColor.setFill()
 
         if attributeValue.rounded {

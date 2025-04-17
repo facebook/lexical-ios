@@ -21,7 +21,7 @@ class ResponderForNodeSelection: UIResponder, UIKeyInput {
   }
 
   var hasText: Bool {
-    true // if this class is being used, _something_ is selected from a Lexical point of view!
+    true  // if this class is being used, _something_ is selected from a Lexical point of view!
   }
 
   func insertText(_ text: String) {

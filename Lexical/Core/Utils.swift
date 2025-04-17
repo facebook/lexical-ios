@@ -39,10 +39,12 @@ public func generateKey(node: Node) throws -> NodeKey? {
   return stringKey
 }
 
-private func internallyMarkChildrenAsDirty(  element: ElementNode,
-                                             nodeMap: [NodeKey: Node],
-                                             editor: Editor,
-                                             status: DirtyStatusCause = .editorInitiated) {
+private func internallyMarkChildrenAsDirty(
+  element: ElementNode,
+  nodeMap: [NodeKey: Node],
+  editor: Editor,
+  status: DirtyStatusCause = .editorInitiated
+) {
   for childKey in element.children {
     editor.dirtyNodes[childKey] = status
     if let childElement = nodeMap[childKey] as? ElementNode {
@@ -55,7 +57,8 @@ private func internallyMarkParentElementsAsDirty(
   parentKey: NodeKey,
   nodeMap: [NodeKey: Node],
   editor: Editor,
-  status: DirtyStatusCause = .editorInitiated) {
+  status: DirtyStatusCause = .editorInitiated
+) {
   var nextParentKey: NodeKey? = parentKey
 
   while let unwrappedParentKey = nextParentKey {
@@ -72,7 +75,7 @@ private func internallyMarkParentElementsAsDirty(
     editor.dirtyNodes[unwrappedParentKey] = status
     nextParentKey = node?.parent
   }
-} // Never use this function directly! It will break
+}  // Never use this function directly! It will break
 // the cloning heuristic. Instead use node.getWritable().
 
 internal func internallyMarkNodeAsDirty(node: Node, cause: DirtyStatusCause = .editorInitiated) {
@@ -565,10 +568,9 @@ public func getAdjacentNode(
     return resolveElement(element: focusElement, isBackward: isBackward, focusOffset: focusOffset)
   } else {
     let focusNode = try focus.getNode()
-    if
-      (isBackward && focusOffset == 0) ||
-        (!isBackward && focusOffset == focusNode.getTextContentSize()) {
-      let possibleNode = isBackward
+    if (isBackward && focusOffset == 0) || (!isBackward && focusOffset == focusNode.getTextContentSize()) {
+      let possibleNode =
+        isBackward
         ? focusNode.getPreviousSibling()
         : focusNode.getNextSibling()
 

@@ -486,19 +486,13 @@ open class TextNode: Node {
         let anchor = selection.anchor
         let focus = selection.focus
 
-        if anchor.key == key &&
-            anchor.type == .text &&
-            anchor.offset > textSize &&
-            anchor.offset <= nextTextSize {
+        if anchor.key == key && anchor.type == .text && anchor.offset > textSize && anchor.offset <= nextTextSize {
           anchor.key = siblingKey
           anchor.offset -= textSize
           selection.dirty = true
         }
 
-        if focus.key == key &&
-            focus.type == .text &&
-            focus.offset > textSize &&
-            focus.offset <= nextTextSize {
+        if focus.key == key && focus.type == .text && focus.offset > textSize && focus.offset <= nextTextSize {
           focus.key = siblingKey
           focus.offset -= textSize
           selection.dirty = true
@@ -597,11 +591,12 @@ open class TextNode: Node {
       for point in [anchor, focus] {
         if point.key == targetKey {
           // The Point was inside the now removed node
-          adjustPointOffsetForMergedSibling(point: point,
-                                            isBefore: isBefore,
-                                            key: key,
-                                            target: target,
-                                            textLength: textLength)
+          adjustPointOffsetForMergedSibling(
+            point: point,
+            isBefore: isBefore,
+            key: key,
+            target: target,
+            textLength: textLength)
           selection.dirty = true
         } else if point.key == self.key && point.type == .text && isBefore {
           // The Point is in self, and it's type text, and we're being merged with a previous sibling.
@@ -655,9 +650,7 @@ open class TextNode: Node {
     let node2Format = node2.format
     let node2Style = node2.style
 
-    return node1Mode == node2Mode &&
-      node1Format == node2Format &&
-      node1Style == node2Style
+    return node1Mode == node2Mode && node1Format == node2Format && node1Style == node2Style
   }
 
   static func mergeTextNodes(node1: TextNode, node2: TextNode) throws -> TextNode {
@@ -705,7 +698,7 @@ open class TextNode: Node {
     }
   }
 
-  public static func ==(lhs: TextNode, rhs: TextNode) -> Bool {
+  public static func == (lhs: TextNode, rhs: TextNode) -> Bool {
     return (lhs.getTextPart() == rhs.getTextPart()) && (lhs.key == rhs.key)
   }
 }

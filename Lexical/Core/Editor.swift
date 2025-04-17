@@ -96,7 +96,7 @@ public class Editor: NSObject {
 
   // Used to help co-ordinate selection and events
   internal var compositionKey: NodeKey?
-  public var dirtyType: DirtyType = .noDirtyNodes // TODO: I made this public to work around an issue in playground. @amyworrall
+  public var dirtyType: DirtyType = .noDirtyNodes  // TODO: I made this public to work around an issue in playground. @amyworrall
   internal var featureFlags: FeatureFlags = FeatureFlags()
 
   // Used for storing editor listener events
@@ -276,7 +276,7 @@ public class Editor: NSObject {
           CommandPriority.Low: [:],
           CommandPriority.Normal: [:],
           CommandPriority.High: [:],
-          CommandPriority.Critical: [:]
+          CommandPriority.Critical: [:],
         ],
         forKey: type
       )
@@ -519,7 +519,7 @@ public class Editor: NSObject {
           guard let view = decoratorView(forKey: nodeKey, createIfNecessary: true), let node = getNodeByKey(key: nodeKey) as? DecoratorNode else {
             break
           }
-          view.isHidden = true // decorators will be hidden until they are layed out by TextKit
+          view.isHidden = true  // decorators will be hidden until they are layed out by TextKit
           superview.addSubview(view)
           node.decoratorWillAppear(view: view)
           decoratorCache[nodeKey] = DecoratorCacheItem.cachedView(view)
@@ -529,7 +529,7 @@ public class Editor: NSObject {
           superview.addSubview(view)
           self.log(.editor, .verbose, "no-op, already cached. Key \(nodeKey). Frame \(view.frame). Superview \(String(describing: view.superview))")
         case .unmountedCachedView(let view):
-          view.isHidden = true // decorators will be hidden until they are layed out by TextKit
+          view.isHidden = true  // decorators will be hidden until they are layed out by TextKit
           superview.addSubview(view)
           if let node = getNodeByKey(key: nodeKey) as? DecoratorNode {
             node.decoratorWillAppear(view: view)
@@ -668,9 +668,9 @@ public class Editor: NSObject {
         if anchor == nil || focus == nil {
           let errorString =
             """
-        updateEditor: selection has been lost because the previously selected nodes have been removed and
-        selection wasn't moved to another node. Ensure selection changes after removing/replacing a selected node.
-        """
+            updateEditor: selection has been lost because the previously selected nodes have been removed and
+            selection wasn't moved to another node. Ensure selection changes after removing/replacing a selected node.
+            """
           throw LexicalError.invariantViolation(errorString)
         }
       } else if let pendingSelection = pendingEditorState.selection as? NodeSelection {
@@ -913,16 +913,17 @@ public class Editor: NSObject {
       self.headless = previousHeadless
     }
 
-    try self.beginUpdate({
-      let serializedEditorState = try JSONDecoder().decode(SerializedEditorState.self, from: json)
+    try self.beginUpdate(
+      {
+        let serializedEditorState = try JSONDecoder().decode(SerializedEditorState.self, from: json)
 
-      guard let serializedRootNode = serializedEditorState.rootNode, let rootNode = getRoot() else {
-        throw LexicalError.internal("Failed to decode RootNode")
-      }
+        guard let serializedRootNode = serializedEditorState.rootNode, let rootNode = getRoot() else {
+          throw LexicalError.internal("Failed to decode RootNode")
+        }
 
-      try rootNode.append(serializedRootNode.getChildren())
-      try rootNode.setDirection(direction: serializedRootNode.direction)
-    }, mode: UpdateBehaviourModificationMode(suppressReconcilingSelection: true, suppressSanityCheck: true, markedTextOperation: nil, skipTransforms: true, allowUpdateWithoutTextStorage: false))
+        try rootNode.append(serializedRootNode.getChildren())
+        try rootNode.setDirection(direction: serializedRootNode.direction)
+      }, mode: UpdateBehaviourModificationMode(suppressReconcilingSelection: true, suppressSanityCheck: true, markedTextOperation: nil, skipTransforms: true, allowUpdateWithoutTextStorage: false))
 
     return self.editorState
   }
@@ -940,11 +941,13 @@ internal struct UpdateBehaviourModificationMode {
   let suppressSanityCheck: Bool
   let allowUpdateWithoutTextStorage: Bool
 
-  internal init(suppressReconcilingSelection: Bool = false,
-                suppressSanityCheck: Bool = false,
-                markedTextOperation: MarkedTextOperation? = nil,
-                skipTransforms: Bool = false,
-                allowUpdateWithoutTextStorage: Bool = false) {
+  internal init(
+    suppressReconcilingSelection: Bool = false,
+    suppressSanityCheck: Bool = false,
+    markedTextOperation: MarkedTextOperation? = nil,
+    skipTransforms: Bool = false,
+    allowUpdateWithoutTextStorage: Bool = false
+  ) {
     self.suppressReconcilingSelection = suppressReconcilingSelection
     self.suppressSanityCheck = suppressSanityCheck
     self.markedTextOperation = markedTextOperation

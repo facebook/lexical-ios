@@ -355,7 +355,8 @@ open class Node: Codable {
       }
 
       let elementNode = node as? ElementNode
-      let child = isElementNode(node: node)
+      let child =
+        isElementNode(node: node)
         ? isBefore
         ? elementNode?.getFirstChild()
         : elementNode?.getLastChild()
@@ -455,8 +456,7 @@ open class Node: Codable {
 
     let commonAncestor = getCommonAncestor(node: targetNode)
 
-    return getChildIndex(commonAncestor: commonAncestor, node: self) <
-      getChildIndex(commonAncestor: commonAncestor, node: targetNode)
+    return getChildIndex(commonAncestor: commonAncestor, node: self) < getChildIndex(commonAncestor: commonAncestor, node: targetNode)
   }
 
   func getChildIndex(commonAncestor: ElementNode?, node: Node) -> Int {
@@ -593,12 +593,8 @@ open class Node: Codable {
       if let selection = selection as? RangeSelection,
          let oldIndex = nodeToInsert.getIndexWithinParent() {
         let oldParentKey = oldParent.key
-        elementAnchorSelectionOnNode = selection.anchor.type == .element &&
-          selection.anchor.key == oldParentKey &&
-          selection.anchor.offset == oldIndex + 1
-        elementFocusSelectionOnNode = selection.focus.type == .element &&
-          selection.focus.key == oldParentKey &&
-          selection.focus.offset == oldIndex + 1
+        elementAnchorSelectionOnNode = selection.anchor.type == .element && selection.anchor.key == oldParentKey && selection.anchor.offset == oldIndex + 1
+        elementFocusSelectionOnNode = selection.focus.type == .element && selection.focus.key == oldParentKey && selection.focus.offset == oldIndex + 1
       }
     }
 
@@ -720,7 +716,7 @@ open class Node: Codable {
       try writableReplaceWith.append(selfElement.getChildren())
     }
 
-    if let selection = try getSelection() as? RangeSelection { // TODO: the logic here differs from web. Web clones the selection further up. Should make iOS match.
+    if let selection = try getSelection() as? RangeSelection {  // TODO: the logic here differs from web. Web clones the selection further up. Should make iOS match.
       let anchor = selection.anchor
       let focus = selection.focus
 
@@ -790,7 +786,7 @@ extension Node: Hashable {
 }
 
 extension Node: Equatable {
-  public static func ==(lhs: Node, rhs: Node) -> Bool {
+  public static func == (lhs: Node, rhs: Node) -> Bool {
     //    return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
     return lhs.isSameKey(rhs)
   }
@@ -826,10 +822,7 @@ extension Node: Equatable {
     // For inline images inside of element nodes.
     // Without this change the image will be selected if the cursor is before or after it.
     if let selection = selection as? RangeSelection,
-       selection.anchor.type == .element &&
-        selection.focus.type == .element &&
-        selection.anchor.key == selection.focus.key &&
-        selection.anchor.offset == selection.focus.offset {
+       selection.anchor.type == .element && selection.focus.type == .element && selection.anchor.key == selection.focus.key && selection.anchor.offset == selection.focus.offset {
       return false
     }
     return isSelected
