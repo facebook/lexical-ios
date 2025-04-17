@@ -51,7 +51,7 @@ class TableNodeView: UIView {
     guard let context = UIGraphicsGetCurrentContext() else { return }
     let lineWidth: CGFloat = 1.0
     context.setLineWidth(lineWidth)
-    context.setStrokeColor(borderColor.cgColor) // TODO: fetch this from attributes
+    context.setStrokeColor(borderColor.cgColor)  // TODO: fetch this from attributes
     context.setFillColor((backgroundColor ?? UIColor.white).cgColor)
 
     // All TextKit drawing is done after all custom table drawing, in order to avoid missing lines.
@@ -67,7 +67,7 @@ class TableNodeView: UIView {
       totalWidth += lineWidth
       totalWidth += width
     }
-    totalWidth += lineWidth // for the line drawn after the cells
+    totalWidth += lineWidth  // for the line drawn after the cells
 
     // 2. Draw rows, including lines, and cache cumulative height
     var cumulativeHeight: CGFloat = 0.0
@@ -82,8 +82,8 @@ class TableNodeView: UIView {
       for (i, cell) in row.cells.enumerated() {
         guard let cell else { continue }
         let drawingPoint = CGPoint(x: cumulativeWidth, y: cumulativeHeight)
-        cell.cachedOrigin = drawingPoint // cache the point that the cell needs drawing at
-        textKitDrawQueue.append(cell) // queue up this cell for later drawing
+        cell.cachedOrigin = drawingPoint  // cache the point that the cell needs drawing at
+        textKitDrawQueue.append(cell)  // queue up this cell for later drawing
         cumulativeWidth += columnWidths[i]
         cumulativeWidth += lineWidth
         thisHeight = max(thisHeight, cell.cachedHeight ?? 0)
@@ -125,13 +125,15 @@ class TableNodeView: UIView {
         if let cell {
           let textKitContext = cell.textKitContext
           guard let textContainerOrigin = cell.cachedOrigin else { continue }
-          let pointInTextContainer = CGPoint(x: pointInView.x - textKitContext.textContainerInsets.left - textContainerOrigin.x,
-                                             y: pointInView.y - textKitContext.textContainerInsets.top - textContainerOrigin.y)
+          let pointInTextContainer = CGPoint(
+            x: pointInView.x - textKitContext.textContainerInsets.left - textContainerOrigin.x,
+            y: pointInView.y - textKitContext.textContainerInsets.top - textContainerOrigin.y)
           let textContainerRelativeRect = CGRect(x: 0, y: 0, width: cell.cachedWidth ?? 0, height: cell.cachedHeight ?? 0)
           if !textContainerRelativeRect.contains(pointInTextContainer) { continue }
-          let indexOfCharacter = textKitContext.layoutManager.characterIndex(for: pointInTextContainer,
-                                                                             in: textKitContext.textContainer,
-                                                                             fractionOfDistanceBetweenInsertionPoints: nil)
+          let indexOfCharacter = textKitContext.layoutManager.characterIndex(
+            for: pointInTextContainer,
+            in: textKitContext.textContainer,
+            fractionOfDistanceBetweenInsertionPoints: nil)
           if indexOfCharacter >= textKitContext.textStorage.length { continue }
           let attributes = textKitContext.textStorage.attributes(at: indexOfCharacter, effectiveRange: nil)
 

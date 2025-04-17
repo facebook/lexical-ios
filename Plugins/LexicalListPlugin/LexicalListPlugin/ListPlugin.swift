@@ -26,17 +26,21 @@ open class ListPlugin: Plugin {
       try editor.registerNode(nodeType: NodeType.list, class: ListNode.self)
       try editor.registerNode(nodeType: NodeType.listItem, class: ListItemNode.self)
 
-      _ = editor.registerCommand(type: .insertUnorderedList, listener: { [weak editor] payload in
-        guard let editor else { return false }
-        try? insertList(editor: editor, listType: .bullet)
-        return true
-      })
+      _ = editor.registerCommand(
+        type: .insertUnorderedList,
+        listener: { [weak editor] payload in
+          guard let editor else { return false }
+          try? insertList(editor: editor, listType: .bullet)
+          return true
+        })
 
-      _ = editor.registerCommand(type: .insertOrderedList, listener: { [weak editor] payload in
-        guard let editor else { return false }
-        try? insertList(editor: editor, listType: .number)
-        return true
-      })
+      _ = editor.registerCommand(
+        type: .insertOrderedList,
+        listener: { [weak editor] payload in
+          guard let editor else { return false }
+          try? insertList(editor: editor, listType: .number)
+          return true
+        })
 
       try editor.registerCustomDrawing(customAttribute: .listItem, layer: .text, granularity: .contiguousParagraphs) {
         attributeKey, attributeValue, layoutManager, characterRange, expandedCharRange, glyphRange, rect, firstLineFragment in

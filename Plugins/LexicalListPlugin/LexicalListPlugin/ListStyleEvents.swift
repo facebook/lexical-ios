@@ -191,9 +191,7 @@ public func insertList(editor: Editor, listType: ListType) throws {
             } else {
               let nextParent = parentIterator.getParent()
 
-              if
-                isRootNode(node: nextParent) &&
-                  !handled.contains(parentKey) {
+              if isRootNode(node: nextParent) && !handled.contains(parentKey) {
                 handled.insert(parentKey)
                 _ = try createListOrMerge(node: parentIterator, listType: listType)
                 break
@@ -230,13 +228,12 @@ public func mergeLists(list1: ListNode, list2: ListNode) throws {
   let listItem1 = list1.getLastChild()
   let listItem2 = list2.getFirstChild()
 
-  if
-    let listItem1 = listItem1 as? ListItemNode,
-    let listItem2 = listItem2 as? ListItemNode,
-    isNestedListNode(node: listItem1),
-    isNestedListNode(node: listItem2),
-    let child1 = listItem1.getFirstChild() as? ListNode,
-    let child2 = listItem2.getFirstChild() as? ListNode {
+  if let listItem1 = listItem1 as? ListItemNode,
+     let listItem2 = listItem2 as? ListItemNode,
+     isNestedListNode(node: listItem1),
+     isNestedListNode(node: listItem2),
+     let child1 = listItem1.getFirstChild() as? ListNode,
+     let child2 = listItem2.getFirstChild() as? ListNode {
     try mergeLists(list1: child1, list2: child2)
     try listItem2.remove()
   }

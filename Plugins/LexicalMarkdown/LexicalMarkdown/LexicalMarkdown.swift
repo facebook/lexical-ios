@@ -21,8 +21,10 @@ open class LexicalMarkdown: Plugin {
   public func tearDown() {
   }
 
-  public class func generateMarkdown(from editor: Editor,
-                                     selection: BaseSelection?) throws -> String {
+  public class func generateMarkdown(
+    from editor: Editor,
+    selection: BaseSelection?
+  ) throws -> String {
     var markdownString = ""
     try editor.read {
       guard let root = getRoot() else {

@@ -42,7 +42,8 @@ public class EditorHistory {
   public func applyChange(
     editorState: EditorState,
     prevEditorState: EditorState,
-    dirtyNodes: DirtyNodeMap) {
+    dirtyNodes: DirtyNodeMap
+  ) {
     guard let editor else {
       return
     }
@@ -205,10 +206,7 @@ public class EditorHistory {
 
     let isSameEditor = currentHistoryEntry == nil || currentHistoryEntry?.editor == self.editor
 
-    if changeType != .other &&
-        changeType == prevChangeType &&
-        changeTime < prevChangeTime + Double(self.delay) &&
-        isSameEditor {
+    if changeType != .other && changeType == prevChangeType && changeTime < prevChangeTime + Double(self.delay) && isSameEditor {
       prevChangeTime = changeTime
       prevChangeType = changeType
 
@@ -256,7 +254,8 @@ public class HistoryState {
 
 func getDirtyNodes(
   editorState: EditorState,
-  dirtyLeavesSet: DirtyNodeMap) -> [Node] {
+  dirtyLeavesSet: DirtyNodeMap
+) -> [Node] {
   let dirtyLeaves = dirtyLeavesSet
   let nodeMap = editorState.getNodeMap()
   var nodes: [Node] = []
@@ -285,7 +284,8 @@ func getChangeType(
   prevEditorState: EditorState?,
   nextEditorState: EditorState,
   dirtyLeavesSet: DirtyNodeMap,
-  isComposing: Bool) throws -> ChangeType {
+  isComposing: Bool
+) throws -> ChangeType {
   if prevEditorState == nil || dirtyLeavesSet.count == 0 {
     return .other
   }
@@ -303,7 +303,8 @@ func getChangeType(
   }
 
   guard let nextSelection = nextSelection as? RangeSelection,
-        let prevSelection = prevSelection as? RangeSelection else {
+        let prevSelection = prevSelection as? RangeSelection
+  else {
     return .other
   }
 

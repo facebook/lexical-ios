@@ -5,9 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import XCTest
+
 @testable import Lexical
 @testable import LexicalListPlugin
-import XCTest
 
 class ListItemNodeTests: XCTestCase {
   var view: LexicalView?
