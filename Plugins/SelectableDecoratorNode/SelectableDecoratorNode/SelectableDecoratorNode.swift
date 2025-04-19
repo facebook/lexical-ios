@@ -13,7 +13,7 @@ open class SelectableDecoratorNode: DecoratorNode {
   // if you're using SelectableDecoratorNode, override `createContentView()` instead of `createView()`
   override public final func createView() -> UIView {
     guard let editor = getActiveEditor() else {
-      fatalError()  // TODO: refactor decorator API to throws
+      fatalError() // TODO: refactor decorator API to throws
     }
     let contentView = createContentView()
     let wrapper = SelectableDecoratorView(frame: .zero)
@@ -27,7 +27,7 @@ open class SelectableDecoratorNode: DecoratorNode {
   // if you're using SelectableDecoratorNode, override `decorateContentView()` instead of `decorate()`
   override public final func decorate(view: UIView) {
     guard let view = view as? SelectableDecoratorView, let contentView = view.contentView else {
-      return  // TODO: refactor decorator API to throws
+      return // TODO: refactor decorator API to throws
     }
     decorateContentView(view: contentView, wrapper: view)
   }

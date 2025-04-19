@@ -31,10 +31,10 @@ public class TableCell {
   var textKitContext: LexicalReadOnlyTextKitContext
   var cachedHeight: CGFloat?
   var cachedWidth: CGFloat?
-  var cachedOrigin: CGPoint?  // This is set by the TableNodeView when drawing
+  var cachedOrigin: CGPoint? // This is set by the TableNodeView when drawing
 }
 
-public class TableRow {  // only public to use in initialiser
+public class TableRow { // only public to use in initialiser
   var cells: [TableCell?] = []
 }
 

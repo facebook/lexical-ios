@@ -132,7 +132,7 @@ open class MentionsPlugin: Plugin {
     do {
       for mode in modes {
         // Can't be nil as regexes for all modes are populated during init
-        let regex = regexByMode[mode]!  // swiftlint:disable:this force_unwrapping
+        let regex = regexByMode[mode]! // swiftlint:disable:this force_unwrapping
         if let result = try checkForMentions(text: text, regex: regex, minMatchLength: 1) {
           return result
         }
