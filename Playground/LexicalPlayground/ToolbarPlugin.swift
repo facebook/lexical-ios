@@ -74,7 +74,7 @@ public class ToolbarPlugin: Plugin {
         _ = self.showLinkActionSheet(url: payload.absoluteString, selection: selection)
         return true
       }
-      return false  // shouldn't happen!
+      return false // shouldn't happen!
     }
   }
 
