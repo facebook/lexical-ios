@@ -14,7 +14,7 @@ class TransformTests: XCTestCase {
   static let combinedTransformKey = "G"
   static let terminalTransform = "Z"
   static let lastTransformKey = "F"
-  static let neverTransformKey = "?"  // This should never run and is only used for certain optionals
+  static let neverTransformKey = "?" // This should never run and is only used for certain optionals
   static let simpleTransformKeys = ["A", "B", "C", "D", "E"]
   var transformCount: [String: Int] = [:]
   var updateLog: [String] = []

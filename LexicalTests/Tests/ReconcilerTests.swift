@@ -260,7 +260,7 @@ class ReconcilerTests: XCTestCase {
       try textNode.setText("Hello")
       try firstPara.append([textNode])
 
-      let codeNode = CodeNode()  // need something that will change the default paragraph style
+      let codeNode = CodeNode() // need something that will change the default paragraph style
       let textNode2 = TextNode()
       try textNode2.setText("world")
       try codeNode.append([textNode2])

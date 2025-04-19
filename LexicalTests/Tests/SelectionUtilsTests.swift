@@ -166,8 +166,8 @@ class SelectionUtilsTests: XCTestCase {
         return
       }
 
-      let textNode1 = TextNode()  // key 1
-      let textNode2 = TextNode()  // key 2
+      let textNode1 = TextNode() // key 1
+      let textNode2 = TextNode() // key 2
       try textNode1.setText("Hello ")
       try textNode1.setBold(true)
       try textNode2.setText("Adios")
@@ -179,16 +179,16 @@ class SelectionUtilsTests: XCTestCase {
 
       try paragraphNode0.append([textNode1, textNode2])
 
-      let textNode3 = TextNode()  // key 3
-      let textNode4 = TextNode()  // key 4
-      let textNode5 = TextNode()  // key 5
+      let textNode3 = TextNode() // key 3
+      let textNode4 = TextNode() // key 4
+      let textNode5 = TextNode() // key 5
       try textNode3.setText("This is a new test.")
       try textNode3.setBold(true)
       try textNode4.setText("Checking selection between")
       try textNode5.setText("element types")
       try textNode5.setBold(true)
 
-      let paragraphNode1 = ParagraphNode()  // key 6
+      let paragraphNode1 = ParagraphNode() // key 6
 
       try paragraphNode1.append([textNode3, textNode4, textNode5])
 

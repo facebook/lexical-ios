@@ -19,7 +19,7 @@ public class GridSelection: BaseSelection {
   }
 
   public func isSelection(_ selection: BaseSelection) -> Bool {
-    return false  // TODO
+    return false // TODO
   }
 
   public var gridKey: NodeKey

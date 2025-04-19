@@ -32,7 +32,7 @@ private class ReconcilerState {
     self.prevEditorState = currentEditorState
     self.nextEditorState = pendingEditorState
     self.prevRangeCache = rangeCache
-    self.nextRangeCache = rangeCache  // Use the previous range cache as a starting point
+    self.nextRangeCache = rangeCache // Use the previous range cache as a starting point
     self.locationCursor = 0
     self.rangesToDelete = []
     self.rangesToAdd = []
@@ -77,7 +77,7 @@ internal enum Reconciler {
     currentEditorState: EditorState,
     pendingEditorState: EditorState,
     editor: Editor,
-    shouldReconcileSelection: Bool,  // the situations where we would want to not do this include handling non-controlled mode
+    shouldReconcileSelection: Bool, // the situations where we would want to not do this include handling non-controlled mode
     markedTextOperation: MarkedTextOperation?
   ) throws {
     editor.log(.reconciler, .verbose)

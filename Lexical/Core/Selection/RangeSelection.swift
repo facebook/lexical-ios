@@ -14,7 +14,7 @@ public class RangeSelection: BaseSelection {
   public var focus: Point
   public var dirty: Bool
   public var format: TextFormat
-  public var style: String  // TODO: add style support to iOS
+  public var style: String // TODO: add style support to iOS
 
   // MARK: - Init
 
@@ -654,7 +654,7 @@ public class RangeSelection: BaseSelection {
       } else if !isElementNode(node: node) || isDecoratorNode(node) && (node as? DecoratorNode)?.isTopLevel() == true {
         target = try target.insertAfter(nodeToInsert: node)
       } else {
-        target = try node.getParentOrThrow()  // Re-try again with the target being the parent
+        target = try node.getParentOrThrow() // Re-try again with the target being the parent
         continue
       }
     }

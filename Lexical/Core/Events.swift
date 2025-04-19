@@ -172,7 +172,7 @@ internal func onSelectionChange(editor: Editor) {
       }
 
       guard let lexicalSelection = try getSelection() as? RangeSelection else {
-        return  // we should have a range selection by now, so this is unexpected
+        return // we should have a range selection by now, so this is unexpected
       }
 
       try lexicalSelection.applyNativeSelection(nativeSelection)

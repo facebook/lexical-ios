@@ -27,7 +27,7 @@ public class TextAttachment: NSTextAttachment {
       bounds = CGRect(x: 0, y: 0, width: size.width, height: size.height)
     }
 
-    self.bounds = bounds  // cache the value so that our LayoutManager can pull it back out later
+    self.bounds = bounds // cache the value so that our LayoutManager can pull it back out later
     return bounds
   }
 

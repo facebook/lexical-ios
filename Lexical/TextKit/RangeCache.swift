@@ -154,11 +154,11 @@ private struct RangeCacheSearchResult {
 }
 
 private enum RangeCacheSearchResultType {
-  case startBoundary  // the boundary types are converted to element type for the parent element
+  case startBoundary // the boundary types are converted to element type for the parent element
   case endBoundary
   case text
   case element
-  case illegal  // used for if the search is inside a multi-character preamble/postamble
+  case illegal // used for if the search is inside a multi-character preamble/postamble
 }
 
 internal func updateRangeCacheForTextChange(nodeKey: NodeKey, delta: Int) {

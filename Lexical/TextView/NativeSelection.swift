@@ -25,7 +25,7 @@ public class NativeSelection {
     self.affinity = .forward
     self.markedRange = nil
     self.markedOpaqueRange = nil
-    self.selectionIsNodeOrObject = false  // may reconsider this default later
+    self.selectionIsNodeOrObject = false // may reconsider this default later
   }
 
   public convenience init(range: NSRange, affinity: UITextStorageDirection) {

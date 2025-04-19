@@ -10,7 +10,7 @@ import Foundation
 public enum RangeSearchInclusionResult {
   case include
   case exclude
-  case inherit  // NB inherit also inherits the payload!
+  case inherit // NB inherit also inherits the payload!
 }
 
 public typealias RangePayloadPair<Payload> = (range: NSRange, payload: Payload)

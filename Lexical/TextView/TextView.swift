@@ -120,7 +120,7 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
 
     let previousSelectedRange = selectedRange
 
-    inputDelegateProxy.isSuspended = true  // do not send selection changes during deleteBackwards, to not confuse third party keyboards
+    inputDelegateProxy.isSuspended = true // do not send selection changes during deleteBackwards, to not confuse third party keyboards
     defer {
       inputDelegateProxy.isSuspended = false
     }
@@ -179,7 +179,7 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
 
     let expectedSelectionLocation = selectedRange.location + text.lengthAsNSString()
 
-    inputDelegateProxy.isSuspended = true  // do not send selection changes during insertText, to not confuse third party keyboards
+    inputDelegateProxy.isSuspended = true // do not send selection changes during insertText, to not confuse third party keyboards
     defer {
       inputDelegateProxy.isSuspended = false
     }

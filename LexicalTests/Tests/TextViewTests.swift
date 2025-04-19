@@ -28,7 +28,7 @@ class TextViewTests: XCTestCase {
     // as it doesn't run the reconciler!
 
     textView.text = "Hello world"
-    textView.isUpdatingNativeSelection = true  // disable the selection feeding back to Lexical -- in this case we _just_ want a native selection
+    textView.isUpdatingNativeSelection = true // disable the selection feeding back to Lexical -- in this case we _just_ want a native selection
     textView.selectedRange = NSRange(location: 1, length: 4)
     textView.isUpdatingNativeSelection = false
     XCTAssertEqual(textView.selectedRange.location, 1, "Selection range should be 1")

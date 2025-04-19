@@ -51,7 +51,7 @@ class LayoutManagerDelegate: NSObject, NSLayoutManagerDelegate {
 
     for operationRange in operationRanges {
       // derive the end location for the current string range in terms of the passed in glyph range
-      var glyphSubrangeEnd = locationWithinIncomingGlyphsRange + operationRange.range.length  // start the search here, it can't be less than that
+      var glyphSubrangeEnd = locationWithinIncomingGlyphsRange + operationRange.range.length // start the search here, it can't be less than that
       while glyphSubrangeEnd <= incomingGlyphsLength {
         let nextCharIndex = characterIndexes[glyphSubrangeEnd + 1]
         if !operationRange.range.contains(nextCharIndex) {
@@ -105,7 +105,7 @@ class LayoutManagerDelegate: NSObject, NSLayoutManagerDelegate {
             // Generate glyphs for the character
             let utf16 = Array(innerSubstring.utf16)
             var newGlyphs = [CGGlyph](repeating: 0, count: utf16.count)
-            CTFontGetGlyphsForCharacters(ctFont, utf16, &newGlyphs, utf16.count)  // if failure, glyph array will be empty as desired
+            CTFontGetGlyphsForCharacters(ctFont, utf16, &newGlyphs, utf16.count) // if failure, glyph array will be empty as desired
 
             // build up our best guess at the glyph properties!
             var newProperties = [NSLayoutManager.GlyphProperty](repeating: .init(rawValue: 0), count: utf16.count)

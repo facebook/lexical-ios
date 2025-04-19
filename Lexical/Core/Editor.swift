@@ -96,7 +96,7 @@ public class Editor: NSObject {
 
   // Used to help co-ordinate selection and events
   internal var compositionKey: NodeKey?
-  public var dirtyType: DirtyType = .noDirtyNodes  // TODO: I made this public to work around an issue in playground. @amyworrall
+  public var dirtyType: DirtyType = .noDirtyNodes // TODO: I made this public to work around an issue in playground. @amyworrall
   internal var featureFlags: FeatureFlags = FeatureFlags()
 
   // Used for storing editor listener events
@@ -519,7 +519,7 @@ public class Editor: NSObject {
           guard let view = decoratorView(forKey: nodeKey, createIfNecessary: true), let node = getNodeByKey(key: nodeKey) as? DecoratorNode else {
             break
           }
-          view.isHidden = true  // decorators will be hidden until they are layed out by TextKit
+          view.isHidden = true // decorators will be hidden until they are layed out by TextKit
           superview.addSubview(view)
           node.decoratorWillAppear(view: view)
           decoratorCache[nodeKey] = DecoratorCacheItem.cachedView(view)
@@ -529,7 +529,7 @@ public class Editor: NSObject {
           superview.addSubview(view)
           self.log(.editor, .verbose, "no-op, already cached. Key \(nodeKey). Frame \(view.frame). Superview \(String(describing: view.superview))")
         case .unmountedCachedView(let view):
-          view.isHidden = true  // decorators will be hidden until they are layed out by TextKit
+          view.isHidden = true // decorators will be hidden until they are layed out by TextKit
           superview.addSubview(view)
           if let node = getNodeByKey(key: nodeKey) as? DecoratorNode {
             node.decoratorWillAppear(view: view)

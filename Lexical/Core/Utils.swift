@@ -75,7 +75,7 @@ private func internallyMarkParentElementsAsDirty(
     editor.dirtyNodes[unwrappedParentKey] = status
     nextParentKey = node?.parent
   }
-}  // Never use this function directly! It will break
+} // Never use this function directly! It will break
 // the cloning heuristic. Instead use node.getWritable().
 
 internal func internallyMarkNodeAsDirty(node: Node, cause: DirtyStatusCause = .editorInitiated) {

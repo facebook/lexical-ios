@@ -17,7 +17,7 @@ public class LayoutManager: NSLayoutManager, @unchecked Sendable {
     }
   }
 
-  internal var readOnlySizeCache: LexicalReadOnlySizeCache?  // set to nil if not operating in read only mode
+  internal var readOnlySizeCache: LexicalReadOnlySizeCache? // set to nil if not operating in read only mode
 
   private var customDrawingBackground: [NSAttributedString.Key: Editor.CustomDrawingHandlerInfo] {
     get {
@@ -175,9 +175,9 @@ public class LayoutManager: NSLayoutManager, @unchecked Sendable {
       // we have a valid location, make sure view is not hidden
       decoratorView.isHidden = false
 
-      var decoratorOrigin = glyphBoundingRect.offsetBy(dx: textContainerInset.left, dy: textContainerInset.top).origin  // top left
+      var decoratorOrigin = glyphBoundingRect.offsetBy(dx: textContainerInset.left, dy: textContainerInset.top).origin // top left
 
-      decoratorOrigin.y += (glyphBoundingRect.height - attr.bounds.height)  // bottom left now!
+      decoratorOrigin.y += (glyphBoundingRect.height - attr.bounds.height) // bottom left now!
 
       decoratorView.frame = CGRect(origin: decoratorOrigin, size: attr.bounds.size)
     }

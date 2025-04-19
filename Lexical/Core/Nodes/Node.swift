@@ -716,7 +716,7 @@ open class Node: Codable {
       try writableReplaceWith.append(selfElement.getChildren())
     }
 
-    if let selection = try getSelection() as? RangeSelection {  // TODO: the logic here differs from web. Web clones the selection further up. Should make iOS match.
+    if let selection = try getSelection() as? RangeSelection { // TODO: the logic here differs from web. Web clones the selection further up. Should make iOS match.
       let anchor = selection.anchor
       let focus = selection.focus
 
