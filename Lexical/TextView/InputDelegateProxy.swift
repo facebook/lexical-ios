@@ -41,4 +41,13 @@ internal class InputDelegateProxy: NSObject, UITextInputDelegate {
       targetInputDelegate.selectionDidChange(textInput)
     }
   }
+
+  #if canImport(UIKit, _version: "8444.1.105")
+  @available(iOS 18.4, *)
+  func conversationContext(_ context: UIConversationContext?, didChange textInput: (any UITextInput)?) {
+    if let targetInputDelegate {
+      targetInputDelegate.conversationContext(context, didChange: textInput)
+    }
+  }
+  #endif
 }
