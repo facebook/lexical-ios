@@ -237,7 +237,8 @@ open class CodeHighlightPlugin: Plugin {
     // Only checking for code higlight nodes and linebreaks. If it's regular text node
     // returning false so that it's transformed into code highlight node
     if let nodeACodeHighlight = nodeA as? CodeHighlightNode,
-       let nodeBCodeHighlight = nodeB as? CodeHighlightNode {
+      let nodeBCodeHighlight = nodeB as? CodeHighlightNode
+    {
       return nodeACodeHighlight.getTextPart() == nodeBCodeHighlight.getTextPart() && nodeACodeHighlight.highlightType == nodeBCodeHighlight.highlightType
     }
 

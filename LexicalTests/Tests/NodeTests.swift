@@ -1468,8 +1468,9 @@ class NodeTests: XCTestCase {
       createExampleNodeTree()
 
       if let textNode = getNodeByKey(key: "6"),
-         let newParentNode = getNodeByKey(key: "2") as? ElementNode,
-         let oldParent = getNodeByKey(key: "7") as? ElementNode {
+        let newParentNode = getNodeByKey(key: "2") as? ElementNode,
+        let oldParent = getNodeByKey(key: "7") as? ElementNode
+      {
         XCTAssertEqual(textNode.parent, "7")
 
         try newParentNode.append([textNode])

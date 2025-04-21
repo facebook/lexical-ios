@@ -58,7 +58,7 @@ internal class LexicalReadOnlySizeCache {
   var customTruncationRect: CGRect? {
     get {
       guard let origin = originForTruncationStringInTextKitCoordinates,
-            let size = sizeForTruncationString
+        let size = sizeForTruncationString
       else { return nil }
       return CGRect(origin: origin, size: size)
     }

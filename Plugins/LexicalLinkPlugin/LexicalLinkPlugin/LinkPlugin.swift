@@ -42,8 +42,8 @@ open class LinkPlugin: Plugin {
       type: .link,
       listener: { [weak self] payload in
         guard let strongSelf = self,
-              let linkPayload = payload as? LinkPayload,
-              let editor = strongSelf.editor
+          let linkPayload = payload as? LinkPayload,
+          let editor = strongSelf.editor
         else { return false }
 
         strongSelf.insertLink(linkPayload: linkPayload, editor: editor)
@@ -54,7 +54,7 @@ open class LinkPlugin: Plugin {
       type: .removeLink,
       listener: { [weak self] _ in
         guard let strongSelf = self,
-              let editor = strongSelf.editor
+          let editor = strongSelf.editor
         else { return false }
 
         strongSelf.insertLink(linkPayload: nil, editor: editor)

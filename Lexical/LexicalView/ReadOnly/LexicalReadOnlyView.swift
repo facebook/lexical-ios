@@ -49,7 +49,8 @@ import UIKit
 
   override public func draw(_ rect: CGRect) {
     if let textKitContext,
-       let graphicsContext = UIGraphicsGetCurrentContext() {
+      let graphicsContext = UIGraphicsGetCurrentContext()
+    {
       textKitContext.draw(inContext: graphicsContext)
     }
   }

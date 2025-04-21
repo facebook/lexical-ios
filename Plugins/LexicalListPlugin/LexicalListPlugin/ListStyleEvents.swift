@@ -167,8 +167,9 @@ public func insertList(editor: Editor, listType: ListType) throws {
       var handled: Set<NodeKey> = Set()
       for node in nodes {
         if let node = node as? ElementNode,
-           node.isEmpty(),
-           !handled.contains(node.getKey()) {
+          node.isEmpty(),
+          !handled.contains(node.getKey())
+        {
           _ = try createListOrMerge(node: node, listType: listType)
           continue
         }
@@ -229,11 +230,12 @@ public func mergeLists(list1: ListNode, list2: ListNode) throws {
   let listItem2 = list2.getFirstChild()
 
   if let listItem1 = listItem1 as? ListItemNode,
-     let listItem2 = listItem2 as? ListItemNode,
-     isNestedListNode(node: listItem1),
-     isNestedListNode(node: listItem2),
-     let child1 = listItem1.getFirstChild() as? ListNode,
-     let child2 = listItem2.getFirstChild() as? ListNode {
+    let listItem2 = listItem2 as? ListItemNode,
+    isNestedListNode(node: listItem1),
+    isNestedListNode(node: listItem2),
+    let child1 = listItem1.getFirstChild() as? ListNode,
+    let child2 = listItem2.getFirstChild() as? ListNode
+  {
     try mergeLists(list1: child1, list2: child2)
     try listItem2.remove()
   }
@@ -344,8 +346,9 @@ internal func handleOutdent(_ listItemNode: ListItemNode) throws {
   // If it doesn't have these ancestors, it's not indented.
 
   if let greatGrandparentList = greatGrandparentList as? ListNode,
-     let grandparentListItem = grandparentListItem as? ListItemNode,
-     let parentList = parentList as? ListNode {
+    let grandparentListItem = grandparentListItem as? ListItemNode,
+    let parentList = parentList as? ListNode
+  {
     // if it's the first child in it's parent list, insert it into the
     // great grandparent list before the grandparent
     let firstChild = parentList.getFirstChild()

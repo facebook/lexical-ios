@@ -22,7 +22,7 @@ class AttributesUtilsTests: XCTestCase {
       try paragraphNode.append([textNode])
 
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
@@ -61,7 +61,7 @@ class AttributesUtilsTests: XCTestCase {
       try paragraphNode.append([textNode])
 
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
@@ -91,7 +91,7 @@ class AttributesUtilsTests: XCTestCase {
       try paragraphNode.append([textNode])
 
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
@@ -126,7 +126,7 @@ class AttributesUtilsTests: XCTestCase {
       try paragraphNode.append([textNode])
 
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
@@ -161,7 +161,7 @@ class AttributesUtilsTests: XCTestCase {
       try paragraphNode.append([textNode])
 
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
@@ -194,7 +194,7 @@ class AttributesUtilsTests: XCTestCase {
       try paragraphNode.append([testAttributeNode])
 
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
@@ -231,7 +231,7 @@ class AttributesUtilsTests: XCTestCase {
       try paragraphNode.append([textNode])
 
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
@@ -258,7 +258,7 @@ class AttributesUtilsTests: XCTestCase {
 
       try headingNode.append([textNode])
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return

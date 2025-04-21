@@ -44,11 +44,11 @@ public class TextContainer: NSTextContainer {
       remaining: remainingRect)
 
     guard let readOnlySizeCache,
-          let characterRange = readOnlySizeCache.characterRangeForLastLineFragmentBeforeTruncation,
-          let glyphRange = readOnlySizeCache.glyphRangeForLastLineFragmentBeforeTruncation,
-          let cutPoint = readOnlySizeCache.glyphIndexAtTruncationIndicatorCutPoint,
-          NSLocationInRange(characterIndex, characterRange),
-          let sizeForTruncationString = readOnlySizeCache.sizeForTruncationString
+      let characterRange = readOnlySizeCache.characterRangeForLastLineFragmentBeforeTruncation,
+      let glyphRange = readOnlySizeCache.glyphRangeForLastLineFragmentBeforeTruncation,
+      let cutPoint = readOnlySizeCache.glyphIndexAtTruncationIndicatorCutPoint,
+      NSLocationInRange(characterIndex, characterRange),
+      let sizeForTruncationString = readOnlySizeCache.sizeForTruncationString
     else {
       return lineFragmentRect
     }

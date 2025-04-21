@@ -87,12 +87,13 @@ internal enum Reconciler {
     }
 
     if editor.dirtyNodes.isEmpty,
-       editor.dirtyType == .noDirtyNodes,
-       let currentSelection = currentEditorState.selection,
-       let pendingSelection = pendingEditorState.selection,
-       currentSelection.isSelection(pendingSelection),
-       pendingSelection.dirty == false,
-       markedTextOperation == nil {
+      editor.dirtyType == .noDirtyNodes,
+      let currentSelection = currentEditorState.selection,
+      let pendingSelection = pendingEditorState.selection,
+      currentSelection.isSelection(pendingSelection),
+      pendingSelection.dirty == false,
+      markedTextOperation == nil
+    {
       // should be nothing to reconcile
       return
     }
@@ -226,9 +227,9 @@ internal enum Reconciler {
     let rangeCache = reconcilerState.nextRangeCache
     for nodeKey in nodesToApplyBlockAttributes {
       guard let node = getNodeByKey(key: nodeKey),
-            node.isAttached(),
-            let cacheItem = rangeCache[nodeKey],
-            let attributes = node.getBlockLevelAttributes(theme: editor.getTheme())
+        node.isAttached(),
+        let cacheItem = rangeCache[nodeKey],
+        let attributes = node.getBlockLevelAttributes(theme: editor.getTheme())
       else { continue }
 
       AttributeUtils.applyBlockLevelAttributes(attributes, cacheItem: cacheItem, textStorage: textStorage, nodeKey: nodeKey, lastDescendentAttributes: lastDescendentAttributes ?? [:])
@@ -239,10 +240,11 @@ internal enum Reconciler {
     textStorage.mode = previousMode
 
     if let markedTextOperation,
-       markedTextOperation.createMarkedText,
-       let markedTextAttributedString,
-       let startPoint = markedTextPointForAddition,
-       let frontend = editor.frontend {
+      markedTextOperation.createMarkedText,
+      let markedTextAttributedString,
+      let startPoint = markedTextPointForAddition,
+      let frontend = editor.frontend
+    {
       // We have a marked text operation, an attributed string, we know the Point at which it should be added.
       // Note that the text has _already_ been inserted into the TextStorage, so we actually have to _replace_ the
       // marked text range with the same text, but via a marked text operation. Hence we deduce the end point
@@ -426,7 +428,7 @@ internal enum Reconciler {
 
   private static func reconcileChildren(key: NodeKey, reconcilerState: ReconcilerState) throws {
     guard let prevNode = reconcilerState.prevEditorState.nodeMap[key] as? ElementNode,
-          let nextNode = reconcilerState.nextEditorState.nodeMap[key] as? ElementNode
+      let nextNode = reconcilerState.nextEditorState.nodeMap[key] as? ElementNode
     else {
       return
     }

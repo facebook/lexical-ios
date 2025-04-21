@@ -69,8 +69,9 @@ public class RangeSelection: BaseSelection {
       // We don't want to over-select, as node selection infers the child before
       // the last descendant, not including that descendant.
       if let lastNodeDescendantUnwrapped = lastNodeDescendant,
-         lastNodeDescendantUnwrapped != firstNode,
-         lastNodeUnwrapped.getChildAtIndex(index: endOffset) == lastNodeDescendantUnwrapped {
+        lastNodeDescendantUnwrapped != firstNode,
+        lastNodeUnwrapped.getChildAtIndex(index: endOffset) == lastNodeDescendantUnwrapped
+      {
         lastNodeDescendant = lastNodeDescendantUnwrapped.getPreviousSibling()
       }
       lastNode = lastNodeDescendant ?? lastNodeUnwrapped
@@ -412,8 +413,9 @@ public class RangeSelection: BaseSelection {
       // Handle mutations to the last node.
       if (endPoint.type == .text && (endOffset != 0 || (lastNode?.getTextContent().lengthAsNSString() == 0))) || (endPoint.type == .element && lastNode?.getIndexWithinParent() ?? 0 < endOffset) {
         if let lastNodeAsTextNode = lastNode as? TextNode,
-           !lastNodeAsTextNode.isToken(),
-           endOffset != lastNodeAsTextNode.getTextContentSize() {
+          !lastNodeAsTextNode.isToken(),
+          endOffset != lastNodeAsTextNode.getTextContentSize()
+        {
           if lastNodeAsTextNode.isSegmented() {
             let textNode = TextNode(text: lastNodeAsTextNode.getTextPart())
             try lastNodeAsTextNode.replace(replaceWith: textNode)
@@ -428,8 +430,9 @@ public class RangeSelection: BaseSelection {
         } else {
           let lastNodeParent = try lastNode?.getParentOrThrow()
           if let lastNodeParent,
-             !lastNodeParent.canBeEmpty(),
-             lastNodeParent.getChildrenSize() == 1 {
+            !lastNodeParent.canBeEmpty(),
+            lastNodeParent.getChildrenSize() == 1
+          {
             try lastNodeParent.remove()
           } else {
             try lastNode?.remove()
@@ -581,7 +584,8 @@ public class RangeSelection: BaseSelection {
       if let node = node as? ElementNode {
         if node == firstNode {
           if let unwrappedTarget = target as? ElementNode,
-             unwrappedTarget.isEmpty() && unwrappedTarget.canReplaceWith(replacement: node) {
+            unwrappedTarget.isEmpty() && unwrappedTarget.canReplaceWith(replacement: node)
+          {
             try target.replace(replaceWith: node)
             target = node
             didReplaceOrMerge = true
@@ -888,8 +892,9 @@ public class RangeSelection: BaseSelection {
       var anchorNode: Node? = try anchor.getNode()
       if !isBackwards {
         if let anchorNode = anchorNode as? ElementNode,
-           anchor.type == .element,
-           anchor.offset == anchorNode.getChildrenSize() {
+          anchor.type == .element,
+          anchor.offset == anchorNode.getChildrenSize()
+        {
           let parent = anchorNode.getParent()
           let nextSibling = anchorNode.getNextSibling() ?? parent?.getNextSibling()
           if let nextSibling = nextSibling as? ElementNode, nextSibling.isShadowRoot() {
@@ -911,8 +916,9 @@ public class RangeSelection: BaseSelection {
         // Make it possible to move selection from range selection to
         // node selection on the node.
         if /* possibleNode.isKeyboardSelectable() && */
-          let anchorNode = anchorNode as? ElementNode,
-          anchorNode.getChildrenSize() == 0 {
+        let anchorNode = anchorNode as? ElementNode,
+          anchorNode.getChildrenSize() == 0
+        {
           try anchorNode.remove()
           let nodeSelection = NodeSelection(nodes: Set([possibleNode.key]))
           try setSelection(nodeSelection)
@@ -964,9 +970,10 @@ public class RangeSelection: BaseSelection {
 
     if isBackwards && !wasCollapsed && isCollapsed() && self.anchor.type == .element && self.anchor.offset == 0 {
       if let anchorNode = try self.anchor.getNode() as? ElementNode,
-         anchorNode.isEmpty(),
-         isRootNode(node: anchorNode.getParent()),
-         anchorNode.getIndexWithinParent() == 0 {
+        anchorNode.isEmpty(),
+        isRootNode(node: anchorNode.getParent()),
+        anchorNode.getIndexWithinParent() == 0
+      {
         try anchorNode.collapseAtStart(selection: self)
       }
     }
@@ -1034,7 +1041,8 @@ public class RangeSelection: BaseSelection {
     let focusOffset = affinity == .forward ? range.location + range.length : range.location
 
     if let anchor = try pointAtStringLocation(anchorOffset, searchDirection: affinity, rangeCache: editor.rangeCache),
-       let focus = try pointAtStringLocation(focusOffset, searchDirection: affinity, rangeCache: editor.rangeCache) {
+      let focus = try pointAtStringLocation(focusOffset, searchDirection: affinity, rangeCache: editor.rangeCache)
+    {
       self.anchor = anchor
       self.focus = focus
     }
@@ -1048,7 +1056,7 @@ public class RangeSelection: BaseSelection {
     let focusOffset = affinity == .forward ? range.location + range.length : range.location
 
     guard let anchor = try? pointAtStringLocation(anchorOffset, searchDirection: affinity, rangeCache: editor.rangeCache),
-          let focus = try? pointAtStringLocation(focusOffset, searchDirection: affinity, rangeCache: editor.rangeCache)
+      let focus = try? pointAtStringLocation(focusOffset, searchDirection: affinity, rangeCache: editor.rangeCache)
     else {
       return nil
     }
@@ -1194,8 +1202,9 @@ public class RangeSelection: BaseSelection {
         let selectedNodeKey = selectedNode.getKey()
 
         if let textNode = selectedNode as? TextNode,
-           selectedNodeKey != firstNode.getKey(),
-           selectedNodeKey != lastNode.getKey() {
+          selectedNodeKey != firstNode.getKey(),
+          selectedNodeKey != lastNode.getKey()
+        {
           let selectedNextFormat = textNode.getFormatFlags(type: formatType, alignWithFormat: lastNextFormat)
           try textNode.setFormat(format: selectedNextFormat)
         }

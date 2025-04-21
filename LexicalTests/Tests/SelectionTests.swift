@@ -777,8 +777,8 @@ class SelectionTests: XCTestCase {
       XCTAssertEqual(textNodes[2].getTextPart(), " verify format updates!!")
 
       guard let textNode0 = textNodes[0] as? TextNode,
-            let textNode1 = textNodes[1] as? TextNode,
-            let textNode2 = textNodes[2] as? TextNode
+        let textNode1 = textNodes[1] as? TextNode,
+        let textNode2 = textNodes[2] as? TextNode
       else {
         XCTFail("Failed to extract the textNodes")
         return
@@ -1055,8 +1055,8 @@ class SelectionTests: XCTestCase {
       let nodeMap = editor.getEditorState().nodeMap
 
       guard let textNode = nodeMap["2"],
-            let parentKey = textNode.parent,
-            let parent = getNodeByKey(key: parentKey) as? HeadingNode
+        let parentKey = textNode.parent,
+        let parent = getNodeByKey(key: parentKey) as? HeadingNode
       else {
         XCTFail("Failed to retain the heading node")
         return
@@ -1112,7 +1112,7 @@ class SelectionTests: XCTestCase {
       XCTAssertEqual(paragraphNode.children.count, 2)
 
       guard let textNode1 = getNodeByKey(key: paragraphNode.children[0]) as? TextNode,
-            let textNode2 = getNodeByKey(key: paragraphNode.children[1]) as? TextNode
+        let textNode2 = getNodeByKey(key: paragraphNode.children[1]) as? TextNode
       else { return }
 
       XCTAssertEqual(textNode1.getTextPart(), "Hello world ")

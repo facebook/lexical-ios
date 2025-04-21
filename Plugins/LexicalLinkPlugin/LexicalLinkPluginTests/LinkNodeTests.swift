@@ -18,8 +18,8 @@ class LinkNodeTests: XCTestCase {
 
     try editor.update {
       guard let editorState = getActiveEditorState(),
-            let rootNode = editorState.getRootNode(),
-            let paragraphNode = rootNode.getChildren().first as? ElementNode
+        let rootNode = editorState.getRootNode(),
+        let paragraphNode = rootNode.getChildren().first as? ElementNode
       else {
         XCTFail("should have editor state")
         return

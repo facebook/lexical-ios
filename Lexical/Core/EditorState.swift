@@ -99,7 +99,7 @@ public class EditorState: NSObject {
 
   /**
    Returns a JSON string representing this EditorState.
-
+  
    The JSON string is designed to be interoperable with Lexical JavaScript (subject to the individual node classes using matching keys).
    */
   public func toJSON() throws -> String {
@@ -120,7 +120,7 @@ public class EditorState: NSObject {
 
   /**
    Creates a new EditorState from a JSON string.
-
+  
    This function requires an ``Editor`` to be passed in, so that the list of registered node classes and plugins can be used when deserializing the JSON.
    The newly created EditorState is not added to the Editor; it is expected that the API consumer will call ``Editor/setEditorState(_:)`` if that is desired.
    */

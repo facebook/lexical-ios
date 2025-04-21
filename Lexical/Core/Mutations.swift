@@ -35,9 +35,9 @@ internal func handleTextMutation(textStorage: TextStorage, rangeOfChange: NSRang
 
   let nodeKey = point.key
   guard let editorState = getActiveEditorState(),
-        let rangeCacheItem = editor.rangeCache[nodeKey],
-        let node = getNodeByKey(key: nodeKey) as? TextNode,
-        editor.dirtyNodes.count == 0
+    let rangeCacheItem = editor.rangeCache[nodeKey],
+    let node = getNodeByKey(key: nodeKey) as? TextNode,
+    editor.dirtyNodes.count == 0
   else {
     editor.log(.other, .verbose, "Failed to find node 2")
     throw LexicalError.invariantViolation("Failed to find node")

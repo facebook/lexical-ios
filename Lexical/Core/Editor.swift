@@ -154,7 +154,7 @@ public class Editor: NSObject {
 
   /**
    Create a new editor in Headless mode.
-
+  
    Headless mode is a version of Lexical that does not reconcile or produce output. It is
    useful for quickly manipulating a Lexical data model.
    */

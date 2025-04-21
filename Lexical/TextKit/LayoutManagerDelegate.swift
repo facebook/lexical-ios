@@ -149,8 +149,8 @@ class LayoutManagerDelegate: NSObject, NSLayoutManagerDelegate {
       sumProps.withUnsafeBufferPointer { sumPropsBuffer in
         sumCharacterIndexes.withUnsafeBufferPointer { sumCharsBuffer in
           guard let sumGlyphsBaseAddress = sumGlyphsBuffer.baseAddress,
-                let sumPropsBaseAddress = sumPropsBuffer.baseAddress,
-                let sumCharsBaseAddress = sumCharsBuffer.baseAddress
+            let sumPropsBaseAddress = sumPropsBuffer.baseAddress,
+            let sumCharsBaseAddress = sumCharsBuffer.baseAddress
           else {
             fail = true
             return

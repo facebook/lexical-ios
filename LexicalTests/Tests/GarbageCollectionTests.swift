@@ -33,8 +33,8 @@ class GarbageCollectionTests: XCTestCase {
   func testGarbageCollectDetachedNodes() throws {
     try editor.update {
       guard let editorState = getActiveEditorState(),
-            let pendingEditorState = editor.testing_getPendingEditorState(),
-            let rootNode = editorState.getRootNode()
+        let pendingEditorState = editor.testing_getPendingEditorState(),
+        let rootNode = editorState.getRootNode()
       else {
         XCTFail("should have editor state")
         return
@@ -67,8 +67,8 @@ class GarbageCollectionTests: XCTestCase {
     try editor.update {
 
       guard let editorState = getActiveEditorState(),
-            let pendingEditorState = editor.testing_getPendingEditorState(),
-            let rootNode = editorState.getRootNode()
+        let pendingEditorState = editor.testing_getPendingEditorState(),
+        let rootNode = editorState.getRootNode()
       else {
         XCTFail("should have editor state")
         return

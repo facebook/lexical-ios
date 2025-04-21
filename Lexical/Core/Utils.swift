@@ -227,7 +227,7 @@ public func isTokenOrSegmented(_ node: TextNode?) -> Bool {
 
 public func getRoot() -> RootNode? {
   guard let editorState = getActiveEditorState(),
-        let rootNode = editorState.nodeMap[kRootNodeKey] as? RootNode
+    let rootNode = editorState.nodeMap[kRootNodeKey] as? RootNode
   else { return nil }
 
   return rootNode

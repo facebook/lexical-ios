@@ -44,8 +44,8 @@ public class LayoutManager: NSLayoutManager, @unchecked Sendable {
 
   private func drawCustomTruncationIfNeeded(forGlyphRange drawingGlyphRange: NSRange, at origin: CGPoint) {
     guard let readOnlySizeCache,
-          let customTruncationRect = readOnlySizeCache.customTruncationRect,
-          let string = readOnlySizeCache.customTruncationString
+      let customTruncationRect = readOnlySizeCache.customTruncationRect,
+      let string = readOnlySizeCache.customTruncationString
     else { return }
 
     let modifiedDrawingRect = customTruncationRect.offsetBy(dx: origin.x, dy: origin.y)

@@ -220,7 +220,7 @@ public func createNativeSelection(from selection: RangeSelection, editor: Editor
   }
 
   guard let anchorLocation = try stringLocationForPoint(selection.anchor, editor: editor),
-        let focusLocation = try stringLocationForPoint(selection.focus, editor: editor)
+    let focusLocation = try stringLocationForPoint(selection.focus, editor: editor)
   else {
     return NativeSelection()
   }
@@ -260,7 +260,8 @@ func createSelection(editor: Editor) throws -> BaseSelection? {
     let range = nativeSelection.range ?? NSRange(location: 0, length: 0)
 
     if let anchor = try pointAtStringLocation(range.location, searchDirection: nativeSelection.affinity, rangeCache: editor.rangeCache),
-       let focus = try pointAtStringLocation(range.location + range.length, searchDirection: nativeSelection.affinity, rangeCache: editor.rangeCache) {
+      let focus = try pointAtStringLocation(range.location + range.length, searchDirection: nativeSelection.affinity, rangeCache: editor.rangeCache)
+    {
       return RangeSelection(anchor: anchor, focus: focus, format: TextFormat())
     }
 
@@ -585,8 +586,9 @@ private func resolveSelectionPointOnBoundary(
 
     if !isBackward {
       if let prevSibling = prevSibling as? ElementNode,
-         !isCollapsed,
-         prevSibling.isInline() {
+        !isCollapsed,
+        prevSibling.isInline()
+      {
         point.key = prevSibling.key
         point.offset = prevSibling.getChildrenSize()
         point.type = .element
@@ -595,9 +597,10 @@ private func resolveSelectionPointOnBoundary(
         point.offset = prevSibling.getTextContent().lengthAsNSString()
       }
     } else if isCollapsed || !isBackward,
-              prevSibling == nil,
-              let parent,
-              parent.isInline() {
+      prevSibling == nil,
+      let parent,
+      parent.isInline()
+    {
       let parentSibling = parent.getPreviousSibling()
       if let parentSibling = parentSibling as? TextNode {
         point.key = parentSibling.key
@@ -613,10 +616,11 @@ private func resolveSelectionPointOnBoundary(
       point.offset = 0
       point.type = .element
     } else if isCollapsed || isBackward,
-              nextSibling == nil,
-              let parent,
-              parent.isInline(),
-              !parent.canInsertTextAfter() {
+      nextSibling == nil,
+      let parent,
+      parent.isInline(),
+      !parent.canInsertTextAfter()
+    {
       let parentSibling = parent.getNextSibling()
       if let parentSibling = parentSibling as? TextNode {
         point.key = parentSibling.key
@@ -650,8 +654,9 @@ internal func normalizeSelectionPointsForBoundaries(
     }
 
     if editor.isComposing(),
-       editor.compositionKey != anchor.key,
-       let lastSelection = lastSelection as? RangeSelection {
+      editor.compositionKey != anchor.key,
+      let lastSelection = lastSelection as? RangeSelection
+    {
       let lastAnchor = lastSelection.anchor
       let lastFocus = lastSelection.focus
       anchor.key = lastAnchor.key

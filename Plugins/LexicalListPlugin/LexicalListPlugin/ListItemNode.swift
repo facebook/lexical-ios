@@ -149,11 +149,12 @@ public class ListItemNode: ElementNode {
     try super.remove()
 
     if let prevSibling = prevSibling as? ListItemNode,
-       let nextSibling = nextSibling as? ListItemNode,
-       isNestedListNode(node: prevSibling),
-       isNestedListNode(node: nextSibling),
-       let list1 = prevSibling.getFirstChild() as? ListNode,
-       let list2 = nextSibling.getFirstChild() as? ListNode {
+      let nextSibling = nextSibling as? ListItemNode,
+      isNestedListNode(node: prevSibling),
+      isNestedListNode(node: nextSibling),
+      let list1 = prevSibling.getFirstChild() as? ListNode,
+      let list2 = nextSibling.getFirstChild() as? ListNode
+    {
       try mergeLists(list1: list1, list2: list2)
       try nextSibling.remove()
     } else if let nextSibling {
@@ -270,8 +271,9 @@ public class ListItemNode: ElementNode {
         let prevItemsCount = getPreviousSiblings()
           .filter {
             if let siblingItem = $0 as? ListItemNode,
-               // Don't count sibling items containing nested lists
-               !(siblingItem.getFirstChild() is ListNode) {
+              // Don't count sibling items containing nested lists
+              !(siblingItem.getFirstChild() is ListNode)
+            {
               return true
             } else {
               return false

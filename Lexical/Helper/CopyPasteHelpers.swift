@@ -68,8 +68,9 @@ internal func insertDataTransferForRichText(selection: RangeSelection, pasteboar
   }
 
   if let pasteboardData = pasteboard.data(
-      forPasteboardType: LexicalConstants.pasteboardIdentifier,
-      inItemSet: itemSet)?.last {
+    forPasteboardType: LexicalConstants.pasteboardIdentifier,
+    inItemSet: itemSet)?.last
+  {
     let deserializedNodes = try JSONDecoder().decode(SerializedNodeArray.self, from: pasteboardData)
 
     guard let editor = getActiveEditor() else { return }
@@ -80,8 +81,9 @@ internal func insertDataTransferForRichText(selection: RangeSelection, pasteboar
 
   if #available(iOS 14.0, *) {
     if let pasteboardRTFData = pasteboard.data(
-        forPasteboardType: (UTType.rtf.identifier),
-        inItemSet: itemSet)?.last {
+      forPasteboardType: (UTType.rtf.identifier),
+      inItemSet: itemSet)?.last
+    {
       let attributedString = try NSAttributedString(
         data: pasteboardRTFData,
         options: [.documentType: NSAttributedString.DocumentType.rtf],
@@ -92,8 +94,9 @@ internal func insertDataTransferForRichText(selection: RangeSelection, pasteboar
     }
   } else {
     if let pasteboardRTFData = pasteboard.data(
-        forPasteboardType: (kUTTypeRTF as String),
-        inItemSet: itemSet)?.last {
+      forPasteboardType: (kUTTypeRTF as String),
+      inItemSet: itemSet)?.last
+    {
       let attributedString = try NSAttributedString(
         data: pasteboardRTFData,
         options: [.documentType: NSAttributedString.DocumentType.rtf],
@@ -107,15 +110,17 @@ internal func insertDataTransferForRichText(selection: RangeSelection, pasteboar
 
   if #available(iOS 14.0, *) {
     if let pasteboardStringData = pasteboard.data(
-        forPasteboardType: (UTType.utf8PlainText.identifier),
-        inItemSet: itemSet)?.last {
+      forPasteboardType: (UTType.utf8PlainText.identifier),
+      inItemSet: itemSet)?.last
+    {
       try insertPlainText(selection: selection, text: String(decoding: pasteboardStringData, as: UTF8.self))
       return
     }
   } else {
     if let pasteboardStringData = pasteboard.data(
-        forPasteboardType: (kUTTypeUTF8PlainText as String),
-        inItemSet: itemSet)?.last {
+      forPasteboardType: (kUTTypeUTF8PlainText as String),
+      inItemSet: itemSet)?.last
+    {
       try insertPlainText(selection: selection, text: String(decoding: pasteboardStringData, as: UTF8.self))
       return
     }
@@ -174,12 +179,14 @@ internal func insertRTF(selection: RangeSelection, attributedString: NSAttribute
       let textNode = createTextNode(text: text)
 
       if (attribute.attributes.first(where: { $0.key == .font })?.value as? UIFont)?
-          .fontDescriptor.symbolicTraits.contains(.traitBold) ?? false {
+        .fontDescriptor.symbolicTraits.contains(.traitBold) ?? false
+      {
         textNode.format.bold = true
       }
 
       if (attribute.attributes.first(where: { $0.key == .font })?.value as? UIFont)?
-          .fontDescriptor.symbolicTraits.contains(.traitItalic) ?? false {
+        .fontDescriptor.symbolicTraits.contains(.traitItalic) ?? false
+      {
         textNode.format.italic = true
       }
 

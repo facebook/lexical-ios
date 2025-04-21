@@ -160,7 +160,7 @@ class SelectionUtilsTests: XCTestCase {
 
     try editor.update {
       guard let editorState = getActiveEditorState(),
-            let rootNode = editorState.getRootNode()
+        let rootNode = editorState.getRootNode()
       else {
         XCTFail("should have editor state")
         return
@@ -260,11 +260,11 @@ class SelectionUtilsTests: XCTestCase {
       for j in i...view.textStorage.string.lengthAsNSString() {
         try editor.update {
           guard let point = try pointAtStringLocation(i, searchDirection: .forward, rangeCache: editor.rangeCache),
-                let point2 = try pointAtStringLocation(j, searchDirection: .forward, rangeCache: editor.rangeCache)
+            let point2 = try pointAtStringLocation(j, searchDirection: .forward, rangeCache: editor.rangeCache)
           else { XCTFail("Couldn't generate points for string location"); return }
 
           guard let location1 = try stringLocationForPoint(point, editor: editor),
-                let location2 = try stringLocationForPoint(point2, editor: editor)
+            let location2 = try stringLocationForPoint(point2, editor: editor)
           else { XCTFail("Couldn't generate string location for point"); return }
 
           XCTAssertEqual(i, location1, "Point for i does not match")
@@ -419,7 +419,7 @@ class SelectionUtilsTests: XCTestCase {
 
     try editor.update {
       guard let editorState = getActiveEditorState(),
-            let rootNode = editorState.getRootNode()
+        let rootNode = editorState.getRootNode()
       else {
         XCTFail("should have editor state")
         return
@@ -585,7 +585,7 @@ class SelectionUtilsTests: XCTestCase {
 
     try editor.update {
       guard let editorState = getActiveEditorState(),
-            let rootNode = editorState.getRootNode()
+        let rootNode = editorState.getRootNode()
       else {
         XCTFail("should have editor state")
         return

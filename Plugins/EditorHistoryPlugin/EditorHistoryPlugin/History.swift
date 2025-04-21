@@ -101,8 +101,8 @@ public class EditorHistory {
 
   func undo() {
     guard let externalHistoryState,
-          externalHistoryState.undoStack.count != 0,
-          let editor
+      externalHistoryState.undoStack.count != 0,
+      let editor
     else { return }
 
     var historyStateEntry = externalHistoryState.undoStack.removeLast()
@@ -118,7 +118,8 @@ public class EditorHistory {
     externalHistoryState.current = historyStateEntry
     do {
       if let editor = historyStateEntry.editor,
-         let undoSelection = historyStateEntry.undoSelection {
+        let undoSelection = historyStateEntry.undoSelection
+      {
         try editor.setEditorState(historyStateEntry.editorState.clone(selection: undoSelection))
         historyStateEntry.editor = editor
         editor.dispatchCommand(type: .updatePlaceholderVisibility)
@@ -132,8 +133,8 @@ public class EditorHistory {
 
   func redo() {
     guard let externalHistoryState,
-          externalHistoryState.redoStack.count != 0,
-          let editor
+      externalHistoryState.redoStack.count != 0,
+      let editor
     else { return }
 
     if let current = externalHistoryState.current {
@@ -297,13 +298,13 @@ func getChangeType(
   }
 
   guard let nextSelection = nextEditorState.selection,
-        let prevSelection = prevEditorState.selection
+    let prevSelection = prevEditorState.selection
   else {
     throw LexicalError.internal("Failed to find selection")
   }
 
   guard let nextSelection = nextSelection as? RangeSelection,
-        let prevSelection = prevSelection as? RangeSelection
+    let prevSelection = prevSelection as? RangeSelection
   else {
     return .other
   }
@@ -325,10 +326,11 @@ func getChangeType(
     let prevAnchorNode = nextNodeMap[prevSelection.anchor.key]
 
     if let nextAnchorNode = nextNodeMap[nextSelection.anchor.key] as? TextNode,
-       prevAnchorNode != nil,
-       !prevEditorState.getNodeMap().keys.contains(nextAnchorNode.key),
-       nextAnchorNode.getTextPartSize() == 1,
-       nextSelection.anchor.offset == 1 {
+      prevAnchorNode != nil,
+      !prevEditorState.getNodeMap().keys.contains(nextAnchorNode.key),
+      nextAnchorNode.getTextPartSize() == 1,
+      nextSelection.anchor.offset == 1
+    {
       return .insertCharacterAfterSelection
     }
     return .other

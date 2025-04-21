@@ -183,7 +183,8 @@ open class ElementNode: Node {
 
     if index >= children.count {
       if let resolvedNode = children.last as? ElementNode,
-         let lastDescendant = resolvedNode.getLastDescendant() {
+        let lastDescendant = resolvedNode.getLastDescendant()
+      {
         return lastDescendant
       }
 

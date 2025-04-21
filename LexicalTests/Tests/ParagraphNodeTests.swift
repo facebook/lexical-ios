@@ -16,7 +16,7 @@ class ParagraphNodeTests: XCTestCase {
 
     try editor.update {
       guard let editorState = getActiveEditorState(),
-            let rootNode = editorState.getRootNode()
+        let rootNode = editorState.getRootNode()
       else {
         XCTFail("should have editor state")
         return
