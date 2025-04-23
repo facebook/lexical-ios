@@ -42,7 +42,7 @@ internal class InputDelegateProxy: NSObject, UITextInputDelegate {
     }
   }
 
-  #if canImport(UIKit, _version: "8444.1.105")
+  #if canImport(UIKit, _version: "8444.1.105") && !targetEnvironment(macCatalyst)
   @available(iOS 18.4, *)
   func conversationContext(_ context: UIConversationContext?, didChange textInput: (any UITextInput)?) {
     if let targetInputDelegate {
