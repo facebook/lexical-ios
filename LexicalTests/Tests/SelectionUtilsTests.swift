@@ -241,8 +241,14 @@ class SelectionUtilsTests: XCTestCase {
 
     for i in 0...view.textStorage.string.lengthAsNSString() {
       try editor.update {
-        guard let point = try pointAtStringLocation(i, searchDirection: .forward, rangeCache: editor.rangeCache) else { XCTFail("Couldn't generate point for string location"); return }
-        guard let location = try stringLocationForPoint(point, editor: editor) else { XCTFail("Couldn't generate string location for point"); return }
+        guard let point = try pointAtStringLocation(i, searchDirection: .forward, rangeCache: editor.rangeCache) else {
+          XCTFail("Couldn't generate point for string location")
+          return
+        }
+        guard let location = try stringLocationForPoint(point, editor: editor) else {
+          XCTFail("Couldn't generate string location for point")
+          return
+        }
         XCTAssertEqual(i, location, "Location did not match after a roundtrip")
       }
     }
@@ -261,11 +267,17 @@ class SelectionUtilsTests: XCTestCase {
         try editor.update {
           guard let point = try pointAtStringLocation(i, searchDirection: .forward, rangeCache: editor.rangeCache),
             let point2 = try pointAtStringLocation(j, searchDirection: .forward, rangeCache: editor.rangeCache)
-          else { XCTFail("Couldn't generate points for string location"); return }
+          else {
+            XCTFail("Couldn't generate points for string location")
+            return
+          }
 
           guard let location1 = try stringLocationForPoint(point, editor: editor),
             let location2 = try stringLocationForPoint(point2, editor: editor)
-          else { XCTFail("Couldn't generate string location for point"); return }
+          else {
+            XCTFail("Couldn't generate string location for point")
+            return
+          }
 
           XCTAssertEqual(i, location1, "Point for i does not match")
           XCTAssertEqual(j, location2, "Point for j does not match")

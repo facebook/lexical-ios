@@ -29,7 +29,10 @@ class LexicalHTMLTests: XCTestCase {
   }
 
   func testNodesToHTML() throws {
-    guard let editor else { XCTFail(); return }
+    guard let editor else {
+      XCTFail()
+      return
+    }
 
     let comparison = """
       <p>

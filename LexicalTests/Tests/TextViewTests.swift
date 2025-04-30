@@ -373,7 +373,10 @@ class TextViewTests: XCTestCase {
 
     let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
     let textView = view.textView
-    guard let textStorage = textView.textStorage as? TextStorage else { XCTFail(); return }
+    guard let textStorage = textView.textStorage as? TextStorage else {
+      XCTFail()
+      return
+    }
 
     textView.insertText("He..")
     textStorage.replaceCharacters(in: NSRange(location: 3, length: 1), with: NSAttributedString(string: ""))
