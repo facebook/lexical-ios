@@ -221,9 +221,9 @@ open class Node: Codable {
   }
 
   /// Returns the highest (in the EditorState tree) non-root ancestor of this node, or throws if none is found.
-  public func getTopLevelElementOrThrow() -> ElementNode {
+  public func getTopLevelElementOrThrow() throws -> ElementNode {
     guard let parent = getTopLevelElement() else {
-      fatalError("Expected node \(key) to have a top parent element.")
+      throw LexicalError.internal("Expected node \(key) to have a top parent element.")
     }
 
     return parent

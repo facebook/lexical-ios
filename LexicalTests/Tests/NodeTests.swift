@@ -601,7 +601,12 @@ class NodeTests: XCTestCase {
 
       try rootNode?.append([paragraphNode])
 
-      XCTAssert(textNode.getTopLevelElementOrThrow() === paragraphNode)
+      guard let topLevelElement = try? textNode.getTopLevelElementOrThrow() as? ParagraphNode else {
+        XCTFail("should have top level element node")
+        return
+      }
+
+      XCTAssert(topLevelElement === paragraphNode)
     }
   }
 

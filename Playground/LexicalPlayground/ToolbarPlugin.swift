@@ -174,7 +174,8 @@ public class ToolbarPlugin: Plugin {
           })
 
       if element == nil {
-        element = anchorNode.getTopLevelElementOrThrow()
+        guard let topLevelElement = try? anchorNode.getTopLevelElementOrThrow() else { return }
+        element = topLevelElement
       }
 
       // derive paragraph style
