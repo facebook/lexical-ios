@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class TextViewTests: XCTestCase {
 
@@ -81,17 +82,19 @@ class TextViewTests: XCTestCase {
     }
 
     try textView.editor.getEditorState().read {
-      let selection = RangeSelection(anchor: Point(key: "1", offset: 1, type: .text),
-                                     focus: Point(key: "2", offset: 3, type: .text),
-                                     format: TextFormat())
+      let selection = RangeSelection(
+        anchor: Point(key: "1", offset: 1, type: .text),
+        focus: Point(key: "2", offset: 3, type: .text),
+        format: TextFormat())
 
       try textView.updateNativeSelection(from: selection)
       XCTAssertEqual(textView.selectedRange.location, 1)
       XCTAssertEqual(textView.selectedRange.length, 8)
 
-      let selection2 = RangeSelection(anchor: Point(key: "7", offset: 0, type: .element),
-                                      focus: Point(key: "7", offset: 1, type: .element),
-                                      format: TextFormat())
+      let selection2 = RangeSelection(
+        anchor: Point(key: "7", offset: 0, type: .element),
+        focus: Point(key: "7", offset: 1, type: .element),
+        format: TextFormat())
 
       try textView.updateNativeSelection(from: selection2)
       XCTAssertEqual(textView.selectedRange.location, 52)
@@ -259,7 +262,7 @@ class TextViewTests: XCTestCase {
       XCTAssertTrue((nodemap["0"] as? ParagraphNode)?.children.count == 1)
       XCTAssertTrue((nodemap["1"] as? TextNode)?.getTextPart() == "Hello worldText")
       XCTAssertTrue((nodemap["4"] as? ParagraphNode)?.children.count == 0)
-      XCTAssertTrue((nodemap["6"]as? ParagraphNode)?.children.count == 0)
+      XCTAssertTrue((nodemap["6"] as? ParagraphNode)?.children.count == 0)
       XCTAssertTrue((nodemap["8"] as? ParagraphNode)?.children.count == 0)
       XCTAssertTrue((nodemap["10"] as? ParagraphNode)?.children.count == 1)
       XCTAssertTrue((nodemap["9"] as? TextNode)?.getTextPart() == "Text")
@@ -370,7 +373,10 @@ class TextViewTests: XCTestCase {
 
     let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
     let textView = view.textView
-    guard let textStorage = textView.textStorage as? TextStorage else { XCTFail(); return }
+    guard let textStorage = textView.textStorage as? TextStorage else {
+      XCTFail()
+      return
+    }
 
     textView.insertText("He..")
     textStorage.replaceCharacters(in: NSRange(location: 3, length: 1), with: NSAttributedString(string: ""))

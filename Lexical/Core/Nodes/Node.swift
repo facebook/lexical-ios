@@ -128,7 +128,7 @@ open class Node: Codable {
 
   /**
    Attributes that apply to an entire block.
-
+  
    This is conceptually not a thing in TextKit, so we had to build our own solution. Note that a block
    is an element or decorator that is not inline. The values of the block level attributes are applied
    to the relevant paragraph style for the first or last paragraph within the node. (Paragraph is here
@@ -221,9 +221,9 @@ open class Node: Codable {
   }
 
   /// Returns the highest (in the EditorState tree) non-root ancestor of this node, or throws if none is found.
-  public func getTopLevelElementOrThrow() -> ElementNode {
+  public func getTopLevelElementOrThrow() throws -> ElementNode {
     guard let parent = getTopLevelElement() else {
-      fatalError("Expected node \(key) to have a top parent element.")
+      throw LexicalError.internal("Expected node \(key) to have a top parent element.")
     }
 
     return parent
@@ -355,10 +355,11 @@ open class Node: Codable {
       }
 
       let elementNode = node as? ElementNode
-      let child = isElementNode(node: node)
+      let child =
+        isElementNode(node: node)
         ? isBefore
-        ? elementNode?.getFirstChild()
-        : elementNode?.getLastChild()
+          ? elementNode?.getFirstChild()
+          : elementNode?.getLastChild()
         : nil
 
       if child != nil {
@@ -455,8 +456,7 @@ open class Node: Codable {
 
     let commonAncestor = getCommonAncestor(node: targetNode)
 
-    return getChildIndex(commonAncestor: commonAncestor, node: self) <
-      getChildIndex(commonAncestor: commonAncestor, node: targetNode)
+    return getChildIndex(commonAncestor: commonAncestor, node: self) < getChildIndex(commonAncestor: commonAncestor, node: targetNode)
   }
 
   func getChildIndex(commonAncestor: ElementNode?, node: Node) -> Int {
@@ -591,14 +591,11 @@ open class Node: Codable {
       try removeFromParent(node: writableNodeToInsert)
 
       if let selection = selection as? RangeSelection,
-         let oldIndex = nodeToInsert.getIndexWithinParent() {
+        let oldIndex = nodeToInsert.getIndexWithinParent()
+      {
         let oldParentKey = oldParent.key
-        elementAnchorSelectionOnNode = selection.anchor.type == .element &&
-          selection.anchor.key == oldParentKey &&
-          selection.anchor.offset == oldIndex + 1
-        elementFocusSelectionOnNode = selection.focus.type == .element &&
-          selection.focus.key == oldParentKey &&
-          selection.focus.offset == oldIndex + 1
+        elementAnchorSelectionOnNode = selection.anchor.type == .element && selection.anchor.key == oldParentKey && selection.anchor.offset == oldIndex + 1
+        elementFocusSelectionOnNode = selection.focus.type == .element && selection.focus.key == oldParentKey && selection.focus.offset == oldIndex + 1
       }
     }
 
@@ -790,7 +787,7 @@ extension Node: Hashable {
 }
 
 extension Node: Equatable {
-  public static func ==(lhs: Node, rhs: Node) -> Bool {
+  public static func == (lhs: Node, rhs: Node) -> Bool {
     //    return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
     return lhs.isSameKey(rhs)
   }
@@ -826,10 +823,8 @@ extension Node: Equatable {
     // For inline images inside of element nodes.
     // Without this change the image will be selected if the cursor is before or after it.
     if let selection = selection as? RangeSelection,
-       selection.anchor.type == .element &&
-        selection.focus.type == .element &&
-        selection.anchor.key == selection.focus.key &&
-        selection.anchor.offset == selection.focus.offset {
+      selection.anchor.type == .element && selection.focus.type == .element && selection.anchor.key == selection.focus.key && selection.anchor.offset == selection.focus.offset
+    {
       return false
     }
     return isSelected

@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class UpdatesTests: XCTestCase {
 
@@ -186,11 +187,13 @@ class UpdatesTests: XCTestCase {
     var dispatchCount = 0
     var validCommandTypeCount = 0
 
-    _ = editor.registerCommand(type: validCommandType, listener: { payload in
-      validCommandTypeCount += 1
+    _ = editor.registerCommand(
+      type: validCommandType,
+      listener: { payload in
+        validCommandTypeCount += 1
 
-      return true
-    })
+        return true
+      })
 
     editor.dispatchCommand(type: invalidCommandtype, payload: nil)
     editor.dispatchCommand(type: validCommandType, payload: nil)
@@ -212,23 +215,27 @@ class UpdatesTests: XCTestCase {
 
     var commandListenerCount = 0
 
-    _ = editor.registerCommand(type: CommandType.click, listener: { payload in
-      commandListenerCount += 1
+    _ = editor.registerCommand(
+      type: CommandType.click,
+      listener: { payload in
+        commandListenerCount += 1
 
-      XCTAssertEqual(commandListenerCount, 2)
+        XCTAssertEqual(commandListenerCount, 2)
 
-      return true
-    },
-    priority: CommandPriority.Editor
+        return true
+      },
+      priority: CommandPriority.Editor
     )
-    _ = editor.registerCommand(type: CommandType.click, listener: {  payload in
-      commandListenerCount += 1
+    _ = editor.registerCommand(
+      type: CommandType.click,
+      listener: { payload in
+        commandListenerCount += 1
 
-      XCTAssertEqual(commandListenerCount, 1)
+        XCTAssertEqual(commandListenerCount, 1)
 
-      return true
-    },
-    priority: CommandPriority.High
+        return true
+      },
+      priority: CommandPriority.High
     )
 
     editor.dispatchCommand(type: CommandType.click, payload: nil)

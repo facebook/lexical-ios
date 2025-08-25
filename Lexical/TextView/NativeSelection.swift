@@ -29,12 +29,13 @@ public class NativeSelection {
   }
 
   public convenience init(range: NSRange, affinity: UITextStorageDirection) {
-    self.init(range: range,
-              opaqueRange: nil,
-              affinity: affinity,
-              markedRange: nil,
-              markedOpaqueRange: nil,
-              selectionIsNodeOrObject: false)
+    self.init(
+      range: range,
+      opaqueRange: nil,
+      affinity: affinity,
+      markedRange: nil,
+      markedOpaqueRange: nil,
+      selectionIsNodeOrObject: false)
   }
 
   // if nil, there's no selection at all (i.e. no focus). If there's a location but length 0, then

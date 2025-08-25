@@ -6,10 +6,11 @@
  */
 
 import Foundation
+import XCTest
+
 @testable import Lexical
 @testable import LexicalListPlugin
 @testable import LexicalMarkdown
-import XCTest
 
 class LexicalMarkdownTests: XCTestCase {
   var lexicalView: LexicalView?
@@ -60,9 +61,9 @@ class LexicalMarkdownTests: XCTestCase {
 
     let markdownString = try LexicalMarkdown.generateMarkdown(from: editor, selection: nil)
     let comparison = """
-- Item 1
-- Item **2**
-"""
+      - Item 1
+      - Item **2**
+      """
     XCTAssertEqual(markdownString, comparison)
   }
 }

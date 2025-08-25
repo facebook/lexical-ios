@@ -5,9 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import XCTest
+
 @testable import EditorHistoryPlugin
 @testable import Lexical
-import XCTest
 
 class HistoryTests: XCTestCase {
 
@@ -96,7 +97,10 @@ class HistoryTests: XCTestCase {
   }
 
   func testApplyHistory() throws {
-    guard let view else { XCTFail(); return }
+    guard let view else {
+      XCTFail()
+      return
+    }
 
     XCTAssertEqual(view.textStorage.string, "", "Text storage should be empty")
     view.textView.insertText("A")

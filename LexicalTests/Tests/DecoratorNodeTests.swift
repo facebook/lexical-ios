@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 extension NodeType {
   static let testNode = NodeType(rawValue: "testNode")
@@ -133,24 +134,36 @@ class DecoratorNodeTests: XCTestCase {
     }
 
     try editor.read {
-      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else { XCTFail(); return }
+      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else {
+        XCTFail()
+        return
+      }
       XCTAssertEqual(decoratorNode.numberOfTimesDecorateHasBeenCalled, 1)
     }
 
     try editor.update {}
 
     try editor.read {
-      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else { XCTFail(); return }
+      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else {
+        XCTFail()
+        return
+      }
       XCTAssertEqual(decoratorNode.numberOfTimesDecorateHasBeenCalled, 1, "should still be 1 after an update where nothing changed")
     }
 
     try editor.update {
-      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else { XCTFail(); return }
+      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else {
+        XCTFail()
+        return
+      }
       internallyMarkNodeAsDirty(node: decoratorNode, cause: .userInitiated)
     }
 
     try editor.read {
-      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else { XCTFail(); return }
+      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else {
+        XCTFail()
+        return
+      }
       XCTAssertEqual(decoratorNode.numberOfTimesDecorateHasBeenCalled, 2, "should be 2 after a dirty update")
     }
   }
@@ -179,17 +192,26 @@ class DecoratorNodeTests: XCTestCase {
     }
 
     try editor.read {
-      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else { XCTFail(); return }
+      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else {
+        XCTFail()
+        return
+      }
       XCTAssertEqual(decoratorNode.numberOfTimesDecorateHasBeenCalled, 0)
     }
 
     try editor.update {
-      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else { XCTFail(); return }
+      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else {
+        XCTFail()
+        return
+      }
       internallyMarkNodeAsDirty(node: decoratorNode, cause: .userInitiated)
     }
 
     try editor.read {
-      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else { XCTFail(); return }
+      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else {
+        XCTFail()
+        return
+      }
       XCTAssertEqual(decoratorNode.numberOfTimesDecorateHasBeenCalled, 0, "should not have decorated as no view created")
     }
 
@@ -197,7 +219,10 @@ class DecoratorNodeTests: XCTestCase {
     view.textKitContext = textKitContext
 
     try editor.read {
-      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else { XCTFail(); return }
+      guard let nodeKey, let decoratorNode = getNodeByKey(key: nodeKey) as? TestDecoratorNode else {
+        XCTFail()
+        return
+      }
       XCTAssertEqual(decoratorNode.numberOfTimesDecorateHasBeenCalled, 1, "should have automatically called decorate when attaching text kit context")
     }
   }

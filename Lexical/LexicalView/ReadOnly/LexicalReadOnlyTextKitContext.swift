@@ -58,7 +58,8 @@ internal class LexicalReadOnlySizeCache {
   var customTruncationRect: CGRect? {
     get {
       guard let origin = originForTruncationStringInTextKitCoordinates,
-            let size = sizeForTruncationString else { return nil }
+        let size = sizeForTruncationString
+      else { return nil }
       return CGRect(origin: origin, size: size)
     }
   }
@@ -181,10 +182,11 @@ internal class LexicalReadOnlySizeCache {
 
     // 6. Now we've set the custom truncation string metrics on the size cache, if we re lay out, it should return different size.
     let characterRangeForLastLineFragmentPreTruncation = layoutManager.characterRange(forGlyphRange: effectiveGlyphRangeForLastLineFragmentPreTruncation, actualGlyphRange: nil)
-    let truncationStringPlusGapLocation = CGRect(x: lastLineFragmentRect.width - truncationStringRect.width - sizeCache.gapBeforeTruncationString,
-                                                 y: lastLineFragmentRect.minY,
-                                                 width: truncationStringRect.width + sizeCache.gapBeforeTruncationString,
-                                                 height: lastLineFragmentRect.height)
+    let truncationStringPlusGapLocation = CGRect(
+      x: lastLineFragmentRect.width - truncationStringRect.width - sizeCache.gapBeforeTruncationString,
+      y: lastLineFragmentRect.minY,
+      width: truncationStringRect.width + sizeCache.gapBeforeTruncationString,
+      height: lastLineFragmentRect.height)
     let truncationCutPoint = layoutManager.glyphIndex(for: CGPoint(x: truncationStringPlusGapLocation.minX, y: lastLineFragmentRect.maxY - 1), in: textContainer, fractionOfDistanceThroughGlyph: nil)
     sizeCache.glyphIndexAtTruncationIndicatorCutPoint = truncationCutPoint
 

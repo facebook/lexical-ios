@@ -6,9 +6,10 @@
  */
 
 import Foundation
+import XCTest
+
 @testable import Lexical
 @testable import LexicalHTML
-import XCTest
 
 class LexicalHTMLTests: XCTestCase {
 
@@ -28,15 +29,18 @@ class LexicalHTMLTests: XCTestCase {
   }
 
   func testNodesToHTML() throws {
-    guard let editor else { XCTFail(); return }
+    guard let editor else {
+      XCTFail()
+      return
+    }
 
     let comparison = """
-<p>
- <span>
-  hello world
- </span>
-</p>
-"""
+      <p>
+       <span>
+        hello world
+       </span>
+      </p>
+      """
 
     try editor.update {
       let textNode = TextNode()

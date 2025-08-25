@@ -6,8 +6,9 @@
  */
 
 import Foundation
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class UnknownNodeTests: XCTestCase {
 
@@ -28,8 +29,8 @@ class UnknownNodeTests: XCTestCase {
 
   func testCanEncodeAndDecodeAnyJson() throws {
     let simpleJson = """
-{"id": "test-id","type": "a-random-string", "randomValue": [1, "2", true, false, { "3": 4.5 }, null]}
-"""
+      {"id": "test-id","type": "a-random-string", "randomValue": [1, "2", true, false, { "3": 4.5 }, null]}
+      """
 
     let decoder = JSONDecoder()
     let encoder = JSONEncoder()

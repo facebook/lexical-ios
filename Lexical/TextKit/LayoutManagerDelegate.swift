@@ -80,9 +80,12 @@ class LayoutManagerDelegate: NSObject, NSLayoutManagerDelegate {
           let composedNormalisedRange = textStorageString.rangeOfComposedCharacterSequence(at: substringRange.location)
           if composedNormalisedRange != substringRange {
             // for this case, we can't upper or lower case _half_ a character.
-            operationResults.append((glyphs: [CGGlyph](repeating: CGGlyph(0), count: substringRange.length),
-                                     properties: [NSLayoutManager.GlyphProperty](repeating: .null, count: substringRange.length),
-                                     characterIndexes: Array(substringRange.location...(substringRange.location + substringRange.length))))
+            operationResults.append(
+              (
+                glyphs: [CGGlyph](repeating: CGGlyph(0), count: substringRange.length),
+                properties: [NSLayoutManager.GlyphProperty](repeating: .null, count: substringRange.length),
+                characterIndexes: Array(substringRange.location...(substringRange.location + substringRange.length))
+              ))
             bufferLength += substringRange.length
             return
           }
@@ -91,8 +94,10 @@ class LayoutManagerDelegate: NSObject, NSLayoutManagerDelegate {
           let modifiedSubstring = operationRange.operation == .lowercase ? substring.lowercased() : substring.uppercased()
 
           // iterate through this _new_ string, in case upper casing it resulted in more than one composed character
-          (modifiedSubstring as NSString).enumerateSubstrings(in: NSRange(location: 0, length: modifiedSubstring.lengthAsNSString()),
-                                                              options: .byComposedCharacterSequences) { innerSubstring, innerSubstringRange, innerEnclosingRange, _ in
+          (modifiedSubstring as NSString).enumerateSubstrings(
+            in: NSRange(location: 0, length: modifiedSubstring.lengthAsNSString()),
+            options: .byComposedCharacterSequences
+          ) { innerSubstring, innerSubstringRange, innerEnclosingRange, _ in
             guard let innerSubstring else {
               return
             }
@@ -144,8 +149,9 @@ class LayoutManagerDelegate: NSObject, NSLayoutManagerDelegate {
       sumProps.withUnsafeBufferPointer { sumPropsBuffer in
         sumCharacterIndexes.withUnsafeBufferPointer { sumCharsBuffer in
           guard let sumGlyphsBaseAddress = sumGlyphsBuffer.baseAddress,
-                let sumPropsBaseAddress = sumPropsBuffer.baseAddress,
-                let sumCharsBaseAddress = sumCharsBuffer.baseAddress else {
+            let sumPropsBaseAddress = sumPropsBuffer.baseAddress,
+            let sumCharsBaseAddress = sumCharsBuffer.baseAddress
+          else {
             fail = true
             return
           }

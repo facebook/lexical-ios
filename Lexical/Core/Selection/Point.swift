@@ -106,9 +106,7 @@ public class Point {
 
 extension Point: Equatable {
   public static func == (lhs: Point, rhs: Point) -> Bool {
-    return lhs.key == rhs.key &&
-      lhs.offset == rhs.offset &&
-      lhs.type == rhs.type
+    return lhs.key == rhs.key && lhs.offset == rhs.offset && lhs.type == rhs.type
   }
 }
 

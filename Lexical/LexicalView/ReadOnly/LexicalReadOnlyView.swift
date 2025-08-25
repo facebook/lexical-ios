@@ -49,7 +49,8 @@ import UIKit
 
   override public func draw(_ rect: CGRect) {
     if let textKitContext,
-       let graphicsContext = UIGraphicsGetCurrentContext() {
+      let graphicsContext = UIGraphicsGetCurrentContext()
+    {
       textKitContext.draw(inContext: graphicsContext)
     }
   }
@@ -57,8 +58,9 @@ import UIKit
   @objc func handleTap(gestureRecognizer: UITapGestureRecognizer) {
     guard let textKitContext else { return }
     let pointInView = gestureRecognizer.location(in: self)
-    let pointInTextContainer = CGPoint(x: pointInView.x - textKitContext.textContainerInsets.left,
-                                       y: pointInView.y - textKitContext.textContainerInsets.top)
+    let pointInTextContainer = CGPoint(
+      x: pointInView.x - textKitContext.textContainerInsets.left,
+      y: pointInView.y - textKitContext.textContainerInsets.top)
 
     if let truncationRect = textKitContext.sizeCache.customTruncationRect {
       if truncationRect.contains(pointInTextContainer) {
@@ -67,9 +69,10 @@ import UIKit
       }
     }
 
-    let indexOfCharacter = textKitContext.layoutManager.characterIndex(for: pointInTextContainer,
-                                                                       in: textKitContext.textContainer,
-                                                                       fractionOfDistanceBetweenInsertionPoints: nil)
+    let indexOfCharacter = textKitContext.layoutManager.characterIndex(
+      for: pointInTextContainer,
+      in: textKitContext.textContainer,
+      fractionOfDistanceBetweenInsertionPoints: nil)
     let attributes = textKitContext.textStorage.attributes(at: indexOfCharacter, effectiveRange: nil)
 
     if let link = attributes[.link] {

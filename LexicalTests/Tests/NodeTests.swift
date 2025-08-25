@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class NodeTests: XCTestCase {
   var view: LexicalView?
@@ -600,7 +601,12 @@ class NodeTests: XCTestCase {
 
       try rootNode?.append([paragraphNode])
 
-      XCTAssert(textNode.getTopLevelElementOrThrow() === paragraphNode)
+      guard let topLevelElement = try? textNode.getTopLevelElementOrThrow() as? ParagraphNode else {
+        XCTFail("should have top level element node")
+        return
+      }
+
+      XCTAssert(topLevelElement === paragraphNode)
     }
   }
 
@@ -1467,8 +1473,9 @@ class NodeTests: XCTestCase {
       createExampleNodeTree()
 
       if let textNode = getNodeByKey(key: "6"),
-         let newParentNode = getNodeByKey(key: "2") as? ElementNode,
-         let oldParent = getNodeByKey(key: "7") as? ElementNode {
+        let newParentNode = getNodeByKey(key: "2") as? ElementNode,
+        let oldParent = getNodeByKey(key: "7") as? ElementNode
+      {
         XCTAssertEqual(textNode.parent, "7")
 
         try newParentNode.append([textNode])

@@ -87,12 +87,13 @@ internal enum Reconciler {
     }
 
     if editor.dirtyNodes.isEmpty,
-       editor.dirtyType == .noDirtyNodes,
-       let currentSelection = currentEditorState.selection,
-       let pendingSelection = pendingEditorState.selection,
-       currentSelection.isSelection(pendingSelection),
-       pendingSelection.dirty == false,
-       markedTextOperation == nil {
+      editor.dirtyType == .noDirtyNodes,
+      let currentSelection = currentEditorState.selection,
+      let pendingSelection = pendingEditorState.selection,
+      currentSelection.isSelection(pendingSelection),
+      pendingSelection.dirty == false,
+      markedTextOperation == nil
+    {
       // should be nothing to reconcile
       return
     }
@@ -108,12 +109,13 @@ internal enum Reconciler {
     let nextSelection = pendingEditorState.selection
     let needsUpdate = editor.dirtyType != .noDirtyNodes
 
-    let reconcilerState = ReconcilerState(currentEditorState: currentEditorState,
-                                          pendingEditorState: pendingEditorState,
-                                          rangeCache: editor.rangeCache,
-                                          dirtyNodes: editor.dirtyNodes,
-                                          treatAllNodesAsDirty: editor.dirtyType == .fullReconcile,
-                                          markedTextOperation: markedTextOperation)
+    let reconcilerState = ReconcilerState(
+      currentEditorState: currentEditorState,
+      pendingEditorState: pendingEditorState,
+      rangeCache: editor.rangeCache,
+      dirtyNodes: editor.dirtyNodes,
+      treatAllNodesAsDirty: editor.dirtyType == .fullReconcile,
+      markedTextOperation: markedTextOperation)
 
     try reconcileNode(key: kRootNodeKey, reconcilerState: reconcilerState)
 
@@ -225,9 +227,9 @@ internal enum Reconciler {
     let rangeCache = reconcilerState.nextRangeCache
     for nodeKey in nodesToApplyBlockAttributes {
       guard let node = getNodeByKey(key: nodeKey),
-            node.isAttached(),
-            let cacheItem = rangeCache[nodeKey],
-            let attributes = node.getBlockLevelAttributes(theme: editor.getTheme())
+        node.isAttached(),
+        let cacheItem = rangeCache[nodeKey],
+        let attributes = node.getBlockLevelAttributes(theme: editor.getTheme())
       else { continue }
 
       AttributeUtils.applyBlockLevelAttributes(attributes, cacheItem: cacheItem, textStorage: textStorage, nodeKey: nodeKey, lastDescendentAttributes: lastDescendentAttributes ?? [:])
@@ -238,10 +240,11 @@ internal enum Reconciler {
     textStorage.mode = previousMode
 
     if let markedTextOperation,
-       markedTextOperation.createMarkedText,
-       let markedTextAttributedString,
-       let startPoint = markedTextPointForAddition,
-       let frontend = editor.frontend {
+      markedTextOperation.createMarkedText,
+      let markedTextAttributedString,
+      let startPoint = markedTextPointForAddition,
+      let frontend = editor.frontend
+    {
       // We have a marked text operation, an attributed string, we know the Point at which it should be added.
       // Note that the text has _already_ been inserted into the TextStorage, so we actually have to _replace_ the
       // marked text range with the same text, but via a marked text operation. Hence we deduce the end point
@@ -425,7 +428,8 @@ internal enum Reconciler {
 
   private static func reconcileChildren(key: NodeKey, reconcilerState: ReconcilerState) throws {
     guard let prevNode = reconcilerState.prevEditorState.nodeMap[key] as? ElementNode,
-          let nextNode = reconcilerState.nextEditorState.nodeMap[key] as? ElementNode else {
+      let nextNode = reconcilerState.nextEditorState.nodeMap[key] as? ElementNode
+    else {
       return
     }
     // in JS, this method does a few optimisation codepaths, then calls to the slow path reconcileNodeChildren. I'll not program the optimisations yet.
@@ -437,11 +441,13 @@ internal enum Reconciler {
       reconcilerState: reconcilerState)
   }
 
-  private static func reconcileNodeChildren(prevChildren: [NodeKey],
-                                            nextChildren: [NodeKey],
-                                            prevChildrenLength: Int,
-                                            nextChildrenLength: Int,
-                                            reconcilerState: ReconcilerState) throws {
+  private static func reconcileNodeChildren(
+    prevChildren: [NodeKey],
+    nextChildren: [NodeKey],
+    prevChildrenLength: Int,
+    nextChildrenLength: Int,
+    reconcilerState: ReconcilerState
+  ) throws {
     let prevEndIndex = prevChildrenLength - 1
     let nextEndIndex = nextChildrenLength - 1
     var prevIndex = 0
@@ -563,7 +569,8 @@ internal enum Reconciler {
   private static func reconcileSelection(
     prevSelection: BaseSelection?,
     nextSelection: BaseSelection?,
-    editor: Editor) throws {
+    editor: Editor
+  ) throws {
     guard let nextSelection else {
       if let prevSelection {
         if !prevSelection.dirty {
@@ -584,7 +591,8 @@ internal enum Reconciler {
 
 internal func performReconcilerSanityCheck(
   editor sanityCheckEditor: Editor,
-  expectedOutput: NSAttributedString) throws {
+  expectedOutput: NSAttributedString
+) throws {
   // TODO @amyworrall: this was commented out during the Frontend refactor. Create a new Frontend that contains
   // a TextKit stack but no selection or UI. Use that to re-implement the reconciler.
 

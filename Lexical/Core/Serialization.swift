@@ -88,7 +88,7 @@ let defaultDeserializationMapping: DeserializationMapping = [
   NodeType.element: { decoder in try ElementNode(from: decoder) },
   NodeType.heading: { decoder in try HeadingNode(from: decoder) },
   NodeType.paragraph: { decoder in try ParagraphNode(from: decoder) },
-  NodeType.quote: { decoder in try QuoteNode(from: decoder) }
+  NodeType.quote: { decoder in try QuoteNode(from: decoder) },
 ]
 
 func makeDeserializationMap() -> DeserializationMapping {

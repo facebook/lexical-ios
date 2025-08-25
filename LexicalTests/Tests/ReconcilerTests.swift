@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class ReconcilerTests: XCTestCase {
 
@@ -177,7 +178,7 @@ class ReconcilerTests: XCTestCase {
       try pNode.append([tNode2])
       XCTAssertEqual(pNode.getChildren().count, 2, "Expected two children on main para node")
     }
-    try editor.update { }
+    try editor.update {}
     XCTAssertEqual("AB", view.textStorage.string, "Text should be AB")
     try editor.update {
       guard let node = getNodeByKey(key: "1") as? TextNode else {
@@ -187,7 +188,7 @@ class ReconcilerTests: XCTestCase {
       try node.setText("C")
     }
     XCTAssertEqual("CB", view.textStorage.string, "Should be CB")
-    try editor.update { }
+    try editor.update {}
 
     try editor.update {
       guard let editor = getActiveEditor(), let pNode: ParagraphNode = try getNodeByKey(key: "0")?.getWritable() as? ParagraphNode else {
@@ -230,7 +231,7 @@ class ReconcilerTests: XCTestCase {
       try pNode.append([tNode2])
       XCTAssertEqual(pNode.children.count, 2, "Expected two children on newly created para node")
     }
-    try editor.update { }
+    try editor.update {}
 
     do {
       try editor.update {

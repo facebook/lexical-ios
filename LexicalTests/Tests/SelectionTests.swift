@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class SelectionTests: XCTestCase {
 
@@ -85,17 +86,19 @@ class SelectionTests: XCTestCase {
       let endPoint = createPoint(key: textNode2.key, offset: 4, type: .text)
       let selection = RangeSelection(anchor: startPoint, focus: endPoint, format: TextFormat())
 
-      selection.setTextNodeRange(anchorNode: textNode,
-                                 anchorOffset: 1,
-                                 focusNode: textNode2,
-                                 focusOffset: 3)
+      selection.setTextNodeRange(
+        anchorNode: textNode,
+        anchorOffset: 1,
+        focusNode: textNode2,
+        focusOffset: 3)
       XCTAssertTrue(selection.anchor.offset == 1)
       XCTAssertTrue(selection.focus.offset == 3)
 
-      selection.setTextNodeRange(anchorNode: textNode,
-                                 anchorOffset: 2,
-                                 focusNode: textNode2,
-                                 focusOffset: 5)
+      selection.setTextNodeRange(
+        anchorNode: textNode,
+        anchorOffset: 2,
+        focusNode: textNode2,
+        focusOffset: 5)
       XCTAssertTrue(selection.anchor.offset == 2)
       XCTAssertTrue(selection.focus.offset == 5)
     }
@@ -774,8 +777,8 @@ class SelectionTests: XCTestCase {
       XCTAssertEqual(textNodes[2].getTextPart(), " verify format updates!!")
 
       guard let textNode0 = textNodes[0] as? TextNode,
-            let textNode1 = textNodes[1] as? TextNode,
-            let textNode2 = textNodes[2] as? TextNode
+        let textNode1 = textNodes[1] as? TextNode,
+        let textNode2 = textNodes[2] as? TextNode
       else {
         XCTFail("Failed to extract the textNodes")
         return
@@ -1052,8 +1055,8 @@ class SelectionTests: XCTestCase {
       let nodeMap = editor.getEditorState().nodeMap
 
       guard let textNode = nodeMap["2"],
-            let parentKey = textNode.parent,
-            let parent = getNodeByKey(key: parentKey) as? HeadingNode
+        let parentKey = textNode.parent,
+        let parent = getNodeByKey(key: parentKey) as? HeadingNode
       else {
         XCTFail("Failed to retain the heading node")
         return
@@ -1109,7 +1112,7 @@ class SelectionTests: XCTestCase {
       XCTAssertEqual(paragraphNode.children.count, 2)
 
       guard let textNode1 = getNodeByKey(key: paragraphNode.children[0]) as? TextNode,
-            let textNode2 = getNodeByKey(key: paragraphNode.children[1]) as? TextNode
+        let textNode2 = getNodeByKey(key: paragraphNode.children[1]) as? TextNode
       else { return }
 
       XCTAssertEqual(textNode1.getTextPart(), "Hello world ")

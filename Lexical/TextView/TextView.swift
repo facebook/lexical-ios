@@ -234,10 +234,11 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
       return
     }
 
-    let markedTextOperation = MarkedTextOperation(createMarkedText: true,
-                                                  selectionRangeToReplace: editor.getNativeSelection().markedRange ?? self.selectedRange,
-                                                  markedTextString: markedText,
-                                                  markedTextInternalSelection: selectedRange)
+    let markedTextOperation = MarkedTextOperation(
+      createMarkedText: true,
+      selectionRangeToReplace: editor.getNativeSelection().markedRange ?? self.selectedRange,
+      markedTextString: markedText,
+      markedTextInternalSelection: selectedRange)
 
     let behaviourModificationMode = UpdateBehaviourModificationMode(suppressReconcilingSelection: true, suppressSanityCheck: true, markedTextOperation: markedTextOperation)
 
@@ -289,7 +290,8 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
       do {
         try editor.update {
           guard let anchor = try pointAtStringLocation(previousMarkedRange.location, searchDirection: .forward, rangeCache: editor.rangeCache),
-                let focus = try pointAtStringLocation(previousMarkedRange.location + previousMarkedRange.length, searchDirection: .forward, rangeCache: editor.rangeCache) else {
+            let focus = try pointAtStringLocation(previousMarkedRange.location + previousMarkedRange.length, searchDirection: .forward, rangeCache: editor.rangeCache)
+          else {
             return
           }
 

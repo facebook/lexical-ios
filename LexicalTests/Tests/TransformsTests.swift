@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class TransformTests: XCTestCase {
   static let infiniteTransformKey = "I"
@@ -45,7 +46,36 @@ class TransformTests: XCTestCase {
     for (index, key) in transforms.enumerated() {
       let nextKey = index < transforms.count - 1 ? transforms[index + 1] : TransformTests.lastTransformKey
 
-      let teardown = editor.addNodeTransform(nodeType: NodeType.text, transform: { [weak self] node in
+      let teardown = editor.addNodeTransform(
+        nodeType: NodeType.text,
+        transform: { [weak self] node in
+          guard let strongSelf = self else {
+            XCTFail("strongSelf reference not found for text transform")
+            return
+          }
+
+          guard let textNode = node as? TextNode else {
+            throw LexicalError.invariantViolation("Text transform run on non-text node")
+          }
+
+          let textPart = textNode.getTextPart()
+
+          if textPart.contains(key) {
+            let count = (strongSelf.transformCount[key] ?? 0) + 1
+
+            try textNode.setText(textPart.replacingOccurrences(of: key, with: nextKey))
+
+            strongSelf.transformCount[key] = count
+            strongSelf.updateLog.append("\(key)\(count)_start")
+          }
+        })
+
+      teardowns.append(teardown)
+    }
+
+    let infiniteTransform = editor.addNodeTransform(
+      nodeType: NodeType.text,
+      transform: { [weak self] node in
         guard let strongSelf = self else {
           XCTFail("strongSelf reference not found for text transform")
           return
@@ -57,63 +87,40 @@ class TransformTests: XCTestCase {
 
         let textPart = textNode.getTextPart()
 
-        if textPart.contains(key) {
-          let count = (strongSelf.transformCount[key] ?? 0) + 1
+        if textPart.contains(TransformTests.infiniteTransformKey) {
+          let count = (strongSelf.transformCount[TransformTests.infiniteTransformKey] ?? 0) + 1
 
-          try textNode.setText(textPart.replacingOccurrences(of: key, with: nextKey))
-
-          strongSelf.transformCount[key] = count
-          strongSelf.updateLog.append("\(key)\(count)_start")
+          try textNode.setText(textPart)
+          strongSelf.transformCount[TransformTests.infiniteTransformKey] = count
+          strongSelf.updateLog.append("\(TransformTests.infiniteTransformKey)\(count)_start")
         }
       })
 
-      teardowns.append(teardown)
-    }
+    let combinedTransform = editor.addNodeTransform(
+      nodeType: NodeType.text,
+      transform: { [weak self] node in
+        guard let strongSelf = self else {
+          XCTFail("strongSelf reference not found for text transform")
+          return
+        }
 
-    let infiniteTransform = editor.addNodeTransform(nodeType: NodeType.text, transform: { [weak self] node in
-      guard let strongSelf = self else {
-        XCTFail("strongSelf reference not found for text transform")
-        return
-      }
+        guard let textNode = node as? TextNode else {
+          throw LexicalError.invariantViolation("Text transform run on non-text node")
+        }
 
-      guard let textNode = node as? TextNode else {
-        throw LexicalError.invariantViolation("Text transform run on non-text node")
-      }
+        let textPart = textNode.getTextPart()
 
-      let textPart = textNode.getTextPart()
+        let combinedText = "\(TransformTests.lastTransformKey)\(TransformTests.combinedTransformKey)"
 
-      if textPart.contains(TransformTests.infiniteTransformKey) {
-        let count = (strongSelf.transformCount[TransformTests.infiniteTransformKey] ?? 0) + 1
+        if textPart.contains(combinedText) {
+          let count = (strongSelf.transformCount[TransformTests.combinedTransformKey] ?? 0) + 1
 
-        try textNode.setText(textPart)
-        strongSelf.transformCount[TransformTests.infiniteTransformKey] = count
-        strongSelf.updateLog.append("\(TransformTests.infiniteTransformKey)\(count)_start")
-      }
-    })
+          try textNode.setText(textPart.replacingOccurrences(of: combinedText, with: TransformTests.terminalTransform))
 
-    let combinedTransform = editor.addNodeTransform(nodeType: NodeType.text, transform: { [weak self] node in
-      guard let strongSelf = self else {
-        XCTFail("strongSelf reference not found for text transform")
-        return
-      }
-
-      guard let textNode = node as? TextNode else {
-        throw LexicalError.invariantViolation("Text transform run on non-text node")
-      }
-
-      let textPart = textNode.getTextPart()
-
-      let combinedText = "\(TransformTests.lastTransformKey)\(TransformTests.combinedTransformKey)"
-
-      if textPart.contains(combinedText) {
-        let count = (strongSelf.transformCount[TransformTests.combinedTransformKey] ?? 0) + 1
-
-        try textNode.setText(textPart.replacingOccurrences(of: combinedText, with: TransformTests.terminalTransform))
-
-        strongSelf.transformCount[TransformTests.combinedTransformKey] = count
-        strongSelf.updateLog.append("\(TransformTests.combinedTransformKey)\(count)_start")
-      }
-    })
+          strongSelf.transformCount[TransformTests.combinedTransformKey] = count
+          strongSelf.updateLog.append("\(TransformTests.combinedTransformKey)\(count)_start")
+        }
+      })
 
     teardowns.append(contentsOf: [infiniteTransform, combinedTransform])
   }

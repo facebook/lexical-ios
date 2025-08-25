@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class SelectionUtilsTests: XCTestCase {
   func testCreatePoint() throws {
@@ -85,9 +86,10 @@ class SelectionUtilsTests: XCTestCase {
     }
 
     try editor.getEditorState().read {
-      let selection = RangeSelection(anchor: Point(key: "2", offset: 1, type: .text),
-                                     focus: Point(key: "2", offset: 3, type: .text),
-                                     format: TextFormat())
+      let selection = RangeSelection(
+        anchor: Point(key: "2", offset: 1, type: .text),
+        focus: Point(key: "2", offset: 3, type: .text),
+        format: TextFormat())
 
       let textSelection = try createNativeSelection(from: selection, editor: editor)
       XCTAssertNotNil(textSelection.range)
@@ -95,9 +97,10 @@ class SelectionUtilsTests: XCTestCase {
       XCTAssertEqual(textSelection.range?.location, 7)
       XCTAssertEqual(textSelection.range?.length, 2)
 
-      let selection2 = RangeSelection(anchor: Point(key: "2", offset: 6, type: .text),
-                                      focus: Point(key: "2", offset: 2, type: .text),
-                                      format: TextFormat())
+      let selection2 = RangeSelection(
+        anchor: Point(key: "2", offset: 6, type: .text),
+        focus: Point(key: "2", offset: 2, type: .text),
+        format: TextFormat())
 
       let textSelection2 = try createNativeSelection(from: selection2, editor: editor)
       XCTAssertNotNil(textSelection2.range)
@@ -105,9 +108,10 @@ class SelectionUtilsTests: XCTestCase {
       XCTAssertEqual(textSelection2.range?.location, 8)
       XCTAssertEqual(textSelection2.range?.length, 4)
 
-      let selection3 = RangeSelection(anchor: Point(key: "6", offset: 6, type: .text),
-                                      focus: Point(key: "6", offset: 6, type: .text),
-                                      format: TextFormat())
+      let selection3 = RangeSelection(
+        anchor: Point(key: "6", offset: 6, type: .text),
+        focus: Point(key: "6", offset: 6, type: .text),
+        format: TextFormat())
 
       let textSelection3 = try createNativeSelection(from: selection3, editor: editor)
       XCTAssertNotNil(textSelection3.range)
@@ -126,9 +130,10 @@ class SelectionUtilsTests: XCTestCase {
     }
 
     try editor.getEditorState().read {
-      let selection = RangeSelection(anchor: Point(key: "1", offset: 1, type: .text),
-                                     focus: Point(key: "2", offset: 3, type: .text),
-                                     format: TextFormat())
+      let selection = RangeSelection(
+        anchor: Point(key: "1", offset: 1, type: .text),
+        focus: Point(key: "2", offset: 3, type: .text),
+        format: TextFormat())
 
       let textSelection = try createNativeSelection(from: selection, editor: editor)
       XCTAssertNotNil(textSelection.range)
@@ -136,9 +141,10 @@ class SelectionUtilsTests: XCTestCase {
       XCTAssertEqual(textSelection.range?.location, 1)
       XCTAssertEqual(textSelection.range?.length, 8)
 
-      let selection2 = RangeSelection(anchor: Point(key: "2", offset: 4, type: .text),
-                                      focus: Point(key: "1", offset: 3, type: .text),
-                                      format: TextFormat())
+      let selection2 = RangeSelection(
+        anchor: Point(key: "2", offset: 4, type: .text),
+        focus: Point(key: "1", offset: 3, type: .text),
+        format: TextFormat())
 
       let textSelection2 = try createNativeSelection(from: selection2, editor: editor)
       XCTAssertNotNil(textSelection2.range)
@@ -154,7 +160,7 @@ class SelectionUtilsTests: XCTestCase {
 
     try editor.update {
       guard let editorState = getActiveEditorState(),
-            let rootNode = editorState.getRootNode()
+        let rootNode = editorState.getRootNode()
       else {
         XCTFail("should have editor state")
         return
@@ -190,9 +196,10 @@ class SelectionUtilsTests: XCTestCase {
     }
 
     try editor.getEditorState().read {
-      let selection = RangeSelection(anchor: Point(key: "0", offset: 1, type: .element),
-                                     focus: Point(key: "0", offset: 1, type: .element),
-                                     format: TextFormat())
+      let selection = RangeSelection(
+        anchor: Point(key: "0", offset: 1, type: .element),
+        focus: Point(key: "0", offset: 1, type: .element),
+        format: TextFormat())
 
       let textSelection = try createNativeSelection(from: selection, editor: editor)
       XCTAssertNotNil(textSelection.range)
@@ -200,9 +207,10 @@ class SelectionUtilsTests: XCTestCase {
       XCTAssertEqual(textSelection.range?.location, 6, "Offset for native selection should be 6")
       XCTAssertEqual(textSelection.range?.length, 0, "length of current selection should be 0")
 
-      let selection2 = RangeSelection(anchor: Point(key: "6", offset: 2, type: .element),
-                                      focus: Point(key: "6", offset: 1, type: .element),
-                                      format: TextFormat())
+      let selection2 = RangeSelection(
+        anchor: Point(key: "6", offset: 2, type: .element),
+        focus: Point(key: "6", offset: 1, type: .element),
+        format: TextFormat())
 
       let textSelection2 = try createNativeSelection(from: selection2, editor: editor)
       XCTAssertNotNil(textSelection2.range)
@@ -210,9 +218,10 @@ class SelectionUtilsTests: XCTestCase {
       XCTAssertEqual(textSelection2.range?.location, 31)
       XCTAssertEqual(textSelection2.range?.length, 26)
 
-      let selection3 = RangeSelection(anchor: Point(key: "0", offset: 1, type: .element),
-                                      focus: Point(key: "6", offset: 2, type: .element),
-                                      format: TextFormat())
+      let selection3 = RangeSelection(
+        anchor: Point(key: "0", offset: 1, type: .element),
+        focus: Point(key: "6", offset: 2, type: .element),
+        format: TextFormat())
 
       let textSelection3 = try createNativeSelection(from: selection3, editor: editor)
       XCTAssertNotNil(textSelection3.range)
@@ -232,8 +241,14 @@ class SelectionUtilsTests: XCTestCase {
 
     for i in 0...view.textStorage.string.lengthAsNSString() {
       try editor.update {
-        guard let point = try pointAtStringLocation(i, searchDirection: .forward, rangeCache: editor.rangeCache) else { XCTFail("Couldn't generate point for string location"); return }
-        guard let location = try stringLocationForPoint(point, editor: editor) else { XCTFail("Couldn't generate string location for point"); return }
+        guard let point = try pointAtStringLocation(i, searchDirection: .forward, rangeCache: editor.rangeCache) else {
+          XCTFail("Couldn't generate point for string location")
+          return
+        }
+        guard let location = try stringLocationForPoint(point, editor: editor) else {
+          XCTFail("Couldn't generate string location for point")
+          return
+        }
         XCTAssertEqual(i, location, "Location did not match after a roundtrip")
       }
     }
@@ -251,12 +266,18 @@ class SelectionUtilsTests: XCTestCase {
       for j in i...view.textStorage.string.lengthAsNSString() {
         try editor.update {
           guard let point = try pointAtStringLocation(i, searchDirection: .forward, rangeCache: editor.rangeCache),
-                let point2 = try pointAtStringLocation(j, searchDirection: .forward, rangeCache: editor.rangeCache)
-          else { XCTFail("Couldn't generate points for string location"); return }
+            let point2 = try pointAtStringLocation(j, searchDirection: .forward, rangeCache: editor.rangeCache)
+          else {
+            XCTFail("Couldn't generate points for string location")
+            return
+          }
 
           guard let location1 = try stringLocationForPoint(point, editor: editor),
-                let location2 = try stringLocationForPoint(point2, editor: editor)
-          else { XCTFail("Couldn't generate string location for point"); return }
+            let location2 = try stringLocationForPoint(point2, editor: editor)
+          else {
+            XCTFail("Couldn't generate string location for point")
+            return
+          }
 
           XCTAssertEqual(i, location1, "Point for i does not match")
           XCTAssertEqual(j, location2, "Point for j does not match")
@@ -331,17 +352,19 @@ class SelectionUtilsTests: XCTestCase {
       let startPoint = createPoint(key: textNode.key, offset: 0, type: .text)
       let endPoint = createPoint(key: textNode2.key, offset: 4, type: .text)
 
-      adjustPointOffsetForMergedSibling(point: startPoint,
-                                        isBefore: true,
-                                        key: textNode.key,
-                                        target: textNode,
-                                        textLength: 6)
+      adjustPointOffsetForMergedSibling(
+        point: startPoint,
+        isBefore: true,
+        key: textNode.key,
+        target: textNode,
+        textLength: 6)
 
-      adjustPointOffsetForMergedSibling(point: endPoint,
-                                        isBefore: false,
-                                        key: textNode2.key,
-                                        target: textNode2,
-                                        textLength: 5)
+      adjustPointOffsetForMergedSibling(
+        point: endPoint,
+        isBefore: false,
+        key: textNode2.key,
+        target: textNode2,
+        textLength: 5)
 
       XCTAssertEqual(startPoint.key, textNode.key)
       XCTAssertEqual(startPoint.offset, 0)
@@ -408,7 +431,7 @@ class SelectionUtilsTests: XCTestCase {
 
     try editor.update {
       guard let editorState = getActiveEditorState(),
-            let rootNode = editorState.getRootNode()
+        let rootNode = editorState.getRootNode()
       else {
         XCTFail("should have editor state")
         return
@@ -574,7 +597,7 @@ class SelectionUtilsTests: XCTestCase {
 
     try editor.update {
       guard let editorState = getActiveEditorState(),
-            let rootNode = editorState.getRootNode()
+        let rootNode = editorState.getRootNode()
       else {
         XCTFail("should have editor state")
         return

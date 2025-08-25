@@ -132,10 +132,11 @@ extension LexicalListPlugin.ListItemNode: NodeMarkdownBlockSupport {
 
 extension LexicalLinkPlugin.LinkNode: NodeMarkdownInlineSupport {
   public func exportInlineMarkdown() throws -> Markdown.InlineMarkup {
-    Markdown.Link(destination: getURL(),
-                  getChildren()
-                    .exportAsInlineMarkdown()
-                    .compactMap { $0 as? Markdown.RecurringInlineMarkup })
+    Markdown.Link(
+      destination: getURL(),
+      getChildren()
+        .exportAsInlineMarkdown()
+        .compactMap { $0 as? Markdown.RecurringInlineMarkup })
   }
 }
 

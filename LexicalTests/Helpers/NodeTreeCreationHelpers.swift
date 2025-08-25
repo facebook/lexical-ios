@@ -6,8 +6,9 @@
  */
 
 import Foundation
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 // swiftlint:disable force_try
 

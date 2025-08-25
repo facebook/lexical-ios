@@ -125,13 +125,15 @@ class TableNodeView: UIView {
         if let cell {
           let textKitContext = cell.textKitContext
           guard let textContainerOrigin = cell.cachedOrigin else { continue }
-          let pointInTextContainer = CGPoint(x: pointInView.x - textKitContext.textContainerInsets.left - textContainerOrigin.x,
-                                             y: pointInView.y - textKitContext.textContainerInsets.top - textContainerOrigin.y)
+          let pointInTextContainer = CGPoint(
+            x: pointInView.x - textKitContext.textContainerInsets.left - textContainerOrigin.x,
+            y: pointInView.y - textKitContext.textContainerInsets.top - textContainerOrigin.y)
           let textContainerRelativeRect = CGRect(x: 0, y: 0, width: cell.cachedWidth ?? 0, height: cell.cachedHeight ?? 0)
           if !textContainerRelativeRect.contains(pointInTextContainer) { continue }
-          let indexOfCharacter = textKitContext.layoutManager.characterIndex(for: pointInTextContainer,
-                                                                             in: textKitContext.textContainer,
-                                                                             fractionOfDistanceBetweenInsertionPoints: nil)
+          let indexOfCharacter = textKitContext.layoutManager.characterIndex(
+            for: pointInTextContainer,
+            in: textKitContext.textContainer,
+            fractionOfDistanceBetweenInsertionPoints: nil)
           if indexOfCharacter >= textKitContext.textStorage.length { continue }
           let attributes = textKitContext.textStorage.attributes(at: indexOfCharacter, effectiveRange: nil)
 

@@ -37,17 +37,18 @@ public class TextContainer: NSTextContainer {
     writingDirection baseWritingDirection: NSWritingDirection,
     remaining remainingRect: UnsafeMutablePointer<CGRect>?
   ) -> CGRect {
-    var lineFragmentRect = super.lineFragmentRect(forProposedRect: proposedRect,
-                                                  at: characterIndex,
-                                                  writingDirection: baseWritingDirection,
-                                                  remaining: remainingRect)
+    var lineFragmentRect = super.lineFragmentRect(
+      forProposedRect: proposedRect,
+      at: characterIndex,
+      writingDirection: baseWritingDirection,
+      remaining: remainingRect)
 
     guard let readOnlySizeCache,
-          let characterRange = readOnlySizeCache.characterRangeForLastLineFragmentBeforeTruncation,
-          let glyphRange = readOnlySizeCache.glyphRangeForLastLineFragmentBeforeTruncation,
-          let cutPoint = readOnlySizeCache.glyphIndexAtTruncationIndicatorCutPoint,
-          NSLocationInRange(characterIndex, characterRange),
-          let sizeForTruncationString = readOnlySizeCache.sizeForTruncationString
+      let characterRange = readOnlySizeCache.characterRangeForLastLineFragmentBeforeTruncation,
+      let glyphRange = readOnlySizeCache.glyphRangeForLastLineFragmentBeforeTruncation,
+      let cutPoint = readOnlySizeCache.glyphIndexAtTruncationIndicatorCutPoint,
+      NSLocationInRange(characterIndex, characterRange),
+      let sizeForTruncationString = readOnlySizeCache.sizeForTruncationString
     else {
       return lineFragmentRect
     }

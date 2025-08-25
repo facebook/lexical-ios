@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class ParagraphNodeTests: XCTestCase {
   func testinsertNewAfter() throws {
@@ -15,7 +16,7 @@ class ParagraphNodeTests: XCTestCase {
 
     try editor.update {
       guard let editorState = getActiveEditorState(),
-            let rootNode = editorState.getRootNode()
+        let rootNode = editorState.getRootNode()
       else {
         XCTFail("should have editor state")
         return

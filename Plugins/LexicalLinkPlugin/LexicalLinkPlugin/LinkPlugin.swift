@@ -38,24 +38,28 @@ open class LinkPlugin: Plugin {
       print("\(error)")
     }
 
-    _ = editor.registerCommand(type: .link, listener: { [weak self] payload in
-      guard let strongSelf = self,
-            let linkPayload = payload as? LinkPayload,
-            let editor = strongSelf.editor
-      else { return false }
+    _ = editor.registerCommand(
+      type: .link,
+      listener: { [weak self] payload in
+        guard let strongSelf = self,
+          let linkPayload = payload as? LinkPayload,
+          let editor = strongSelf.editor
+        else { return false }
 
-      strongSelf.insertLink(linkPayload: linkPayload, editor: editor)
-      return true
-    })
+        strongSelf.insertLink(linkPayload: linkPayload, editor: editor)
+        return true
+      })
 
-    _ = editor.registerCommand(type: .removeLink, listener: { [weak self] _ in
-      guard let strongSelf = self,
-            let editor = strongSelf.editor
-      else { return false }
+    _ = editor.registerCommand(
+      type: .removeLink,
+      listener: { [weak self] _ in
+        guard let strongSelf = self,
+          let editor = strongSelf.editor
+        else { return false }
 
-      strongSelf.insertLink(linkPayload: nil, editor: editor)
-      return true
-    })
+        strongSelf.insertLink(linkPayload: nil, editor: editor)
+        return true
+      })
   }
 
   public func tearDown() {

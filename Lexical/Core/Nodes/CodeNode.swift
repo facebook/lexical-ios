@@ -25,9 +25,7 @@ import UIKit
     guard let rhs = object as? CodeBlockCustomDrawingAttributes else {
       return false
     }
-    return lhs.background == rhs.background &&
-      lhs.border == rhs.border &&
-      lhs.borderWidth == rhs.borderWidth
+    return lhs.background == rhs.background && lhs.border == rhs.border && lhs.borderWidth == rhs.borderWidth
   }
 }
 
@@ -124,12 +122,7 @@ public class CodeNode: ElementNode {
     let children = self.getChildren()
     let childrenLength = children.count
 
-    if childrenLength >= 2 &&
-        children.last is LineBreakNode &&
-        children[childrenLength - 2] is LineBreakNode &&
-        selection.isCollapsed() &&
-        selection.anchor.key == self.key &&
-        selection.anchor.offset == childrenLength {
+    if childrenLength >= 2 && children.last is LineBreakNode && children[childrenLength - 2] is LineBreakNode && selection.isCollapsed() && selection.anchor.key == self.key && selection.anchor.offset == childrenLength {
       try children[childrenLength - 1].remove()
       try children[childrenLength - 2].remove()
       let newElement = createParagraphNode()

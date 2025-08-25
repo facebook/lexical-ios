@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class RangeCacheTests: XCTestCase {
 
@@ -22,12 +23,12 @@ class RangeCacheTests: XCTestCase {
 
     try editor.update {
       guard let point1 = try pointAtStringLocation(0, searchDirection: .forward, rangeCache: rangeCache),
-            let point2 = try pointAtStringLocation(1, searchDirection: .forward, rangeCache: rangeCache),
-            let point3 = try pointAtStringLocation(6, searchDirection: .forward, rangeCache: rangeCache),
-            let point4 = try pointAtStringLocation(6, searchDirection: .backward, rangeCache: rangeCache),
-            let point5 = try pointAtStringLocation(11, searchDirection: .forward, rangeCache: rangeCache),
-            let point6 = try pointAtStringLocation(12, searchDirection: .forward, rangeCache: rangeCache),
-            let point7 = try pointAtStringLocation(51, searchDirection: .forward, rangeCache: rangeCache)
+        let point2 = try pointAtStringLocation(1, searchDirection: .forward, rangeCache: rangeCache),
+        let point3 = try pointAtStringLocation(6, searchDirection: .forward, rangeCache: rangeCache),
+        let point4 = try pointAtStringLocation(6, searchDirection: .backward, rangeCache: rangeCache),
+        let point5 = try pointAtStringLocation(11, searchDirection: .forward, rangeCache: rangeCache),
+        let point6 = try pointAtStringLocation(12, searchDirection: .forward, rangeCache: rangeCache),
+        let point7 = try pointAtStringLocation(51, searchDirection: .forward, rangeCache: rangeCache)
       else {
         XCTFail("Expected points")
         return
@@ -69,7 +70,7 @@ class RangeCacheTests: XCTestCase {
 
     try editor.update {
       guard let rootNode = getActiveEditorState()?.nodeMap[kRootNodeKey] as? ElementNode,
-            let firstParagraph = getNodeByKey(key: "0") as? ParagraphNode
+        let firstParagraph = getNodeByKey(key: "0") as? ParagraphNode
       else {
         XCTFail("Failed to get the rootNode")
         return

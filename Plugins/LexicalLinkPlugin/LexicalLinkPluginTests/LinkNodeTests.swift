@@ -5,9 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import XCTest
+
 @testable import Lexical
 @testable import LexicalLinkPlugin
-import XCTest
 
 class LinkNodeTests: XCTestCase {
 
@@ -17,8 +18,8 @@ class LinkNodeTests: XCTestCase {
 
     try editor.update {
       guard let editorState = getActiveEditorState(),
-            let rootNode = editorState.getRootNode(),
-            let paragraphNode = rootNode.getChildren().first as? ElementNode
+        let rootNode = editorState.getRootNode(),
+        let paragraphNode = rootNode.getChildren().first as? ElementNode
       else {
         XCTFail("should have editor state")
         return

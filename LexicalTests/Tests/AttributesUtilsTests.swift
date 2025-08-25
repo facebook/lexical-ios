@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@testable import Lexical
 import XCTest
+
+@testable import Lexical
 
 class AttributesUtilsTests: XCTestCase {
   func testGetLexicalAttributes() throws {
@@ -21,7 +22,7 @@ class AttributesUtilsTests: XCTestCase {
       try paragraphNode.append([textNode])
 
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
@@ -60,7 +61,7 @@ class AttributesUtilsTests: XCTestCase {
       try paragraphNode.append([textNode])
 
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
@@ -90,7 +91,7 @@ class AttributesUtilsTests: XCTestCase {
       try paragraphNode.append([textNode])
 
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
@@ -125,7 +126,7 @@ class AttributesUtilsTests: XCTestCase {
       try paragraphNode.append([textNode])
 
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
@@ -160,7 +161,7 @@ class AttributesUtilsTests: XCTestCase {
       try paragraphNode.append([textNode])
 
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
@@ -193,7 +194,7 @@ class AttributesUtilsTests: XCTestCase {
       try paragraphNode.append([testAttributeNode])
 
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
@@ -214,7 +215,7 @@ class AttributesUtilsTests: XCTestCase {
   func testThemeForRootNode() throws {
     let rootAttributes: [NSAttributedString.Key: Any] = [
       .fontFamily: "Arial",
-      .fontSize: 18 as Float
+      .fontSize: 18 as Float,
     ]
 
     let theme = Theme()
@@ -230,7 +231,7 @@ class AttributesUtilsTests: XCTestCase {
       try paragraphNode.append([textNode])
 
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
@@ -257,7 +258,7 @@ class AttributesUtilsTests: XCTestCase {
 
       try headingNode.append([textNode])
       guard let editorState = getActiveEditorState(),
-            let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
       else {
         XCTFail("should have editor state")
         return
