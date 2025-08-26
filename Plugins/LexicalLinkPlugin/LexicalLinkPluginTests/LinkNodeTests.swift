@@ -8,6 +8,7 @@
 import XCTest
 
 @testable import Lexical
+@testable import LexicalHTML
 @testable import LexicalLinkPlugin
 
 class LinkNodeTests: XCTestCase {
@@ -52,6 +53,22 @@ class LinkNodeTests: XCTestCase {
       XCTAssertFalse(linkNode.canInsertTextAfter())
       XCTAssertFalse(linkNode.canBeEmpty())
       XCTAssertTrue(linkNode.isInline())
+    }
+  }
+  
+  func testExportToHTML() throws {
+    let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
+    let editor = view.editor
+    
+    try editor.update {
+      let linkNode = LinkNode()
+      try linkNode.setURL("http://www.example.com")
+      if let selection = try getSelection() {
+        _ = try selection.insertNodes(nodes: [linkNode], selectStart: false)
+      }
+      let output = try generateHTMLFromNodes(editor: editor, selection: nil).components(separatedBy: .newlines).joined()
+      let expectedOutput = "<a href=\"http://www.example.com\"></a>"
+      XCTAssertEqual(expectedOutput, output)
     }
   }
 }

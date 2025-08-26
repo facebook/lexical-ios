@@ -78,11 +78,11 @@ let package = Package(
 
     .target(
       name: "LexicalLinkPlugin",
-      dependencies: ["Lexical"],
+      dependencies: ["Lexical", "LexicalHTML"],
       path: "./Plugins/LexicalLinkPlugin/LexicalLinkPlugin"),
     .testTarget(
       name: "LexicalLinkPluginTests",
-      dependencies: ["Lexical", "LexicalLinkPlugin"],
+      dependencies: ["Lexical", "LexicalLinkPlugin", "LexicalHTML"],
       path: "./Plugins/LexicalLinkPlugin/LexicalLinkPluginTests"),
 
     .target(
