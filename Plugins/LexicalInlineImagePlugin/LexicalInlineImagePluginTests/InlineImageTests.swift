@@ -9,6 +9,7 @@ import XCTest
 
 @testable import Lexical
 @testable import LexicalInlineImagePlugin
+@testable import LexicalHTML
 
 class InlineImageTests: XCTestCase {
   var view: LexicalView?
@@ -60,6 +61,18 @@ class InlineImageTests: XCTestCase {
 
       XCTAssertEqual(firstPara.getChildrenSize(), 2, "First para should contain 1 text node and 1 image node")
       XCTAssertEqual(secondPara.getChildrenSize(), 1, "Second para should contain 1 text node")
+    }
+  }
+  
+  func testExportToHTML() throws {
+    try editor.update {
+      let imageNode = ImageNode(url: "https://example.com/image.png", size: CGSize(width: 300, height: 300), sourceID: "")
+      if let selection = try getSelection() {
+        _ = try selection.insertNodes(nodes: [imageNode], selectStart: false)
+      }
+      let output = try generateHTMLFromNodes(editor: editor, selection: nil).components(separatedBy: .newlines).joined()
+      let expectedOutput = "<p> <img src=\"https://example.com/image.png\" style=\"max-width: 100%; height: auto;\"></img></p>"
+      XCTAssertEqual(expectedOutput, output)
     }
   }
 }

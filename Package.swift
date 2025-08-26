@@ -91,7 +91,7 @@ let package = Package(
       path: "./Plugins/LexicalInlineImagePlugin/LexicalInlineImagePlugin"),
     .testTarget(
       name: "LexicalInlineImagePluginTests",
-      dependencies: ["Lexical", "LexicalInlineImagePlugin"],
+      dependencies: ["Lexical", "LexicalInlineImagePlugin", "LexicalHTML"],
       path: "./Plugins/LexicalInlineImagePlugin/LexicalInlineImagePluginTests"),
 
     .target(
