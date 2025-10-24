@@ -749,8 +749,7 @@ open class Node: Codable {
     } else if let previousSibling = previousSibling as? TextNode {
       return try previousSibling.select(anchorOffset: anchorOffset, focusOffset: focusOffset)
     } else {
-      var index = previousSibling?.getIndexWithinParent()
-      index = index ?? 0 + 1
+      let index = (previousSibling?.getIndexWithinParent() ?? 0) + 1
       return try parent.select(anchorOffset: index, focusOffset: index)
     }
   }
