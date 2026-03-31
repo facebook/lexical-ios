@@ -911,7 +911,7 @@ class NodeTests: XCTestCase {
       let children = rootNode.getChildren()
 
       XCTAssertEqual(children.count, 4, "Expected 4 children")
-      XCTAssertEqual(children.map({ $0.key }), ["0", "4", "5", "7"], "Expected children with keys 0,4,5,7")
+      XCTAssertEqual(children.map { $0.key }, ["0", "4", "5", "7"], "Expected children with keys 0,4,5,7")
     }
   }
 
@@ -1390,8 +1390,8 @@ class NodeTests: XCTestCase {
       textNode2 = try textNode.setFormat(format: format)
 
       XCTAssertEqual(textNode2.getAttributedStringAttributes(theme: editor.getTheme()).count, 1)
-      XCTAssertTrue(textNode2.getAttributedStringAttributes(theme: editor.getTheme()).contains(where: { $0.key == .bold }))
-      XCTAssertFalse(textNode2.getAttributedStringAttributes(theme: editor.getTheme()).contains(where: { $0.key == .italic }))
+      XCTAssertTrue(textNode2.getAttributedStringAttributes(theme: editor.getTheme()).contains { $0.key == .bold })
+      XCTAssertFalse(textNode2.getAttributedStringAttributes(theme: editor.getTheme()).contains { $0.key == .italic })
     }
   }
 
