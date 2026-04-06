@@ -20,7 +20,7 @@ private struct ReconcilerInsertion {
   var part: NodePart
 }
 
-private class ReconcilerState {
+private final class ReconcilerState {
   internal init(
     currentEditorState: EditorState,
     pendingEditorState: EditorState,
@@ -91,7 +91,7 @@ internal enum Reconciler {
       let currentSelection = currentEditorState.selection,
       let pendingSelection = pendingEditorState.selection,
       currentSelection.isSelection(pendingSelection),
-      pendingSelection.dirty == false,
+      !pendingSelection.dirty,
       markedTextOperation == nil
     {
       // should be nothing to reconcile
@@ -99,7 +99,7 @@ internal enum Reconciler {
     }
 
     if let markedTextOperation, markedTextOperation.createMarkedText {
-      guard shouldReconcileSelection == false else {
+      guard !shouldReconcileSelection else {
         editor.log(.reconciler, .warning, "should not reconcile selection whilst starting marked text!")
         throw LexicalError.invariantViolation("should not reconcile selection whilst starting marked text!")
       }
@@ -378,7 +378,7 @@ internal enum Reconciler {
     reconcilerState.locationCursor += nextPreambleLength
     nextRangeCacheItem.preambleLength = nextPreambleLength
 
-    if let nextNode = nextNode as? ElementNode, nextNode.children.count > 0 {
+    if let nextNode = nextNode as? ElementNode, !nextNode.children.isEmpty {
       let cursorBeforeChildren = reconcilerState.locationCursor
       createChildren(nextNode.children, range: 0...nextNode.children.count - 1, reconcilerState: reconcilerState)
       nextRangeCacheItem.childrenLength = reconcilerState.locationCursor - cursorBeforeChildren
@@ -409,7 +409,7 @@ internal enum Reconciler {
     let prevPreambleRange = NSRange(location: prevRangeCacheItem.location, length: prevRangeCacheItem.preambleLength)
     reconcilerState.rangesToDelete.append(prevPreambleRange)
 
-    if let prevNode = prevNode as? ElementNode, prevNode.children.count > 0 {
+    if let prevNode = prevNode as? ElementNode, !prevNode.children.isEmpty {
       destroyChildren(prevNode.children, range: 0...prevNode.children.count - 1, reconcilerState: reconcilerState)
     } else if prevNode is DecoratorNode {
       reconcilerState.possibleDecoratorsToRemove.append(key)

@@ -226,7 +226,7 @@ public class Editor: NSObject {
   public func registerErrorListener(listener: @escaping ErrorListener) -> RemovalHandler {
     let uuid = UUID()
 
-    self.listeners.errors[uuid] = listener
+    listeners.errors[uuid] = listener
 
     return { [weak self] in
       guard let self else { return }
@@ -239,7 +239,7 @@ public class Editor: NSObject {
   /// - Returns: A closure to remove the update listener
   public func registerUpdateListener(listener: @escaping UpdateListener) -> RemovalHandler {
     let uuid = UUID()
-    self.listeners.update[uuid] = listener
+    listeners.update[uuid] = listener
     return { [weak self] in
       guard let self else { return }
       self.listeners.update.removeValue(forKey: uuid)
@@ -252,7 +252,7 @@ public class Editor: NSObject {
   public func registerTextContentListener(listener: @escaping TextContentListener) -> RemovalHandler {
     let uuid = UUID()
 
-    self.listeners.textContent[uuid] = listener
+    listeners.textContent[uuid] = listener
 
     return { [weak self] in
       guard let self else { return }
@@ -269,8 +269,8 @@ public class Editor: NSObject {
   public func registerCommand(type: CommandType, listener: @escaping CommandListener, priority: CommandPriority = CommandPriority.Editor, shouldWrapInUpdateBlock: Bool = true) -> RemovalHandler {
     let uuid = UUID()
 
-    if self.commands[type] == nil {
-      self.commands.updateValue(
+    if commands[type] == nil {
+      commands.updateValue(
         [
           CommandPriority.Editor: [:],
           CommandPriority.Low: [:],
@@ -284,7 +284,7 @@ public class Editor: NSObject {
 
     let wrapper = CommandListenerWithMetadata(listener: listener, shouldWrapInUpdateBlock: shouldWrapInUpdateBlock)
 
-    self.commands[type]?[priority]?[uuid] = wrapper
+    commands[type]?[priority]?[uuid] = wrapper
 
     return { [weak self] in
       guard let self else { return }
@@ -480,7 +480,7 @@ public class Editor: NSObject {
       if let selection {
         // Marking the selection dirty will force the selection back to it
         selection.dirty = true
-      } else if rootNode.children.count != 0 {
+      } else if !rootNode.children.isEmpty {
         try rootNode.selectEnd()
       }
     }
@@ -522,7 +522,7 @@ public class Editor: NSObject {
           view.isHidden = true // decorators will be hidden until they are layed out by TextKit
           superview.addSubview(view)
           node.decoratorWillAppear(view: view)
-          decoratorCache[nodeKey] = DecoratorCacheItem.cachedView(view)
+          decoratorCache[nodeKey] = .cachedView(view)
           self.log(.editor, .verbose, "needsCreation -> cached. Key \(nodeKey). Frame \(view.frame). Superview \(String(describing: view.superview))")
         case .cachedView(let view):
           // This shouldn't be needed if our appear/disappear logic is perfect, but it turns out we do currently need this.
@@ -534,11 +534,11 @@ public class Editor: NSObject {
           if let node = getNodeByKey(key: nodeKey) as? DecoratorNode {
             node.decoratorWillAppear(view: view)
           }
-          decoratorCache[nodeKey] = DecoratorCacheItem.cachedView(view)
+          decoratorCache[nodeKey] = .cachedView(view)
           self.log(.editor, .verbose, "unmounted -> cached. Key \(nodeKey). Frame \(view.frame). Superview \(String(describing: view.superview))")
         case .needsDecorating(let view):
           superview.addSubview(view)
-          decoratorCache[nodeKey] = DecoratorCacheItem.cachedView(view)
+          decoratorCache[nodeKey] = .cachedView(view)
           if let node = getNodeByKey(key: nodeKey) as? DecoratorNode {
             node.decorate(view: view)
           }
@@ -561,7 +561,7 @@ public class Editor: NSObject {
           view.removeFromSuperview()
           if let node = getNodeByKey(key: nodeKey) as? DecoratorNode {
             node.decoratorDidDisappear(view: view)
-            decoratorCache[nodeKey] = DecoratorCacheItem.unmountedCachedView(view)
+            decoratorCache[nodeKey] = .unmountedCachedView(view)
           } else {
             decoratorCache[nodeKey] = nil
           }
@@ -571,7 +571,7 @@ public class Editor: NSObject {
           view.removeFromSuperview()
           if let node = getNodeByKey(key: nodeKey) as? DecoratorNode {
             node.decoratorDidDisappear(view: view)
-            decoratorCache[nodeKey] = DecoratorCacheItem.unmountedCachedView(view)
+            decoratorCache[nodeKey] = .unmountedCachedView(view)
           } else {
             decoratorCache[nodeKey] = nil
           }
@@ -874,10 +874,9 @@ public class Editor: NSObject {
     nodeTransforms[nodeType] = transforms
 
     return { [weak self] in
-      if let strongSelf = self, var transforms = strongSelf.nodeTransforms[nodeType] {
-        transforms.removeAll(where: { $0.0 == id })
-        strongSelf.nodeTransforms[nodeType] = transforms
-      }
+      guard let self, var transforms = self.nodeTransforms[nodeType] else { return }
+      transforms.removeAll(where: { $0.0 == id })
+      self.nodeTransforms[nodeType] = transforms
     }
   }
 
