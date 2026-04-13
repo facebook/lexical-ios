@@ -54,8 +54,8 @@ open class Node: Codable {
   /// Used when serialising node to JSON
   open func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(self.version, forKey: .version)
-    try container.encode(self.type.rawValue, forKey: .type)
+    try container.encode(version, forKey: .version)
+    try container.encode(type.rawValue, forKey: .type)
   }
 
   /**
@@ -65,7 +65,7 @@ open class Node: Codable {
   open func didMoveTo(newEditor editor: Editor) {}
 
   open class func getType() -> NodeType {
-    NodeType.unknown
+    .unknown
   }
 
   public var type: NodeType {
@@ -136,7 +136,7 @@ open class Node: Codable {
    Lexical's paragraph nodes!)
    */
   open func getBlockLevelAttributes(theme: Theme) -> BlockLevelAttributes? {
-    return theme.getBlockLevelAttributes(self.type)
+    return theme.getBlockLevelAttributes(type)
   }
 
   /// Returns a mutable version of the node. Will throw an error if called outside of a Lexical Editor ``Editor/update(_:)`` callback.
@@ -175,11 +175,11 @@ open class Node: Codable {
 
   /// Returns the zero-based index of this node within the parent.
   public func getIndexWithinParent() -> Int? {
-    guard let parent = self.getParent() else {
+    guard let parent = getParent() else {
       return nil
     }
 
-    return parent.children.firstIndex(of: self.key)
+    return parent.children.firstIndex(of: key)
   }
 
   /// Returns the parent of this node, or nil if none is found.
@@ -192,7 +192,7 @@ open class Node: Codable {
   /// Returns a list of the keys of every ancestor of this node, all the way up to the RootNode.
   public func getParentKeys() -> [NodeKey] {
     var parents: [NodeKey] = []
-    var node = self.getParent()
+    var node = getParent()
 
     while let unwrappedNode = node {
       parents.append(unwrappedNode.key)
@@ -232,7 +232,7 @@ open class Node: Codable {
   /// Returns a list of the every ancestor of this node, all the way up to the RootNode.
   public func getParents() -> [ElementNode] {
     var parents: [ElementNode] = []
-    var node = self.getParent()
+    var node = getParent()
     while let unwrappedNode = node {
       parents.append(unwrappedNode)
       node = unwrappedNode.getParent()
@@ -258,7 +258,7 @@ open class Node: Codable {
       }
     }
 
-    if a.count == 0 || b.count == 0 || a.last !== b.last {
+    if a.isEmpty || b.isEmpty || a.last !== b.last {
       return nil
     }
 
@@ -274,9 +274,9 @@ open class Node: Codable {
 
   /// Returns the "previous" siblings - that is, the node that comes before this one in the same parent.
   public func getPreviousSibling() -> Node? {
-    guard let parent = self.getParent() else { return nil }
+    guard let parent = getParent() else { return nil }
 
-    guard let index = parent.children.firstIndex(of: self.key) else {
+    guard let index = parent.children.firstIndex(of: key) else {
       return nil
     }
 
@@ -291,9 +291,9 @@ open class Node: Codable {
 
   /// Returns the "next" sibling - that is, the node that comes after this one in the same parent
   public func getNextSibling() -> Node? {
-    guard let parent = self.getParent() else { return nil }
+    guard let parent = getParent() else { return nil }
 
-    guard let index = parent.children.firstIndex(of: self.key) else {
+    guard let index = parent.children.firstIndex(of: key) else {
       return nil
     }
 
@@ -744,11 +744,12 @@ open class Node: Codable {
       return try parent.select(anchorOffset: 0, focusOffset: 0)
     }
 
-    if let previousSibling = previousSibling as? ElementNode {
-      return try previousSibling.select(anchorOffset: nil, focusOffset: nil)
-    } else if let previousSibling = previousSibling as? TextNode {
-      return try previousSibling.select(anchorOffset: anchorOffset, focusOffset: focusOffset)
-    } else {
+    switch previousSibling {
+    case let elementNode as ElementNode:
+      return try elementNode.select(anchorOffset: nil, focusOffset: nil)
+    case let textNode as TextNode:
+      return try textNode.select(anchorOffset: anchorOffset, focusOffset: focusOffset)
+    default:
       let index = (previousSibling?.getIndexWithinParent() ?? 0) + 1
       return try parent.select(anchorOffset: index, focusOffset: index)
     }
@@ -764,18 +765,19 @@ open class Node: Codable {
       return try parent.select(anchorOffset: nil, focusOffset: nil)
     }
 
-    if let nextSibling = nextSibling as? ElementNode {
-      return try nextSibling.select(anchorOffset: 0, focusOffset: 0)
-    } else if let nextSibling = nextSibling as? TextNode {
-      return try nextSibling.select(anchorOffset: anchorOffset, focusOffset: focusOffset)
-    } else {
+    switch nextSibling {
+    case let elementNode as ElementNode:
+      return try elementNode.select(anchorOffset: 0, focusOffset: 0)
+    case let textNode as TextNode:
+      return try textNode.select(anchorOffset: anchorOffset, focusOffset: focusOffset)
+    default:
       let index = nextSibling?.getIndexWithinParent()
       return try parent.select(anchorOffset: index, focusOffset: index)
     }
   }
 
   public func isSameNode(_ node: Node) -> Bool {
-    return self.getKey() == node.getKey()
+    return getKey() == node.getKey()
   }
 }
 
