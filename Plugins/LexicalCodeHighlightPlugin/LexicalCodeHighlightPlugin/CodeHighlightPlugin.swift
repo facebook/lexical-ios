@@ -23,28 +23,28 @@ open class CodeHighlightPlugin: Plugin {
         nodeType: NodeType.code,
         transform: { [weak self] in
           guard
-            let strongSelf = self,
+            let self,
             let node = $0 as? CodeNode
           else { return }
-          try strongSelf.codeNodeTransform(node: node)
+          try self.codeNodeTransform(node: node)
         })
       textTransform = editor.addNodeTransform(
         nodeType: NodeType.text,
         transform: { [weak self] in
           guard
-            let strongSelf = self,
+            let self,
             let node = $0 as? TextNode
           else { return }
-          try strongSelf.textNodeTransform(node: node)
+          try self.textNodeTransform(node: node)
         })
       highlightTransform = editor.addNodeTransform(
         nodeType: NodeType.codeHighlight,
         transform: { [weak self] in
           guard
-            let strongSelf = self,
+            let self,
             let node = $0 as? TextNode
           else { return }
-          try strongSelf.textNodeTransform(node: node)
+          try self.textNodeTransform(node: node)
         })
     } catch {
     }
@@ -182,7 +182,7 @@ open class CodeHighlightPlugin: Plugin {
     }
 
     children = node.getChildren()
-    if children.count == 0 {
+    if children.isEmpty {
       try node.append(nodesToInsert)
       return
     }
@@ -229,7 +229,7 @@ open class CodeHighlightPlugin: Plugin {
     let to = prevNodesLength - trailingMatch
     let nodesForReplacement = nextNodes[leadingMatch..<(nextNodesLength - trailingMatch)]
 
-    let hasChanges = from != to || nodesForReplacement.count > 0
+    let hasChanges = from != to || !nodesForReplacement.isEmpty
     return hasChanges ? (from, to, Array(nodesForReplacement)) : nil
   }
 
