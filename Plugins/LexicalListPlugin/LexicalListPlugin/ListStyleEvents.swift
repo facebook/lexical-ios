@@ -19,7 +19,7 @@ private func isSelectingEmptyListItem(
   guard let listItemNode = anchorNode as? ListItemNode else {
     return false
   }
-  if nodes.count == 0 {
+  if nodes.isEmpty {
     return true
   }
   if let firstNode = nodes.first {
@@ -164,7 +164,7 @@ public func insertList(editor: Editor, listType: ListType) throws {
 
       return
     } else {
-      var handled: Set<NodeKey> = Set()
+      var handled = Set<NodeKey>()
       for node in nodes {
         if let node = node as? ElementNode,
           node.isEmpty(),
@@ -257,7 +257,7 @@ public func mergeLists(list1: ListNode, list2: ListNode) throws {
  */
 internal func handleIndent(_ listItemNode: ListItemNode) throws {
   // go through each node and decide where to move it.
-  var removed: Set<NodeKey> = Set()
+  var removed = Set<NodeKey>()
 
   if isNestedListNode(node: listItemNode) {
     return
