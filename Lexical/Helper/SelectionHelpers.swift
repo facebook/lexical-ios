@@ -147,7 +147,7 @@ public func cloneContents(
     return (nodeMap: [key: clonedFirstNode], range: [key])
   }
   var nodes = try selection.getNodes()
-  if nodes.count == 0 {
+  if nodes.isEmpty {
     return (nodeMap: [:], range: [])
   }
   // Check if we can use the parent of the nodes, if the
@@ -191,7 +191,7 @@ public func cloneContents(
   for i in 0..<nodesLength - 1 {
     let node = nodes[i]
     let key = node.getKey()
-    if !nodeMap.keys.contains(key) && (!((node as? ElementNode)?.excludeFromCopy() ?? false) || !isElementNode(node: node)) {
+    if nodeMap[key] == nil && (!((node as? ElementNode)?.excludeFromCopy() ?? false) || !isElementNode(node: node)) {
       let clone = try cloneWithProperties(node: node)
       if isRootNode(node: node.getParent()) {
         range.append(node.getKey())
