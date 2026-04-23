@@ -101,7 +101,7 @@ public class EditorHistory {
 
   func undo() {
     guard let externalHistoryState,
-      externalHistoryState.undoStack.count != 0,
+      !externalHistoryState.undoStack.isEmpty,
       let editor
     else { return }
 
@@ -111,7 +111,7 @@ public class EditorHistory {
       editor.dispatchCommand(type: .canRedo, payload: true)
     }
 
-    if externalHistoryState.undoStack.count == 0 {
+    if externalHistoryState.undoStack.isEmpty {
       editor.dispatchCommand(type: .canUndo, payload: false)
     }
 
@@ -133,7 +133,7 @@ public class EditorHistory {
 
   func redo() {
     guard let externalHistoryState,
-      externalHistoryState.redoStack.count != 0,
+      !externalHistoryState.redoStack.isEmpty,
       let editor
     else { return }
 
@@ -143,7 +143,7 @@ public class EditorHistory {
     }
 
     let historyStateEntry = externalHistoryState.redoStack.removeLast()
-    if externalHistoryState.redoStack.count == 0 {
+    if externalHistoryState.redoStack.isEmpty {
       editor.dispatchCommand(type: .canRedo, payload: false)
     }
 
@@ -160,14 +160,16 @@ public class EditorHistory {
   }
 
   public func applyCommand(type: CommandType) {
-    if type == .redo {
+    switch type {
+    case .redo:
       redo()
-    } else if type == .undo {
+    case .undo:
       undo()
-    } else if type == .clearEditor {
+    case .clearEditor:
       guard let externalHistoryState else { return }
-
       clearHistory(historyState: externalHistoryState)
+    default:
+      break
     }
   }
 
@@ -192,7 +194,7 @@ public class EditorHistory {
 
     let selection = nextEditorState.selection
     let prevSelection = prevEditorState?.selection
-    let hasDirtyNodes = dirtyNodes.count > 0
+    let hasDirtyNodes = !dirtyNodes.isEmpty
     if !hasDirtyNodes {
       if prevSelection == nil && selection != nil {
         prevChangeTime = changeTime
@@ -207,7 +209,7 @@ public class EditorHistory {
 
     let isSameEditor = currentHistoryEntry == nil || currentHistoryEntry?.editor == self.editor
 
-    if changeType != .other && changeType == prevChangeType && changeTime < prevChangeTime + Double(self.delay) && isSameEditor {
+    if changeType != .other && changeType == prevChangeType && changeTime < prevChangeTime + Double(delay) && isSameEditor {
       prevChangeTime = changeTime
       prevChangeType = changeType
 
@@ -287,7 +289,7 @@ func getChangeType(
   dirtyLeavesSet: DirtyNodeMap,
   isComposing: Bool
 ) throws -> ChangeType {
-  if prevEditorState == nil || dirtyLeavesSet.count == 0 {
+  if prevEditorState == nil || dirtyLeavesSet.isEmpty {
     return .other
   }
 
@@ -314,7 +316,7 @@ func getChangeType(
   }
 
   let dirtyNodes = getDirtyNodes(editorState: nextEditorState, dirtyLeavesSet: dirtyLeavesSet)
-  if dirtyNodes.count == 0 {
+  if dirtyNodes.isEmpty {
     return .other
   }
 

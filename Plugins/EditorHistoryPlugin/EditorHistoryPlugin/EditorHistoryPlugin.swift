@@ -74,7 +74,7 @@ open class EditorHistoryPlugin: Plugin {
     removeUndoListener = editor.registerCommand(
       type: .undo,
       listener: { [weak self] payload in
-        guard let strongSelf = self, let editorHistory = strongSelf.editorHistory else { return false }
+        guard let self, let editorHistory else { return false }
         editorHistory.applyCommand(type: .undo)
         return true
       })
@@ -82,7 +82,7 @@ open class EditorHistoryPlugin: Plugin {
     removeRedoListener = editor.registerCommand(
       type: .redo,
       listener: { [weak self] payload in
-        guard let strongSelf = self, let editorHistory = strongSelf.editorHistory else { return false }
+        guard let self, let editorHistory else { return false }
         editorHistory.applyCommand(type: .redo)
         return true
       })
@@ -90,13 +90,13 @@ open class EditorHistoryPlugin: Plugin {
     removeClearEditorListener = editor.registerCommand(
       type: .clearEditor,
       listener: { [weak self] payload in
-        guard let strongSelf = self, let editorHistory = strongSelf.editorHistory else { return false }
+        guard let self, let editorHistory else { return false }
         editorHistory.applyCommand(type: .clearEditor)
         return false
       })
 
     removeUpdateListener = editor.registerUpdateListener(listener: { [weak self] (activeEditorState, previousEditorState, dirtyNodes) in
-      guard let strongSelf = self, let editorHistory = strongSelf.editorHistory else { return }
+      guard let self, let editorHistory else { return }
 
       editorHistory.applyChange(
         editorState: activeEditorState,
