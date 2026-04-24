@@ -56,7 +56,11 @@ public class MentionNode: TextNode {
 
   override public func getAttributedStringAttributes(theme: Theme) -> [NSAttributedString.Key: Any] {
     var attributeDictionary = super.getAttributedStringAttributes(theme: theme)
-    attributeDictionary[.backgroundColor] = UIColor.lightGray
+    if let themeAttributes = theme.mention {
+      attributeDictionary.merge(themeAttributes) { _, new in new }
+    } else {
+      attributeDictionary[.backgroundColor] = UIColor.lightGray
+    }
     return attributeDictionary
   }
 }
