@@ -41,23 +41,23 @@ open class LinkPlugin: Plugin {
     _ = editor.registerCommand(
       type: .link,
       listener: { [weak self] payload in
-        guard let strongSelf = self,
+        guard let self,
           let linkPayload = payload as? LinkPayload,
-          let editor = strongSelf.editor
+          let editor = self.editor
         else { return false }
 
-        strongSelf.insertLink(linkPayload: linkPayload, editor: editor)
+        self.insertLink(linkPayload: linkPayload, editor: editor)
         return true
       })
 
     _ = editor.registerCommand(
       type: .removeLink,
       listener: { [weak self] _ in
-        guard let strongSelf = self,
-          let editor = strongSelf.editor
+        guard let self,
+          let editor = self.editor
         else { return false }
 
-        strongSelf.insertLink(linkPayload: nil, editor: editor)
+        self.insertLink(linkPayload: nil, editor: editor)
         return true
       })
   }
@@ -108,7 +108,7 @@ open class LinkPlugin: Plugin {
       return
     }
 
-    if nodes.count == 0 || (nodes.count == 1 && nodes.first is ElementNode) {
+    if nodes.isEmpty || (nodes.count == 1 && nodes.first is ElementNode) {
       // We have a URL but no nodes. Insert a text node representing the URL.
       let node = TextNode(text: url)
       let result = try selection.insertNodes(nodes: [node], selectStart: false)
