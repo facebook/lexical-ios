@@ -37,7 +37,7 @@ public protocol BaseSelection: AnyObject, CustomDebugStringConvertible {
   /**
    * Attempts to "intelligently" insert an arbitrary list of Lexical nodes into the EditorState at the
    * current Selection according to a set of heuristics that determine how surrounding nodes
-   * should be changed, replaced, or moved to accomodate the incoming ones.
+   * should be changed, replaced, or moved to accommodate the incoming ones.
    *
    * - Parameter nodes: the nodes to insert
    * - Parameter selectStart: whether or not to select the start after the insertion.
