@@ -5,12 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// Disabled during swift-format 6.3 rollout, feel free to remove:
-// swift-format-ignore-file: OrderedImports
-
-import XCTest
-
 @testable import Lexical
+import XCTest
 
 class TestPlugin: Lexical.Plugin {
   internal var listenerCount: Int = 0

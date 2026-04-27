@@ -5,15 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// Disabled during swift-format 6.3 rollout, feel free to remove:
-// swift-format-ignore-file: OrderedImports
-
 import Foundation
-import XCTest
-
 @testable import Lexical
 @testable import LexicalListPlugin
 @testable import LexicalMarkdown
+import XCTest
 
 class LexicalMarkdownTests: XCTestCase {
   var lexicalView: LexicalView?
