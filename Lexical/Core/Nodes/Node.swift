@@ -131,7 +131,7 @@ open class Node: Codable {
 
   /**
    Attributes that apply to an entire block.
-  
+
    This is conceptually not a thing in TextKit, so we had to build our own solution. Note that a block
    is an element or decorator that is not inline. The values of the block level attributes are applied
    to the relevant paragraph style for the first or last paragraph within the node. (Paragraph is here
