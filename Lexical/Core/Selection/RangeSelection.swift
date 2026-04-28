@@ -126,7 +126,7 @@ public class RangeSelection: BaseSelection {
       let splitNodes = try firstNode.splitText(splitOffsets: [startOffset, endOffset])
       guard
         let node = startOffset == 0
-          ? (splitNodes.count > 0 ? splitNodes.first : nil)
+          ? (!splitNodes.isEmpty ? splitNodes.first : nil)
           : (splitNodes.count > 1 ? splitNodes[1] : nil)
       else { return [] }
       return [node]
@@ -181,7 +181,7 @@ public class RangeSelection: BaseSelection {
 
   public func getTextContent() throws -> String {
     let nodes = try getNodes()
-    if nodes.count == 0 {
+    if nodes.isEmpty {
       return ""
     }
     let firstNode = nodes[0]
@@ -697,7 +697,7 @@ public class RangeSelection: BaseSelection {
         }
       }
 
-      if siblings.count != 0 {
+      if !siblings.isEmpty {
         for sibling in siblings.reversed() {
           let prevParent = try sibling.getParentOrThrow()
 
