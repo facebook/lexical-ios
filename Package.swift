@@ -39,10 +39,13 @@ let package = Package(
     .library(
       name: "LexicalMarkdown",
       targets: ["LexicalMarkdown"]),
+    .library(
+      name: "LexicalAutoLinkPlugin",
+      targets: ["LexicalAutoLinkPlugin"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.6.0"),
-    .package(url: "https://github.com/apple/swift-markdown.git", branch: "main"),
+    .package(url: "https://github.com/scinfu/SwiftSoup.git", exact: "2.8.5"),
+    .package(url: "https://github.com/apple/swift-markdown.git", exact: "0.5.0"),
   ],
   targets: [
     .target(
@@ -125,5 +128,10 @@ let package = Package(
         .product(name: "Markdown", package: "swift-markdown"),
       ],
       path: "./Plugins/LexicalMarkdown/LexicalMarkdownTests"),
+
+    .target(
+      name: "LexicalAutoLinkPlugin",
+      dependencies: ["Lexical", "LexicalLinkPlugin"],
+      path: "./Plugins/LexicalAutoLinkPlugin/LexicalAutoLinkPlugin"),
   ]
 )
