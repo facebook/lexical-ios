@@ -7,7 +7,7 @@
 
 import Foundation
 
-@objc public class FeatureFlags: NSObject {
+@objc public final class FeatureFlags: NSObject {
   let reconcilerSanityCheck: Bool
   let proxyTextViewInputDelegate: Bool
 

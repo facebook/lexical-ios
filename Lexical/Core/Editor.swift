@@ -17,7 +17,7 @@ import UIKit
  about the editor it is attached to. In the future we will hopefully improve this API, possibly replacing the Plugins array
  with a closure to build new Plugin objects, which would let us remove this restriction.
  */
-@objc public class EditorConfig: NSObject {
+@objc public final class EditorConfig: NSObject {
   let theme: Theme
   let plugins: [Plugin]
 
@@ -51,7 +51,7 @@ internal enum DecoratorCacheItem {
 ///
 /// The Editor is your entry point to everything Lexical can do. In order to make any changes to
 /// an ``EditorState`` (aka Lexical's data model), you must go through the Editor's ``update(_:)`` method.
-public class Editor: NSObject {
+public final class Editor: NSObject {
   internal static var maxUpdateCount = 99
 
   private var editorState: EditorState

@@ -187,7 +187,7 @@ public typealias CustomDrawingHandler = (
   _ firstLineFragment: CGRect
 ) -> Void
 
-@objc public class BlockLevelAttributes: NSObject {
+@objc public final class BlockLevelAttributes: NSObject {
   public init(marginTop: CGFloat, marginBottom: CGFloat, paddingTop: CGFloat, paddingBottom: CGFloat) {
     self.marginTop = marginTop
     self.marginBottom = marginBottom

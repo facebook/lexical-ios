@@ -17,7 +17,7 @@ internal let kRootNodeKey = "root"
 
  An EditorState contains nodes and a selection. It can be serialized to and from JSON, and passed around between Lexical ``Editor`` instances.
  */
-public class EditorState: NSObject {
+public final class EditorState: NSObject {
 
   internal var nodeMap: [NodeKey: Node] = [:]
   public var selection: BaseSelection?
