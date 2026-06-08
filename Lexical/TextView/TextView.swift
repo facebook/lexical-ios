@@ -18,7 +18,7 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
 }
 
 /// Lexical's subclass of UITextView. Note that using this can be dangerous, if you make changes that Lexical does not expect.
-@objc public class TextView: UITextView {
+@objc public final class TextView: UITextView {
   let editor: Editor
 
   internal let pasteboard = UIPasteboard.general
@@ -393,7 +393,7 @@ protocol LexicalTextViewDelegate: NSObjectProtocol {
   }
 }
 
-private class TextViewDelegate: NSObject, UITextViewDelegate {
+private final class TextViewDelegate: NSObject, UITextViewDelegate {
   public func textViewDidChangeSelection(_ textView: UITextView) {
     guard let textView = textView as? TextView else { return }
 

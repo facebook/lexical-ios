@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public class NativeSelection {
+public final class NativeSelection {
 
   internal init(range: NSRange?, opaqueRange: UITextRange?, affinity: UITextStorageDirection, markedRange: NSRange?, markedOpaqueRange: UITextRange?, selectionIsNodeOrObject: Bool) {
     self.range = range

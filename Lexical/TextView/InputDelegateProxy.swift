@@ -7,7 +7,7 @@
 
 import UIKit
 
-internal class InputDelegateProxy: NSObject, UITextInputDelegate {
+internal final class InputDelegateProxy: NSObject, UITextInputDelegate {
   internal weak var targetInputDelegate: UITextInputDelegate?
   internal var isSuspended: Bool = false
 
