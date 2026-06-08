@@ -29,7 +29,7 @@ public extension LexicalViewDelegate {
   }
 }
 
-@objc public class LexicalPlaceholderText: NSObject {
+@objc public final class LexicalPlaceholderText: NSObject {
   public var text: String
   public var font: UIFont
   public var color: UIColor
@@ -48,7 +48,7 @@ public extension LexicalViewDelegate {
 /// In order to avoid the possibility of accidentally using UITextView methods that Lexical does not expect, we've
 /// encapsulated our UITextView subclass as a private property of LexicalView. The aim is to consider the UITextView
 /// as below the abstraction level for developers using Lexical.
-@objc public class LexicalView: UIView, Frontend {
+@objc public final class LexicalView: UIView, Frontend {
   var textLayoutWidth: CGFloat {
     return max(textView.bounds.width - textView.textContainerInset.left - textView.textContainerInset.right - 2 * textView.textContainer.lineFragmentPadding, 0)
   }

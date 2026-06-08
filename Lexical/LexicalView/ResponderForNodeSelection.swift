@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class ResponderForNodeSelection: UIResponder, UIKeyInput {
+final class ResponderForNodeSelection: UIResponder, UIKeyInput {
 
   private weak var editor: Editor?
   private weak var textStorage: TextStorage?
