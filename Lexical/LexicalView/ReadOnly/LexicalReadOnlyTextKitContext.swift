@@ -7,7 +7,7 @@
 
 import UIKit
 
-internal class LexicalReadOnlySizeCache {
+internal final class LexicalReadOnlySizeCache {
 
   internal enum TruncationStringMode {
     case noTruncation
@@ -65,7 +65,7 @@ internal class LexicalReadOnlySizeCache {
   }
 }
 
-@objc public class LexicalReadOnlyTextKitContext: NSObject, Frontend {
+@objc public final class LexicalReadOnlyTextKitContext: NSObject, Frontend {
   @objc public let layoutManager: LayoutManager
   public let textStorage: TextStorage
   public let textContainer: TextContainer

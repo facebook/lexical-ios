@@ -8,7 +8,7 @@
 import UIKit
 
 /// A Lexical frontend that is optimised for consumption. No scrolling, selection, or editing.
-@objc public class LexicalReadOnlyView: UIView {
+@objc public final class LexicalReadOnlyView: UIView {
 
   // MARK: - Init
 
