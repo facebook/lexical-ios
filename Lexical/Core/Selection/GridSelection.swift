@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public class GridSelection: BaseSelection {
+public final class GridSelection: BaseSelection {
 
   public func getTextContent() throws -> String {
     return ""

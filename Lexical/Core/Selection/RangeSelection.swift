@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public class RangeSelection: BaseSelection {
+public final class RangeSelection: BaseSelection {
 
   public var anchor: Point
   public var focus: Point

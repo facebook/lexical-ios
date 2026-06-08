@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public class NodeSelection: BaseSelection {
+public final class NodeSelection: BaseSelection {
 
   public var nodes: Set<NodeKey>
   public var dirty: Bool = false

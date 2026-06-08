@@ -15,7 +15,7 @@ public enum SelectionType: String {
   case grid = "grid"
 }
 
-public class Point {
+public final class Point {
   public var key: NodeKey
   public var offset: Int
   public var type: SelectionType
