@@ -8,7 +8,7 @@
 @testable import Lexical
 import XCTest
 
-class UpdatesTests: XCTestCase {
+final class UpdatesTests: XCTestCase {
 
   func testUpdateNodeMap() throws {
     let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())

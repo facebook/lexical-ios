@@ -8,7 +8,7 @@
 @testable import Lexical
 import XCTest
 
-class ReconcilerTests: XCTestCase {
+final class ReconcilerTests: XCTestCase {
 
   func testRangeCacheHasEmptyItemForNewRootNode() throws {
     let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())

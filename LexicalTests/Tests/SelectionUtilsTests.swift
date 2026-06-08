@@ -8,7 +8,7 @@
 @testable import Lexical
 import XCTest
 
-class SelectionUtilsTests: XCTestCase {
+final class SelectionUtilsTests: XCTestCase {
   func testCreatePoint() throws {
     let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
     let editor = view.editor

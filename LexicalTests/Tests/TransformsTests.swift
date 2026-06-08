@@ -8,7 +8,7 @@
 @testable import Lexical
 import XCTest
 
-class TransformTests: XCTestCase {
+final class TransformTests: XCTestCase {
   static let infiniteTransformKey = "I"
   static let combinedTransformKey = "G"
   static let terminalTransform = "Z"

@@ -8,7 +8,7 @@
 @testable import Lexical
 import XCTest
 
-class RangeCacheTests: XCTestCase {
+final class RangeCacheTests: XCTestCase {
 
   func testSearchRangeCacheForPoints() throws {
     let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())

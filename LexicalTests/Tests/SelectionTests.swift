@@ -8,7 +8,7 @@
 @testable import Lexical
 import XCTest
 
-class SelectionTests: XCTestCase {
+final class SelectionTests: XCTestCase {
 
   var view: LexicalView?
   var editor: Editor {

@@ -8,7 +8,7 @@
 @testable import Lexical
 import XCTest
 
-class ParagraphNodeTests: XCTestCase {
+final class ParagraphNodeTests: XCTestCase {
   func testinsertNewAfter() throws {
     let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
     let editor = view.editor

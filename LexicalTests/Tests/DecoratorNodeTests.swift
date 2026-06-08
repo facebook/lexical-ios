@@ -12,7 +12,7 @@ extension NodeType {
   static let testNode = NodeType(rawValue: "testNode")
 }
 
-class TestDecoratorNode: DecoratorNode {
+final class TestDecoratorNode: DecoratorNode {
   var numberOfTimesDecorateHasBeenCalled = 0
 
   public required init(numTimes: Int, key: NodeKey? = nil) {
@@ -49,7 +49,7 @@ class TestDecoratorNode: DecoratorNode {
   }
 }
 
-class DecoratorNodeTests: XCTestCase {
+final class DecoratorNodeTests: XCTestCase {
   func createLexicalView() -> LexicalView {
     return LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
   }

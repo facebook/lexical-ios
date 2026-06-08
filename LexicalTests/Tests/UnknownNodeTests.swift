@@ -9,7 +9,7 @@ import Foundation
 @testable import Lexical
 import XCTest
 
-class UnknownNodeTests: XCTestCase {
+final class UnknownNodeTests: XCTestCase {
 
   var textView: TextView?
   var editor: Editor? {

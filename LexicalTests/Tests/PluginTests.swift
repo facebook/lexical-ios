@@ -8,7 +8,7 @@
 @testable import Lexical
 import XCTest
 
-class TestPlugin: Lexical.Plugin {
+final class TestPlugin: Lexical.Plugin {
   internal var listenerCount: Int = 0
 
   func setUp(editor: Editor) {
@@ -21,7 +21,7 @@ class TestPlugin: Lexical.Plugin {
   }
 }
 
-class PluginTests: XCTestCase {
+final class PluginTests: XCTestCase {
 
   func testPluginListener() throws {
 
