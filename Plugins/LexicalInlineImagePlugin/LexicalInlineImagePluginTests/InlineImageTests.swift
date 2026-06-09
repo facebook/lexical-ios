@@ -9,7 +9,7 @@
 @testable import LexicalInlineImagePlugin
 import XCTest
 
-class InlineImageTests: XCTestCase {
+final class InlineImageTests: XCTestCase {
   var view: LexicalView?
   var editor: Editor {
     get {
