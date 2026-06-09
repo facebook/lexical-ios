@@ -9,7 +9,7 @@
 @testable import LexicalListPlugin
 import XCTest
 
-class ListItemNodeTests: XCTestCase {
+final class ListItemNodeTests: XCTestCase {
   var view: LexicalView?
 
   var editor: Editor? {
