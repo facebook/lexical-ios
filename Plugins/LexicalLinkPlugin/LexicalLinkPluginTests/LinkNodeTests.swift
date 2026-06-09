@@ -9,7 +9,7 @@
 @testable import LexicalLinkPlugin
 import XCTest
 
-class LinkNodeTests: XCTestCase {
+final class LinkNodeTests: XCTestCase {
 
   func testLinkAttributeLengthForAccessibility() throws {
     let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
