@@ -45,7 +45,9 @@ open class MentionsPlugin: Plugin {
   }
 
   public func setUp(editor: Editor) {
-    unregister = editor.registerUpdateListener(listener: updateListener)
+    unregister = editor.registerUpdateListener { [weak self] activeEditorState, previousEditorState, dirtyNodes in
+      self?.updateListener(activeEditorState: activeEditorState, previousEditorState, dirtyNodes)
+    }
 
     do {
       try editor.registerNode(nodeType: NodeType.mention, class: MentionNode.self)
