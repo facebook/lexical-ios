@@ -8,7 +8,7 @@
 import Lexical
 import UIKit
 
-public class SelectableDecoratorView: UIView {
+public final class SelectableDecoratorView: UIView {
   public weak var editor: Editor?
   public var nodeKey: NodeKey?
 
