@@ -16,7 +16,7 @@ extension NodeType {
   static let listItem = NodeType(rawValue: "listitem")
 }
 
-public class ListItemNode: ElementNode {
+public final class ListItemNode: ElementNode {
 
   private var value: Int = 0
 

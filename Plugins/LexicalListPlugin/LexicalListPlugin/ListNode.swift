@@ -18,7 +18,7 @@ extension NodeType {
   public static let list = NodeType(rawValue: "list")
 }
 
-public class ListNode: ElementNode {
+public final class ListNode: ElementNode {
   private var listType: ListType = .bullet
   private var start: Int = 1
 
