@@ -9,7 +9,7 @@
 @testable import Lexical
 import XCTest
 
-class HistoryTests: XCTestCase {
+final class HistoryTests: XCTestCase {
 
   var view: LexicalView?
   var historyPlugin: EditorHistoryPlugin?
