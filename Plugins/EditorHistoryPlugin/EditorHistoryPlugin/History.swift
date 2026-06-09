@@ -24,7 +24,7 @@ enum ChangeType {
   case deleteCharacterAfterSelection
 }
 
-public class EditorHistory {
+public final class EditorHistory {
   weak var editor: Editor?
   var externalHistoryState: HistoryState?
   var delay: Int
@@ -235,7 +235,7 @@ public struct HistoryStateEntry {
   }
 }
 
-public class HistoryState {
+public final class HistoryState {
   var current: HistoryStateEntry?
   var redoStack: [HistoryStateEntry] = []
   var undoStack: [HistoryStateEntry] = []
