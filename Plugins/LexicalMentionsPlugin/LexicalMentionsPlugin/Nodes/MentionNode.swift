@@ -13,7 +13,7 @@ extension NodeType {
   static let mention = NodeType(rawValue: "mention")
 }
 
-public class MentionNode: TextNode {
+public final class MentionNode: TextNode {
   enum CodingKeys: String, CodingKey {
     case mention
   }
