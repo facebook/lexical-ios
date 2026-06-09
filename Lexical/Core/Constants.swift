@@ -41,13 +41,7 @@ enum LexicalConstants {
   // we do use system font if Helvetica cannot be found. This should never happen.
   static let defaultFont = UIFont(name: "Helvetica", size: 15.0) ?? UIFont.systemFont(ofSize: 15.0)
 
-  static let defaultColor: UIColor = {
-    if #available(iOS 13.0, *) {
-      return UIColor.label
-    } else {
-      return UIColor.black
-    }
-  }()
+  static let defaultColor: UIColor = UIColor.label
 
   // Sigil value used during node initialization
   static let uninitializedNodeKey = "uninitializedNodeKey"
