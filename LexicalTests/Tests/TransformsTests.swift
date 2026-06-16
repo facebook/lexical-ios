@@ -48,7 +48,7 @@ final class TransformTests: XCTestCase {
       let teardown = editor.addNodeTransform(
         nodeType: NodeType.text,
         transform: { [weak self] node in
-          guard let strongSelf = self else {
+          guard let self else {
             XCTFail("strongSelf reference not found for text transform")
             return
           }
@@ -60,12 +60,12 @@ final class TransformTests: XCTestCase {
           let textPart = textNode.getTextPart()
 
           if textPart.contains(key) {
-            let count = (strongSelf.transformCount[key] ?? 0) + 1
+            let count = (self.transformCount[key] ?? 0) + 1
 
             try textNode.setText(textPart.replacingOccurrences(of: key, with: nextKey))
 
-            strongSelf.transformCount[key] = count
-            strongSelf.updateLog.append("\(key)\(count)_start")
+            self.transformCount[key] = count
+            self.updateLog.append("\(key)\(count)_start")
           }
         })
 
@@ -75,7 +75,7 @@ final class TransformTests: XCTestCase {
     let infiniteTransform = editor.addNodeTransform(
       nodeType: NodeType.text,
       transform: { [weak self] node in
-        guard let strongSelf = self else {
+        guard let self else {
           XCTFail("strongSelf reference not found for text transform")
           return
         }
@@ -87,18 +87,18 @@ final class TransformTests: XCTestCase {
         let textPart = textNode.getTextPart()
 
         if textPart.contains(TransformTests.infiniteTransformKey) {
-          let count = (strongSelf.transformCount[TransformTests.infiniteTransformKey] ?? 0) + 1
+          let count = (self.transformCount[TransformTests.infiniteTransformKey] ?? 0) + 1
 
           try textNode.setText(textPart)
-          strongSelf.transformCount[TransformTests.infiniteTransformKey] = count
-          strongSelf.updateLog.append("\(TransformTests.infiniteTransformKey)\(count)_start")
+          self.transformCount[TransformTests.infiniteTransformKey] = count
+          self.updateLog.append("\(TransformTests.infiniteTransformKey)\(count)_start")
         }
       })
 
     let combinedTransform = editor.addNodeTransform(
       nodeType: NodeType.text,
       transform: { [weak self] node in
-        guard let strongSelf = self else {
+        guard let self else {
           XCTFail("strongSelf reference not found for text transform")
           return
         }
@@ -112,12 +112,12 @@ final class TransformTests: XCTestCase {
         let combinedText = "\(TransformTests.lastTransformKey)\(TransformTests.combinedTransformKey)"
 
         if textPart.contains(combinedText) {
-          let count = (strongSelf.transformCount[TransformTests.combinedTransformKey] ?? 0) + 1
+          let count = (self.transformCount[TransformTests.combinedTransformKey] ?? 0) + 1
 
           try textNode.setText(textPart.replacingOccurrences(of: combinedText, with: TransformTests.terminalTransform))
 
-          strongSelf.transformCount[TransformTests.combinedTransformKey] = count
-          strongSelf.updateLog.append("\(TransformTests.combinedTransformKey)\(count)_start")
+          self.transformCount[TransformTests.combinedTransformKey] = count
+          self.updateLog.append("\(TransformTests.combinedTransformKey)\(count)_start")
         }
       })
 

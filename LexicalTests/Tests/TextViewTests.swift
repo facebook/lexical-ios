@@ -144,7 +144,7 @@ final class TextViewTests: XCTestCase {
     XCTAssertEqual(selection.focus.key, "3")
     XCTAssertEqual(selection.anchor.offset, 3)
     XCTAssertEqual(selection.focus.offset, 3)
-    XCTAssertEqual(selection.anchor.type, SelectionType.text)
+    XCTAssertEqual(selection.anchor.type, .text)
   }
 
   // Test disabled due to iOS 16 UIPasteboard restrictions. I can't figure out a workaround right now. @amyworrall

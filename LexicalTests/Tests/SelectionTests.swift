@@ -529,7 +529,7 @@ final class SelectionTests: XCTestCase {
       try selection.insertText("replacement text")
       var nodes = try selection.getNodes()
 
-      if nodes.count == 0 {
+      if nodes.isEmpty {
         XCTFail("No nodes")
       }
 
@@ -544,7 +544,7 @@ final class SelectionTests: XCTestCase {
       try selection.insertText(" Hello world")
       nodes = try selection.getNodes()
 
-      if nodes.count == 0 {
+      if nodes.isEmpty {
         XCTFail("No nodes")
       }
 
@@ -637,7 +637,7 @@ final class SelectionTests: XCTestCase {
       try selection.insertText("")
       let nodes = try selection.getNodes()
 
-      if nodes.count == 0 {
+      if nodes.isEmpty {
         XCTFail("No nodes")
       }
 
