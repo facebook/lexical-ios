@@ -289,11 +289,7 @@ func getChangeType(
   dirtyLeavesSet: DirtyNodeMap,
   isComposing: Bool
 ) throws -> ChangeType {
-  if prevEditorState == nil || dirtyLeavesSet.isEmpty {
-    return .other
-  }
-
-  guard let prevEditorState else { return .other }
+  guard let prevEditorState, !dirtyLeavesSet.isEmpty else { return .other }
 
   if isComposing {
     return .composingCharacter
