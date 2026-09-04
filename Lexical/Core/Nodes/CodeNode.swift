@@ -53,7 +53,9 @@ public class CodeNode: ElementNode {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     try super.init(from: decoder)
 
-    self.language = try container.decode(String.self, forKey: .language)
+    // Lenient: web Lexical omits `language` when none is set, so treat a
+    // missing key as an empty language rather than failing to decode.
+    self.language = try container.decodeIfPresent(String.self, forKey: .language) ?? ""
   }
 
   override public class func getType() -> NodeType {
