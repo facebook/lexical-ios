@@ -441,6 +441,55 @@ final class AttributesUtilsTests: XCTestCase {
     }
   }
 
+  func testParagraphInsideQuoteRetainsIndent() throws {
+    // Regression test: a ParagraphNode inside a QuoteNode should inherit the
+    // quote's indent (getIndent() == 1) so that text is offset from the quote
+    // bar. Previously, ParagraphNode's indent value of 0 overwrote QuoteNode's
+    // indent of 1 during attribute merging, leaving headIndent at zero.
+    let view = LexicalView(editorConfig: EditorConfig(theme: Theme(), plugins: []), featureFlags: FeatureFlags())
+    let editor = view.editor
+
+    try editor.update {
+      let textNode = TextNode()
+      try textNode.setText("quoted text")
+
+      let paragraphNode = ParagraphNode()
+      try paragraphNode.append([textNode])
+
+      let quoteNode = QuoteNode()
+      try quoteNode.append([paragraphNode])
+
+      guard let editorState = getActiveEditorState(),
+        let rootNode: RootNode = try editorState.getRootNode()?.getWritable()
+      else {
+        XCTFail("should have editor state")
+        return
+      }
+
+      try rootNode.getChildren().forEach { try $0.remove() }
+      try rootNode.append([quoteNode])
+
+      let combinedAttributes = AttributeUtils.attributedStringStyles(
+        from: textNode,
+        state: editorState,
+        theme: editor.getTheme()
+      )
+
+      let paragraphStyle = combinedAttributes[.paragraphStyle] as? NSParagraphStyle
+      XCTAssertNotNil(paragraphStyle, "Expected a paragraph style to be present")
+      XCTAssertEqual(
+        paragraphStyle?.headIndent,
+        CGFloat(editor.getTheme().indentSize),
+        "ParagraphNode inside QuoteNode should have headIndent equal to indentSize"
+      )
+      XCTAssertEqual(
+        paragraphStyle?.firstLineHeadIndent,
+        CGFloat(editor.getTheme().indentSize),
+        "ParagraphNode inside QuoteNode should have firstLineHeadIndent equal to indentSize"
+      )
+    }
+  }
+
   func testBlockLevelAttributesEmptyParagraphEndOfDocument() throws {
     let view = LexicalView(editorConfig: EditorConfig(theme: themeForBlockTests(), plugins: []), featureFlags: FeatureFlags())
     let editor = view.editor

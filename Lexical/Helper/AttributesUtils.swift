@@ -105,17 +105,23 @@ enum AttributeUtils {
   ) -> [[NSAttributedString.Key: Any]] {
     var node = node
     var attributes = [[NSAttributedString.Key: Any]]()
+    var totalIndent = 0
+
     attributes.append(node.getAttributedStringAttributes(theme: theme))
     if let elementNode = node as? ElementNode, elementNode.isInline() == false {
-      attributes.append([.indent_internal: elementNode.getIndent()])
+      totalIndent += elementNode.getIndent()
     }
 
     while let parent = node.parent, let parentNode = state.nodeMap[parent] {
       attributes.append(parentNode.getAttributedStringAttributes(theme: theme))
       if let elementNode = parentNode as? ElementNode, elementNode.isInline() == false {
-        attributes.append([.indent_internal: elementNode.getIndent()])
+        totalIndent += elementNode.getIndent()
       }
       node = parentNode
+    }
+
+    if totalIndent > 0 {
+      attributes.append([.indent_internal: totalIndent])
     }
 
     return attributes
