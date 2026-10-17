@@ -508,7 +508,7 @@ func removeSegment(node: TextNode, isBackward: Bool, offset: Int) throws {
 
   let nextTextContent =
     split
-    .joined(separator: "")
+    .joined()
     .trimmingCharacters(in: .whitespaces)
 
   if nextTextContent == "" {

@@ -265,7 +265,7 @@ public func getNodeHierarchy(editorState: EditorState?) throws -> String {
     repeat {
       let (node, depth) = currentNodes.removeLast()
 
-      let indentation = (0..<depth).map({ _ in "\t " }).joined(separator: "")
+      let indentation = (0..<depth).map({ _ in "\t " }).joined()
 
       if let textNode = node as? TextNode {
         if textNode.format.debugDescription != "" {
