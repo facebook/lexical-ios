@@ -14,9 +14,7 @@ final class LexicalHTMLTests: XCTestCase {
 
   var lexicalView: LexicalView?
   var editor: Editor? {
-    get {
-      return lexicalView?.editor
-    }
+    return lexicalView?.editor
   }
 
   override func setUp() {

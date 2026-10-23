@@ -43,9 +43,7 @@ public class NodeHierarchyViewPlugin: Plugin {
   }
 
   public var hierarchyView: UIView {
-    get {
-      _hierarchyView
-    }
+    _hierarchyView
   }
 
   // MARK: -

@@ -14,23 +14,19 @@ final class HistoryTests: XCTestCase {
   var view: LexicalView?
   var historyPlugin: EditorHistoryPlugin?
   var editor: Editor {
-    get {
-      guard let editor = view?.editor else {
-        XCTFail("Editor unexpectedly nil")
-        fatalError()
-      }
-      return editor
+    guard let editor = view?.editor else {
+      XCTFail("Editor unexpectedly nil")
+      fatalError()
     }
+    return editor
   }
 
   var editorHistory: EditorHistory {
-    get {
-      guard let historyPlugin, let editorHistory = historyPlugin.editorHistory else {
-        XCTFail("historyPlugin unexpectedly nil")
-        fatalError()
-      }
-      return editorHistory
+    guard let historyPlugin, let editorHistory = historyPlugin.editorHistory else {
+      XCTFail("historyPlugin unexpectedly nil")
+      fatalError()
     }
+    return editorHistory
   }
 
   override func setUp() {

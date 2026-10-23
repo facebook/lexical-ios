@@ -44,21 +44,17 @@ open class EditorHistoryPlugin: Plugin {
   }
 
   public var canUndo: Bool {
-    get {
-      guard let historyState else {
-        return false
-      }
-      return historyState.undoStackCount() > 0
+    guard let historyState else {
+      return false
     }
+    return historyState.undoStackCount() > 0
   }
 
   public var canRedo: Bool {
-    get {
-      guard let historyState else {
-        return false
-      }
-      return historyState.redoStackCount() > 0
+    guard let historyState else {
+      return false
     }
+    return historyState.redoStackCount() > 0
   }
 
   private var removeUndoListener: Editor.RemovalHandler?

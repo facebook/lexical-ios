@@ -727,12 +727,10 @@ public extension NSAttributedString.Key {
 
 extension TextNode {
   internal static var inlineCodeBackgroundDrawing: CustomDrawingHandler {
-    get {
-      return { attributeKey, attributeValue, layoutManager, attributeRunCharacterRange, granularityExpandedCharacterRange, glyphRange, rect, firstLineFragment in
-        guard let attributeValue = attributeValue as? UIColor else { return }
-        attributeValue.setFill()
-        UIRectFill(rect)
-      }
+    return { attributeKey, attributeValue, layoutManager, attributeRunCharacterRange, granularityExpandedCharacterRange, glyphRange, rect, firstLineFragment in
+      guard let attributeValue = attributeValue as? UIColor else { return }
+      attributeValue.setFill()
+      UIRectFill(rect)
     }
   }
 }

@@ -72,9 +72,7 @@ open class Node: Codable {
   }
 
   public var type: NodeType {
-    get {
-      Self.getType()
-    }
+    Self.getType()
   }
 
   /// Provides the **preamble** part of the node's content. Typically the preamble is used for control characters to represent embedded objects (see ``DecoratorNode``).

@@ -33,35 +33,29 @@ internal final class LexicalReadOnlySizeCache {
   var gapBeforeTruncationString: CGFloat = 6.0
 
   var completeHeightToRender: CGFloat {
-    get {
-      guard let measuredTextKitHeight else { return 0 }
-      var height = measuredTextKitHeight
+    guard let measuredTextKitHeight else { return 0 }
+    var height = measuredTextKitHeight
 
-      // add insets if necessary
-      height += cachedTextContainerInsets.top
-      height += cachedTextContainerInsets.bottom
+    // add insets if necessary
+    height += cachedTextContainerInsets.top
+    height += cachedTextContainerInsets.bottom
 
-      if truncationStringMode == .displayedUnderLastLine {
-        height += extraHeightForTruncationLine
-      }
-
-      return height
+    if truncationStringMode == .displayedUnderLastLine {
+      height += extraHeightForTruncationLine
     }
+
+    return height
   }
 
   var completeSizeToRender: CGSize {
-    get {
-      return CGSize(width: requiredWidth, height: completeHeightToRender)
-    }
+    return CGSize(width: requiredWidth, height: completeHeightToRender)
   }
 
   var customTruncationRect: CGRect? {
-    get {
-      guard let origin = originForTruncationStringInTextKitCoordinates,
-        let size = sizeForTruncationString
-      else { return nil }
-      return CGRect(origin: origin, size: size)
-    }
+    guard let origin = originForTruncationStringInTextKitCoordinates,
+      let size = sizeForTruncationString
+    else { return nil }
+    return CGRect(origin: origin, size: size)
   }
 }
 
@@ -217,9 +211,7 @@ internal final class LexicalReadOnlySizeCache {
   }
 
   var textLayoutWidth: CGFloat {
-    get {
-      return textContainer.size.width - 2 * textContainer.lineFragmentPadding
-    }
+    return textContainer.size.width - 2 * textContainer.lineFragmentPadding
   }
 
   @objc public var lineFragmentPadding: CGFloat {

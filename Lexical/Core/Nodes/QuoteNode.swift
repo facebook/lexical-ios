@@ -86,23 +86,21 @@ public extension NSAttributedString.Key {
 
 extension QuoteNode {
   internal static var quoteBackgroundDrawing: CustomDrawingHandler {
-    get {
-      return { attributeKey, attributeValue, layoutManager, attributeRunCharacterRange, granularityExpandedCharacterRange, glyphRange, rect, firstLineFragment in
-        guard let attributeValue = attributeValue as? QuoteCustomDrawingAttributes else { return }
+    return { attributeKey, attributeValue, layoutManager, attributeRunCharacterRange, granularityExpandedCharacterRange, glyphRange, rect, firstLineFragment in
+      guard let attributeValue = attributeValue as? QuoteCustomDrawingAttributes else { return }
 
-        let barRect = CGRect(
-          x: rect.minX + attributeValue.barInsets.left,
-          y: rect.minY + attributeValue.barInsets.top,
-          width: attributeValue.barWidth,
-          height: rect.height - attributeValue.barInsets.top - attributeValue.barInsets.bottom)
-        attributeValue.barColor.setFill()
+      let barRect = CGRect(
+        x: rect.minX + attributeValue.barInsets.left,
+        y: rect.minY + attributeValue.barInsets.top,
+        width: attributeValue.barWidth,
+        height: rect.height - attributeValue.barInsets.top - attributeValue.barInsets.bottom)
+      attributeValue.barColor.setFill()
 
-        if attributeValue.rounded {
-          let bezierPath = UIBezierPath(roundedRect: barRect, cornerRadius: attributeValue.barWidth / 2)
-          bezierPath.fill()
-        } else {
-          UIRectFill(barRect)
-        }
+      if attributeValue.rounded {
+        let bezierPath = UIBezierPath(roundedRect: barRect, cornerRadius: attributeValue.barWidth / 2)
+        bezierPath.fill()
+      } else {
+        UIRectFill(barRect)
       }
     }
   }

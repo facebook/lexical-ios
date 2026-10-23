@@ -20,15 +20,13 @@ public class TextContainer: NSTextContainer {
   internal var readOnlySizeCache: LexicalReadOnlySizeCache?
 
   override open var isSimpleRectangularTextContainer: Bool {
-    get {
-      guard let readOnlySizeCache else { return true }
+    guard let readOnlySizeCache else { return true }
 
-      // if we're limiting height, AND there's a custom truncation string, then we're maybe not rectangular. Otherwise we definitely are.
-      if readOnlySizeCache.requiredHeight != nil {
-        return (readOnlySizeCache.customTruncationString == nil)
-      }
-      return true
+    // if we're limiting height, AND there's a custom truncation string, then we're maybe not rectangular. Otherwise we definitely are.
+    if readOnlySizeCache.requiredHeight != nil {
+      return (readOnlySizeCache.customTruncationString == nil)
     }
+    return true
   }
 
   override public func lineFragmentRect(

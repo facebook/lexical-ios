@@ -42,8 +42,6 @@ final class ResponderForNodeSelection: UIResponder, UIKeyInput {
   }
 
   override var next: UIResponder? {
-    get {
-      textView
-    }
+    textView
   }
 }

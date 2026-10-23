@@ -12,13 +12,11 @@ final class SerializationTests: XCTestCase {
 
   var view: LexicalView?
   var editor: Editor {
-    get {
-      guard let editor = view?.editor else {
-        XCTFail("Editor unexpectedly nil")
-        fatalError()
-      }
-      return editor
+    guard let editor = view?.editor else {
+      XCTFail("Editor unexpectedly nil")
+      fatalError()
     }
+    return editor
   }
 
   override func setUp() {

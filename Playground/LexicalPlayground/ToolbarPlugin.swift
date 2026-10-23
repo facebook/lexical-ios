@@ -84,9 +84,7 @@ public class ToolbarPlugin: Plugin {
   // MARK: - Public accessors
 
   public var toolbar: UIToolbar {
-    get {
-      _toolbar
-    }
+    _toolbar
   }
 
   // MARK: - Private helpers

@@ -267,31 +267,23 @@ public extension LexicalViewDelegate {
   /// This needs a refactor. Probably this method should be deleted entirely (and the recommended approach for working with
   /// selections should be to go through the Lexical EditorState selection), unless a justification for its usefulness can be discovered.
   public var selectedTextRange: UITextRange? {
-    get {
-      textView.selectedTextRange
-    }
+    textView.selectedTextRange
   }
 
   /// Returns the attributed string fetched from the underlying text view's text storage.
   public var attributedText: NSAttributedString {
-    get {
-      textView.attributedText
-    }
+    textView.attributedText
   }
 
   /// Returns the Lexical ``Editor`` owned by this LexicalView.
   ///
   /// This is the primary entry point for working with Lexical.
   @objc public var editor: Editor {
-    get {
-      textView.editor
-    }
+    textView.editor
   }
 
   public var text: String {
-    get {
-      textView.text
-    }
+    textView.text
   }
 
   /// A proxy for the underlying `UITextView`'s `isScrollEnabled` property.
@@ -320,32 +312,24 @@ public extension LexicalViewDelegate {
   ///
   /// Marked Text corresponds to Lexical's `composition`.
   public var markedTextRange: UITextRange? {
-    get {
-      textView.markedTextRange
-    }
+    textView.markedTextRange
   }
 
   /// Returns the current text input mode from the underlying UITextView.
   ///
   /// This can be used to access the input language.
   public var textViewInputMode: UITextInputMode? {
-    get {
-      textView.textInputMode
-    }
+    textView.textInputMode
   }
 
   /// A convenience method for working out if there is any text in the text view.
   public var isTextViewEmpty: Bool {
-    get {
-      textView.text.lengthAsNSString() == 0
-    }
+    textView.text.lengthAsNSString() == 0
   }
 
   /// A proxy for the underlying UITextView's `isFirstResponder` method
   public var textViewIsFirstResponder: Bool {
-    get {
-      textView.isFirstResponder
-    }
+    textView.isFirstResponder
   }
 
   /// A proxy for the underlying UITextView's CALayer's `borderWidth` property

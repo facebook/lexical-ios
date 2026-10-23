@@ -9,25 +9,19 @@ import UIKit
 
 public class LayoutManager: NSLayoutManager, @unchecked Sendable {
   internal weak var editor: Editor? {
-    get {
-      if let textStorage = textStorage as? TextStorage {
-        return textStorage.editor
-      }
-      return nil
+    if let textStorage = textStorage as? TextStorage {
+      return textStorage.editor
     }
+    return nil
   }
 
   internal var readOnlySizeCache: LexicalReadOnlySizeCache? // set to nil if not operating in read only mode
 
   private var customDrawingBackground: [NSAttributedString.Key: Editor.CustomDrawingHandlerInfo] {
-    get {
-      return editor?.customDrawingBackground ?? [:]
-    }
+    return editor?.customDrawingBackground ?? [:]
   }
   private var customDrawingText: [NSAttributedString.Key: Editor.CustomDrawingHandlerInfo] {
-    get {
-      return editor?.customDrawingText ?? [:]
-    }
+    return editor?.customDrawingText ?? [:]
   }
 
   override public func drawBackground(forGlyphRange drawingGlyphRange: NSRange, at origin: CGPoint) {

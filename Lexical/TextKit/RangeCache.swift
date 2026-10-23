@@ -21,9 +21,7 @@ struct RangeCacheItem {
   var postambleLength: Int = 0
 
   var range: NSRange {
-    get {
-      NSRange(location: location, length: preambleLength + childrenLength + textLength + postambleLength)
-    }
+    NSRange(location: location, length: preambleLength + childrenLength + textLength + postambleLength)
   }
 }
 

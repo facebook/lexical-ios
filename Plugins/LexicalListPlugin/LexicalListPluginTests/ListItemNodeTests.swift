@@ -13,9 +13,7 @@ final class ListItemNodeTests: XCTestCase {
   var view: LexicalView?
 
   var editor: Editor? {
-    get {
-      return view?.editor
-    }
+    return view?.editor
   }
 
   override func setUp() {

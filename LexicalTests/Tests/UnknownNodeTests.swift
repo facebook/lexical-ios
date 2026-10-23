@@ -13,9 +13,7 @@ final class UnknownNodeTests: XCTestCase {
 
   var textView: TextView?
   var editor: Editor? {
-    get {
-      return textView?.editor
-    }
+    return textView?.editor
   }
 
   override func setUp() {
