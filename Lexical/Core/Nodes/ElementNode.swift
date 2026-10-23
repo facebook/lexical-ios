@@ -7,6 +7,15 @@
 
 import Foundation
 
+/// A node that can contain other nodes as children.
+///
+/// Paragraphs, lists, quotes, headings, and the document ``RootNode`` are all
+/// element nodes. Subclass ``ElementNode`` when a node should own an ordered
+/// child list (as opposed to ``TextNode``, which holds a text payload, or
+/// ``DecoratorNode``, which hosts a native view).
+///
+/// Child keys are stored on the element; use ``getChildren()`` and the
+/// insert/append helpers to mutate the tree inside an ``Editor/update(_:)``.
 open class ElementNode: Node {
   enum CodingKeys: String, CodingKey {
     case children
@@ -20,18 +29,22 @@ open class ElementNode: Node {
   var direction: Direction?
   var indent: Int = 0
 
+  /// The writing direction of this element, if one is set.
   func getDirection() -> Direction? {
     return direction
   }
 
+  /// Creates an element with a newly generated key.
   override public init() {
     super.init()
   }
 
+  /// Creates an element with an explicit key, or generates one when `key` is `nil`.
   override public init(_ key: NodeKey?) {
     super.init(key)
   }
 
+  /// Restores an element and its children from a serialized editor state.
   public required init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     self.children = []
@@ -74,6 +87,7 @@ open class ElementNode: Node {
     }
   }
 
+  /// Encodes this element, including children, direction, and indent.
   override open func encode(to encoder: Encoder) throws {
     try super.encode(to: encoder)
     var container = encoder.container(keyedBy: CodingKeys.self)
@@ -83,6 +97,7 @@ open class ElementNode: Node {
     try container.encode("", forKey: .format)
   }
 
+  /// Sets the writing direction of this element and returns the writable node.
   @discardableResult
   func setDirection(direction: Direction?) throws -> ElementNode {
     try errorOnReadOnly()
@@ -91,15 +106,18 @@ open class ElementNode: Node {
     return node
   }
 
+  /// Whether this element participates in indent / outdent commands.
   open func canIndent() -> Bool {
     return true
   }
 
+  /// The current indent level of this element.
   open func getIndent() -> Int {
     let node = getLatest() as ElementNode
     return node.indent
   }
 
+  /// Sets the indent level and returns the writable node.
   @discardableResult
   open func setIndent(_ indent: Int) throws -> ElementNode {
     try errorOnReadOnly()
@@ -108,6 +126,7 @@ open class ElementNode: Node {
     return node
   }
 
+  /// Appends nodes as the last children of this element, reparenting them if needed.
   open func append(_ nodesToAppend: [Node]) throws {
     try errorOnReadOnly()
     let writeableSelf: ElementNode = try getWritable()
@@ -141,6 +160,7 @@ open class ElementNode: Node {
     writeableSelf.children = writeableSelfChildren
   }
 
+  /// The first direct child, typed as `T` when the stored node matches.
   public func getFirstChild<T: Node>() -> T? {
     let children = getLatest().children
 
@@ -153,6 +173,7 @@ open class ElementNode: Node {
     return getNodeByKey(key: firstChild)
   }
 
+  /// The last direct child, or `nil` if this element is empty.
   public func getLastChild() -> Node? {
     let children = getLatest().children
 
@@ -163,11 +184,13 @@ open class ElementNode: Node {
     return getNodeByKey(key: children[children.count - 1])
   }
 
+  /// The number of direct children.
   public func getChildrenSize() -> Int {
     let latest = getLatest() as ElementNode
     return latest.children.count
   }
 
+  /// The direct child at `index`, or `nil` if the index is out of range.
   public func getChildAtIndex(index: Int) -> Node? {
     let children = self.children
     if index >= 0 && index < children.count {
@@ -178,6 +201,9 @@ open class ElementNode: Node {
     }
   }
 
+  /// A descendant resolved from `index` in the flattened child walk.
+  ///
+  /// Out-of-range indexes fall back to the last descendant of the last child.
   public func getDescendantByIndex(index: Int) -> Node? {
     let children = getChildren()
 
@@ -198,6 +224,7 @@ open class ElementNode: Node {
     return children[index]
   }
 
+  /// The deepest first child in this subtree (the start of the element's content).
   public func getFirstDescendant() -> Node? {
     var node: Node? = getFirstChild()
     while let unwrappedNode = node {
@@ -211,6 +238,7 @@ open class ElementNode: Node {
     return node
   }
 
+  /// The deepest last child in this subtree (the end of the element's content).
   public func getLastDescendant() -> Node? {
     var node = getLastChild()
     while let unwrappedNode = node {
@@ -224,55 +252,70 @@ open class ElementNode: Node {
     return node
   }
 
+  /// Whether a tab character can be inserted into this element.
   func canInsertTab() -> Bool {
     return false
   }
 
   @discardableResult
+  /// Called when a backspace would collapse this element at its start.
+  ///
+  /// Return `true` if the subclass handled the event.
   open func collapseAtStart(selection: RangeSelection) throws -> Bool {
     return false
   }
 
+  /// Whether this node should be omitted when copying to `destination`.
   public func excludeFromCopy(destination: Destination? = nil) -> Bool {
     return false
   }
 
+  /// Whether the contents of this element can be extracted (for example, cut).
   func canExtractContents() -> Bool {
     return true
   }
 
+  /// Whether this element can be replaced by `replacement`.
   func canReplaceWith(replacement: Node) -> Bool {
     return true
   }
 
+  /// Whether `node` may be inserted immediately after this element.
   func canInsertAfter(node: Node) -> Bool {
     return true
   }
 
+  /// Whether this element is allowed to exist with no children.
   open func canBeEmpty() -> Bool {
     return true
   }
 
+  /// Whether text may be inserted before the first child.
   open func canInsertTextBefore() -> Bool {
     return true
   }
 
+  /// Whether text may be inserted after the last child.
   open func canInsertTextAfter() -> Bool {
     return true
   }
 
+  /// Whether this element is inline (for example, a link) rather than a block.
   open func isInline() -> Bool {
     return false
   }
 
+  /// Whether a selection delete is allowed to remove this element.
   func canSelectionRemove() -> Bool {
     return true
   }
 
+  /// Whether this element can merge its children into `node` (or vice versa).
   public func canMergeWith(node: ElementNode) -> Bool {
     return false
   }
 
+  /// Whether extracting `child` should also extract this parent element.
   public func extractWithChild(
     child: Node,
     selection: BaseSelection?,
@@ -281,12 +324,14 @@ open class ElementNode: Node {
     return false
   }
 
+  /// Direct child nodes, in order. Missing keys are skipped.
   public func getChildren() -> [Node] {
     return getLatest().children.compactMap { nodeKey in
       getNodeByKey(key: nodeKey)
     }
   }
 
+  /// Keys of the direct children, in order.
   public func getChildrenKeys() -> [NodeKey] {
     let latest: ElementNode = getLatest()
     return latest.children
@@ -336,6 +381,7 @@ open class ElementNode: Node {
     }
   }
 
+  /// All ``TextNode`` descendants, optionally including inert nodes.
   public func getAllTextNodes(includeInert: Bool = false) -> [TextNode] {
     var textNodes = [TextNode]()
     let node = getLatest() as ElementNode
@@ -378,6 +424,9 @@ open class ElementNode: Node {
 
   // MARK: - Mutators
   @discardableResult
+  /// Places a range selection on this element.
+  ///
+  /// Offsets are child indexes. `nil` means “after the last child”.
   public func select(anchorOffset: Int?, focusOffset: Int?) throws -> RangeSelection {
     try errorOnReadOnly()
 
@@ -411,16 +460,21 @@ open class ElementNode: Node {
     return selection
   }
 
+  /// `true` when this element has no children.
   public func isEmpty() -> Bool {
     return getChildrenSize() == 0
   }
 
   // These are intended to be extends for specific element heuristics.
+  /// Inserts a new node of an appropriate type after this element.
+  ///
+  /// Subclasses must implement this (for example, a paragraph inserting another paragraph).
   open func insertNewAfter(selection: RangeSelection?) throws -> Node? {
     throw LexicalError.internal("Subclasses need to implement this method")
   }
 
   @discardableResult
+  /// Moves the selection to the start of this element's content.
   public func selectStart() throws -> RangeSelection {
     let firstNode = getFirstDescendant()
     if let node = firstNode as? ElementNode {
@@ -437,6 +491,7 @@ open class ElementNode: Node {
   }
 
   @discardableResult
+  /// Moves the selection to the end of this element's content.
   public func selectEnd() throws -> RangeSelection {
     if let lastNode = getLastDescendant() {
       if let elementNode = lastNode as? ElementNode {
@@ -455,6 +510,7 @@ open class ElementNode: Node {
   }
 
   @discardableResult
+  /// Removes every child and returns the writable element.
   func clear() throws -> ElementNode {
     try errorOnReadOnly()
 
@@ -467,6 +523,7 @@ open class ElementNode: Node {
   }
 
   // Shadow root functionality not yet implemented in Lexical iOS.
+  /// Whether this element is a shadow root. Always `false` on iOS today.
   public func isShadowRoot() -> Bool {
     return false
   }
