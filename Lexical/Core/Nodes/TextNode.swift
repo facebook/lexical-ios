@@ -628,7 +628,7 @@ open class TextNode: Node {
   public func toggleDirectionless() throws -> TextNode {
     try errorOnReadOnly()
     let node = try getWritable() as TextNode
-    node.detail.isDirectionless = !node.detail.isDirectionless
+    node.detail.isDirectionless.toggle()
     return getLatest()
   }
 
